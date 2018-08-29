@@ -7,7 +7,7 @@ class Event implements Serializable{
     def id
     String name
     String type
-    def objId
+    def ciReference
     LocalDateTime createdDate = LocalDateTime.now()
     Map eventCharacteristics = new ConcurrentHashMap()
 }

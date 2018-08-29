@@ -28,5 +28,7 @@ dependencies {
     compile "org.grails.plugins:async:3.3.1"
     compile "org.grails.plugins:events:3.3.1"
     compile "org.grails:grails-events-gpars:3.3.1"
+    compile group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '3.1.5'
+
 
 }

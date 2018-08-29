@@ -7,7 +7,8 @@ import grails.events.EventPublisher
 
 class Alarm implements EventPublisher, Serializable{
 
-    final Event event
+    //we want Alarm to be a flavour of event so use delegation
+    @Delegate final Event event
     Alarm (event) {
         this.event = event
     }

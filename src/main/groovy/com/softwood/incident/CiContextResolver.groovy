@@ -10,7 +10,16 @@ class CiContextResolver {
     CiContextResolver() {
         registry.put ("192.168.1.24", "myCpe")
     }
-    def resolve (objId) {
+    def resolve (objRef, resolver=null) {
+        if (!resolver) {
+            new Optional<ConfigurationItem>()
+        } else {
+            resolver(objRef)
+        }
+
+    }
+
+    def deterministicResolve (objId) {
         registry.get(objId)
 
     }
