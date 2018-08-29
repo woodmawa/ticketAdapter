@@ -1,8 +1,7 @@
-package com.softwood.incident
+package com.softwood.cmdb
 
 import com.softwood.utils.UuidUtil
 
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
@@ -11,18 +10,25 @@ class ConfigurationItem {
     String name
     String alias
     String status
+    Optional<ServiceLevelAgreement> sla = new Optional()
+
+    Optional<Site> site = new Optional()
+    Optional<Contract> contract = new Optional()
+
     ConcurrentHashMap<String, ciSpecificationCharacteristic> attributes = new ConcurrentHashMap()
     LocalDateTime createdDate =  LocalDateTime.now()
 
-    void setProperty (name, value) {
+    void addCharacteristic (name, value) {
         def attVal = new ciSpecificationCharacteristic(propertyName:name, value:value)
         attributes.put (name, attVal)
     }
 
-    def getProperty (name) {
+    def getCharacteristic (name) {
         def attVal = attributes.get(name)
-        attVal?.propertyName
+        !attVal?.isMultivalued() ? attVal?.value : attVal?.arrayValues
     }
+
+
 }
 
 class ciSpecificationCharacteristic {

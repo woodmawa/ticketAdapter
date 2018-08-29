@@ -1,7 +1,6 @@
-package com.softwood.incident
+package com.softwood.cmdb
 
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class CiContextResolver {
 
