@@ -11,12 +11,10 @@ class IncidentTicket implements PublicTicketTrait {
     ConcurrentLinkedQueue<WorkNote> workNotes = new ConcurrentLinkedQueue()
     ConcurrentLinkedQueue<MaintainerTicket> maintainerTickets = new ConcurrentLinkedQueue()
 
-    @Override
     void setResoledDateTime (LocalDateTime time) {
         resolvedDateTime = time
     }
 
-    @Override
     void setClosedDateTime (LocalDateTime time) {
         closedDateTime = time
     }
