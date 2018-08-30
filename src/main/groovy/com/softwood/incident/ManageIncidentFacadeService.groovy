@@ -12,11 +12,11 @@ class ManageIncidentFacadeService implements EventBusAware {
     //could have just used @subscribe tx - but wanted to see the workings
     //@PostConstruct - needs a framework - call manually for now
     void init () {
-        /*println "subscribe on 'cpeAlarm'"
+        println "subscribe on 'cpeAlarm'"
         Closure handler = this.&onCpeAlarm
-        eventBus.subscribe("cpeAlarm", handler)
-        //HackEventBus.subscribe ("cpeAlarm", handler) //temp hack
-        */
+        //eventBus.subscribe("cpeAlarm", handler)
+        HackEventBus.subscribe ("cpeAlarm", handler) //temp hack
+
     }
 
     @Subscriber ('cpeAlarm')

@@ -20,7 +20,7 @@ class Alarm implements EventPublisher, Serializable{
     def generateAlarm () {
         println "alarm: publish alarm on 'cpeAlarm'"
         //publish ("cpeAlarm", this)  //manually publish event on 'cpeAlarm' topic
-        //HackEventBus.publish ("cpeAlarm", this) //hack
+        HackEventBus.publish ("cpeAlarm", this) //hack
         this
     }
 
