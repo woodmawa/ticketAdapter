@@ -39,15 +39,6 @@ class ManageIncidentFacadeService /*implements EventBusAware */{
             println "MIFS, on event closure: received alarm $bod on topic 'cpeAlarm'"
         }*/
     }
-    //could have just used @subscribe tx - but wanted to see the workings
-    //@PostConstruct - needs a framework - call manually for now
-    void init () {
-        /*println "subscribe on 'cpeAlarm'"
-        Closure handler = this.&onCpeAlarm
-        //eventBus.subscribe("cpeAlarm", handler)
-        HackEventBus.subscribe ("cpeAlarm", handler) //temp hack*/
-
-    }
 
 
     //get message from eventBus
