@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 class Event implements Serializable{
-    def id
+    int id
     String name
     String type
     def ciReference
