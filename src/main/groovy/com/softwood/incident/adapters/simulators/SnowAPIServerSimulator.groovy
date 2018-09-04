@@ -142,29 +142,77 @@ HttpServer server = vertx.createHttpServer()  //start server after defining the 
 Router allRouter = Router.router(vertx)
 
 Router getRouter = Router.router(vertx)
-getRouter.route (HttpMethod.GET, "/api/now/table/incident")
-//        .failureHandler{failureRoutingContext  -> println "failed to process request : " + failureRoutingContext.statusCode() + " with data : " +failureRoutingContext.data()}
+getRouter.route (HttpMethod.GET, "/api/now/table/incident/*")
+//getRouter.routeWithRegex(HttpMethod.GET, "\\/api\\/.*incident\\/(?<sysId>[^\\/]+)" )
+//        .failureHandler{failureRoutingContext  ->
+//          String validationError = failureRoutingContext.getMessage()
+//          println "failed to process request : " + failureRoutingContext.statusCode() + " with error : " +validationError}
+//          failureRoutingContext,response().setStatusCode (400).end()
         .blockingHandler { routingContext ->
 
     def request = routingContext.request()
+    def sysId //= routingContext.request().getParam ("params0")- to hard - used brute force string manip
 
     def uri = routingContext.request().absoluteURI()
 
-    println "processing http GET request on uri : $uri "
+    String[] segments = uri.split("/")
+    sysId = (segments[-1] != "incident") ? segments[-1]: null //get last segment
 
-    JsonObject ticket = snowImdb.getLatestTicket()
+    println "processing http GET request found sys_id as $sysId on uri : $uri "
+    //println "processing http GET request on uri : $uri "
+
+    JsonObject ticket
+    if (sysId == null) {
+        ticket = snowImdb.getLatestTicket()
+    }else {
+        println "get ticket from IMDB using sysid $sysId"
+        ticket = snowImdb.getTicket(sysId)
+    }
+
     assert ticket
 
     def response = routingContext.response()
     response.putHeader ("content-type", "application/json")
-    response.putHeader("content-length", "${ticket.encodePrettily().getBytes().size()}")
+    def length = ticket?.encodePrettily().getBytes().size() ?: 0
+    response.putHeader("content-length", "$length")
+    def resultBody = ticket?.encodePrettily() ?: ""
 
-    println "returning : ${ticket.encodePrettily()} to client"
-    response.end (ticket.encodePrettily())
+    println "returning  result with length $length to client"
+    response.end (resultBody)
 }
 
-//create body handler first
-//allRouter.route().handler(BodyHandler.create())
+Router postRouter = Router.router(vertx)
+postRouter.post("/api/now/table/incident/*")
+//        .failureHandler{failureRoutingContext  ->
+//          String validationError = failureRoutingContext.getMessage()
+//          println "failed to process request : " + failureRoutingContext.statusCode() + " with error : " +validationError}
+//          failureRoutingContext,response().setStatusCode (400).end()
+        .blockingHandler { routingContext ->
+    def request = routingContext.request()
+
+    println "processing http POST request "
+
+    def sysId
+
+    def uri = routingContext.request().absoluteURI()
+
+    String[] segments = uri.split("/")
+    sysId = (segments[-1] != "incident") ? segments[-1]: null //get last segment
+
+    println "processing http GET request found sys_id as $sysId on uri : $uri "
+    //println "processing http GET request on uri : $uri "
+
+    String reply = "howdi will"
+    def response = routingContext.response()
+    response.putHeader ("content-type", "text/plain")
+    //response.putHeader ("content-length", "${reply.getBytes(Charset.forName("UTF-16")).size()}" )
+    //response.setChunked(true)
+    //response.write (createIncidentResponse.encodePrettily())
+    response.end (reply)
+
+    //response.write (reply)
+    //routingContext.response().end ()  //end handler chaining
+}
 
 //now try and setup the route for API path interception
 allRouter.route ( "/api/now/table/incident")
