@@ -1,5 +1,7 @@
 package com.softwood.incident.adapters.simulators
 
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
@@ -32,7 +34,7 @@ public class SnowSimulatorIMDB {
       "link": "https://instance.service-now.com/api/now/table/sys_user_group/global",
       "value": "global"
     },
-    "description": "",
+    "description": "tried my printer many times and cant get any response, lights etc ",
     "group_list": "",
     "priority": "3",
     "delivery_plan": "",
@@ -120,12 +122,16 @@ public class SnowSimulatorIMDB {
     }
 
     JsonObject getTicket (sysIdkey) {
+        println "getTicket: get row id [$sysIdkey] of [${count()}] "
         snowImdb.get (sysIdkey)
     }
 
     JsonObject getLatestTicket () {
 
         def ticketArray = snowImdb.collect{it.value}.asList()
+        def latestTicket = ticketArray[-1]
+        println "getLatestTicket: get Latest ticket IMDB row id [${count()}] "
+
         ticketArray[-1]
     }
 
@@ -138,40 +144,47 @@ public class SnowSimulatorIMDB {
         }
     }
 
-    void createTicket (JsonObject bodyContent) {
+    JsonObject createTicket (JsonObject bodyContent) {
         Map params = bodyContent.mapTo (HashMap)
+        println "createIicket post body as map $params"
 
-        JsonObject newRecord = defaultTicket.copy()  //get copy and then set new values
+        JsonObject baseCopy = defaultTicket.copy()  //get copy and then set new values
+        //get into slurper
+        def slurped = new JsonSlurper().parseText(baseCopy.encode())
+        def builder = new JsonBuilder(slurped)
 
-        def title = newRecord.getValue("short_description")
-        title = params.short_descrption
-        newRecord.put("short_description", title )
+        //public records updates
+        builder.content.result.short_description = params.short_description ?: ""
+        builder.content.result.description = params.description ?: ""
+        builder.content.result.category =  params.category ?: ""
+        builder.content.result.comments =  params.comments ?: ""
+        builder.content.result.impact =  params.impact ?: ""
+        builder.content.result.priority =  params.priority ?: ""
+        builder.content.result.urgency =  params.urgency ?: ""
+        builder.content.result.severity =  params.severity ?: ""
+        builder.content.result.location =  params.location ?: ""
+        builder.content.result.company =  params.company ?: ""
+        builder.content.result.caller_id =  params.caller_id ?: ""
+        builder.content.result.cmdb_ci =  params.cmdb_ci ?: ""
+        builder.content.result.comments =  params.comments ?: ""
 
-        def category = newRecord.getValue("category")
-        category = params.category
-        newRecord.put("category", category )
-
-        def comments  = newRecord.getValue("comments")
-        comments = params.comments
-        newRecord.put("comments", comments )
-
-        def impact  = newRecord.getValue("impact")
-        impact = params.impact
-        newRecord.put("impact", impact )
-
-        def urgency  = newRecord.getValue("urgency")
-        urgency = params.urgency
-        newRecord.put("urgency", urgency )
-
+        //internal simulated 'system' records updated
+        //set up incrementing number for each record
         def number = "INC001000${++numberEnding}"
-        newRecord.put ("number", number)
+        builder.content.result.number = number
 
-        newRecord.put("sys_updated_on", LocalDateTime.now().toString() )
-        newRecord.put("sys_created_on", LocalDateTime.now().toString() )
-        newRecord.put("opened_at", LocalDateTime.now().toString() )
-        newRecord.put("sys_id", ++startRecordFrom.toHexString() )
+        builder.content.result.sys_updated_on =  LocalDateTime.now().toString()
+        builder.content.result.sys_created_on = LocalDateTime.now().toString()
+        builder.content.result.opened_at =  LocalDateTime.now().toString()
+        def sys_id = Long.toHexString(++startRecordFrom)
+        builder.content.result.sys_id =  sys_id
 
-        snowImdb << newRecord
+        JsonObject newRecord = new JsonObject(builder.toPrettyString())
+        snowImdb.put (sys_id,  newRecord)
+
+        println "adding new record to IMDB row id [$sys_id] of [${count()}] " // as ${builder.toPrettyString()}"
+
+        newRecord
 
     }
 
@@ -188,5 +201,10 @@ public class SnowSimulatorIMDB {
         }
 
 
+    }
+
+    // current number of records in IMDB
+    long count () {
+        snowImdb.size()
     }
 }
