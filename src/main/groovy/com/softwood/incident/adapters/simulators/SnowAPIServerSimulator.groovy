@@ -19,7 +19,8 @@ Map requestBody = new HashMap ([customer:"ACME shops", short_description:"my pho
 JsonObject createIncident = new JsonObject(requestBody)
 String json = createIncident.encodePrettily()
 
-def reqBodyLen = json.getBytes(Charset.forName("UTF-16")).size()
+//def reqBodyLen = json.getBytes(Charset.forName("UTF-16")).size()
+def reqBodyLen = json.getBytes().size()
 
 println "content lengh $reqBodyLen with body as json $json"
 
@@ -126,14 +127,90 @@ createIncidentResponse
 
 def jsonResult = createIncidentResponse.encodePrettily()
 
-def respBodyLen = jsonResult.getBytes(Charset.forName("UTF-16")).size()
+def respBodyLen = jsonResult.getBytes().size()
 
 println "response content lengh $respBodyLen with body as json $json"
 println jsonResult
 
+SnowSimulatorIMDB snowImdb = new SnowSimulatorIMDB()
+
+
 Vertx vertx = Vertx.vertx()
 HttpServer server = vertx.createHttpServer()  //start server after defining the routes?
 
+
+Router allRouter = Router.router(vertx)
+
+Router getRouter = Router.router(vertx)
+getRouter.route (HttpMethod.GET, "/api/now/table/incident")
+//        .failureHandler{failureRoutingContext  -> println "failed to process request : " + failureRoutingContext.statusCode() + " with data : " +failureRoutingContext.data()}
+        .blockingHandler { routingContext ->
+
+    def request = routingContext.request()
+
+    def uri = routingContext.request().absoluteURI()
+
+    println "processing http GET request on uri : $uri "
+
+    JsonObject ticket = snowImdb.getLatestTicket()
+    assert ticket
+
+    def response = routingContext.response()
+    response.putHeader ("content-type", "application/json")
+    response.putHeader("content-length", "${ticket.encodePrettily().getBytes().size()}")
+
+    println "returning : ${ticket.encodePrettily()} to client"
+    response.end (ticket.encodePrettily())
+}
+
+//create body handler first
+//allRouter.route().handler(BodyHandler.create())
+
+//now try and setup the route for API path interception
+allRouter.route ( "/api/now/table/incident")
+        .handler(BodyHandler.create())
+        .failureHandler{failureRoutingContext  -> println "failed to process request : " + failureRoutingContext.statusCode() + " with resp body : " + failureRoutingContext.getBodyAsJson().encodePrettily()}
+        .blockingHandler { routingContext ->
+
+    def request  = routingContext.request()
+    HttpMethod method = request.method()
+
+    def response = routingContext.response()
+    response.putHeader ("content-type", "text/plain")
+
+    def uri = routingContext.request().absoluteURI()
+    switch (method) {
+        case HttpMethod.GET:
+            println "processing a resource GET on uri : $uri "
+
+            JsonObject ticket = snowImdb.getLatestTicket()
+            response.end (ticket.encodePrettily())
+            break
+
+        case HttpMethod.POST:
+
+            //request.bodyHandler(BodyHandler.create())
+            String bodyEnc = routingContext.getBodyAsJson().encodePrettily()
+
+            println "processing a resource POST on uri : $uri"
+
+            println "post request received post data : " + bodyEnc
+
+            response.end ("(POST) howdi will")
+            break
+    }
+
+}
+
+server.requestHandler(getRouter.&accept)
+
+//server.requestHandler(allRouter.&accept)
+server.listen(8081, "localhost")
+
+println "started SNOW httpServer listening on port localhost:8081"
+
+//older stuff to check back on
+/**
 Router postRouter = Router.router(vertx)
 postRouter.post("/api/now/table/incident/new").blockingHandler { routingContext ->
 //postRouter.route (HttpMethod.POST, "/api/now/table/incident/new").blockingHandler { routingContext ->
@@ -174,43 +251,7 @@ getRouter.route (HttpMethod.GET, "/api/now/table/incident").blockingHandler { ro
     println "Get Error handler (GET): write failed : " + failureRoutingContext.statusCode() + " with resp body : " + failureRoutingContext.bodyAsString()
 }
 
-Router allRouter = Router.router(vertx)
+ //server.requestHandler(postRouter.&accept)
+ //server.requestHandler(getRouter.&accept)
 
-allRouter.route ( "/api/now/table/incident")
-        .handler(BodyHandler.create())
-        .blockingHandler { routingContext ->
-
-    def request  = routingContext.request()
-    HttpMethod method = request.method()
-
-    def response = routingContext.response()
-    response.putHeader ("content-type", "text/plain")
-
-    def uri = routingContext.request().absoluteURI()
-    switch (method) {
-        case HttpMethod.GET:
-            println "processing a resource GET on uri : $uri "
-            response.end ("(GET) howdi will")
-            break
-
-        case HttpMethod.POST:
-
-            String bodyEnc = routingContext.getBodyAsJson().encodePrettily()
-
-            println "processing a resource POST on uri : $uri"
-
-            println "post request received post data : " + bodyEnc
-
-            response.end ("(POST) howdi will")
-            break
-    }
-
-}
-
-
-//server.requestHandler(postRouter.&accept)
-//server.requestHandler(getRouter.&accept)
-server.requestHandler(allRouter.&accept)
-server.listen(8081, "localhost")
-
-println "started SNOW httpServer listening on port localhost:8081"
+ */
