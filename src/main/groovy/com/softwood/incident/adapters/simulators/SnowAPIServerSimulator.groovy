@@ -139,7 +139,95 @@ Vertx vertx = Vertx.vertx()
 HttpServer server = vertx.createHttpServer()  //start server after defining the routes?
 
 
-Router allRouter = Router.router(vertx)
+Router allApiRouter = Router.router(vertx)
+
+/**
+ * cant get two routers with different methods to listen on same URI
+ * so do it as one route - but switch on method in the handler
+ * get all paths and subpaths below /api/now/table/incident
+ * setup a body handler to process the post bodies
+ */
+allApiRouter.route ( "/api/now/table/incident/*")
+        .handler(BodyHandler.create())
+//getRouter.routeWithRegex(HttpMethod.GET, "\\/api\\/.*incident\\/(?<sysId>[^\\/]+)" )
+//        .failureHandler{failureRoutingContext  ->
+//          String validationError = failureRoutingContext.getMessage()
+//          println "failed to process request : " + failureRoutingContext.statusCode() + " with error : " +validationError}
+//          failureRoutingContext,response().setStatusCode (400).end()
+        .blockingHandler { routingContext ->
+
+    def request  = routingContext.request()
+    HttpMethod method = request.method()
+
+    def uri = routingContext.request().absoluteURI()
+
+    //split uri into path segments and look at last segment matched
+    String[] segments = uri.split("/")
+    def trailingParam = (segments[-1] != "incident") ? segments[-1]: null //get last segment
+
+    println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
+
+
+    def response = routingContext.response()
+
+    switch (method) {
+        case HttpMethod.GET:
+            JsonObject jsonTicket = generateGetResponse (trailingParam)
+            def resultBody = jsonTicket?.encodePrettily() ?: ""
+
+            response.putHeader ("content-type", "application/json")
+            def length = resultBody.getBytes().size() ?: 0
+            response.putHeader("content-length", "$length")
+
+            println "returning  get result with length $length to client"
+            response.end (resultBody)
+
+            break
+
+        case HttpMethod.POST:
+            //get post body as Json text
+            String bodyEnc = routingContext.getBodyAsJson().encodePrettily()
+
+
+            JsonObject jsonTicket = generatePostResponse (trailingParam, bodyEnc)
+            def resultBody = jsonTicket?.encodePrettily() ?: ""
+
+            response.putHeader ("content-type", "application/json")
+            def length = resultBody.getBytes().size() ?: 0
+            response.putHeader("content-length", "$length")
+
+            println "returning  Post result with length $length to client"
+            break
+    }
+
+}
+
+def  generateGetResponse (String param) {
+    if (param == null) {
+        ticket = snowImdb.getLatestTicket()
+    }else if (param == 'list') {
+        JsonArray ticketList = snowImdb.listTickets()
+        assert ticketList.size() == snowImdb.count()
+    } else {
+        println "get ticket from IMDB using sysid : $param"
+        ticket = snowImdb.getTicket(param)
+    }
+
+}
+
+def generatePostResponse (String param, String postRequestBody) {
+
+    long count = snowImdb.count()
+    println "processing http POST request, current IMDB record counts is $count "
+
+
+    JsonObject responseBody = snowImdb.createTicket(postRequestBody)
+    count = snowImdb.count()
+    println "returning  post createTicket result, new record count in IMDB $count"
+
+
+}
+//server.requestHandler(allRouter.&accept)
 
 Router getRouter = Router.router(vertx)
 getRouter.route (HttpMethod.GET, "/api/now/table/incident/*")
