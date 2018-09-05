@@ -12,6 +12,7 @@ sourceCompatibility = 1.8
 repositories {
     jcenter()
     mavenCentral()
+    maven {url  "https://mvnrepository.com/artifact/org.grails/grails-bom"}
 }
 
 dependencies {
@@ -26,11 +27,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.spockframework/spock-core
     testCompile group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'
 
-    compile "org.grails.plugins:async:3.3.2"
-    compile "org.grails.plugins:events:3.3.2"
-    //defines annotations for event bus
-    compile group: 'org.grails', name: 'grails-events-compat', version: '3.3.2'
-    compile "org.grails:grails-events-gpars:3.3.2"
+    //curated grails bom
+    compile group: 'org.grails', name: 'grails-bom', version: '3.3.2', ext: 'pom'
+
     compile group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '3.1.5'
     // DSL used to access SNOW/BMC web services - https://mvnrepository.com/artifact/io.github.http-builder-ng/http-builder-ng-core
     compile group: 'io.github.http-builder-ng', name: 'http-builder-ng-core', version: '1.0.3'
