@@ -172,7 +172,7 @@ allApiRouter.route ( "/api/now/table/incident/*")
     def response = routingContext.response()
 
     switch (method) {
-        case HttpMethod.GET:  //todo getList processing 
+        case HttpMethod.GET:  //todo getList processing
             JsonObject jsonTicket = generateGetResponse (snowImdb, trailingParam)
             def resultBody = jsonTicket?.encodePrettily() ?: ""
 
