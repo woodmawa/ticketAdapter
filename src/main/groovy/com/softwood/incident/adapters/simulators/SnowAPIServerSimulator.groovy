@@ -132,6 +132,7 @@ def respBodyLen = jsonResult.getBytes().size()
 println "response content lengh $respBodyLen with body as json $json"
 println jsonResult
 
+//should be singleton
 SnowSimulatorIMDB snowImdb = new SnowSimulatorIMDB()
 
 
@@ -171,8 +172,8 @@ allApiRouter.route ( "/api/now/table/incident/*")
     def response = routingContext.response()
 
     switch (method) {
-        case HttpMethod.GET:
-            JsonObject jsonTicket = generateGetResponse (trailingParam)
+        case HttpMethod.GET:  //todo getList processing 
+            JsonObject jsonTicket = generateGetResponse (snowImdb, trailingParam)
             def resultBody = jsonTicket?.encodePrettily() ?: ""
 
             response.putHeader ("content-type", "application/json")
@@ -186,10 +187,9 @@ allApiRouter.route ( "/api/now/table/incident/*")
 
         case HttpMethod.POST:
             //get post body as Json text
-            String bodyEnc = routingContext.getBodyAsJson().encodePrettily()
+            JsonObject postBody = routingContext.getBodyAsJson()
 
-
-            JsonObject jsonTicket = generatePostResponse (trailingParam, bodyEnc)
+            JsonObject jsonTicket = generatePostResponse (snowImdb, trailingParam, postBody)
             def resultBody = jsonTicket?.encodePrettily() ?: ""
 
             response.putHeader ("content-type", "application/json")
@@ -197,12 +197,14 @@ allApiRouter.route ( "/api/now/table/incident/*")
             response.putHeader("content-length", "$length")
 
             println "returning  Post result with length $length to client"
+            response.end (resultBody)
+
             break
     }
 
 }
 
-def  generateGetResponse (String param) {
+JsonObject  generateGetResponse (snowImdb, String param) {
     if (param == null) {
         ticket = snowImdb.getLatestTicket()
     }else if (param == 'list') {
@@ -215,7 +217,14 @@ def  generateGetResponse (String param) {
 
 }
 
-def generatePostResponse (String param, String postRequestBody) {
+JsonArray  generateGetListResponse (snowImdb, String param) {
+    if (param == 'list') {
+        JsonArray ticketList = snowImdb.listTickets()
+        assert ticketList.size() == snowImdb.count()
+    }
+}
+
+JsonObject generatePostResponse (snowImdb, String param, JsonObject postRequestBody) {
 
     long count = snowImdb.count()
     println "processing http POST request, current IMDB record counts is $count "
@@ -224,11 +233,21 @@ def generatePostResponse (String param, String postRequestBody) {
     JsonObject responseBody = snowImdb.createTicket(postRequestBody)
     count = snowImdb.count()
     println "returning  post createTicket result, new record count in IMDB $count"
-
+    responseBody
 
 }
-//server.requestHandler(allRouter.&accept)
 
+//
+server.requestHandler(allApiRouter.&accept)
+
+
+server.listen(8081, "localhost")
+
+println "started SNOW httpServer listening on port localhost:8081"
+
+//older stuff to check back on
+
+/*
 Router getRouter = Router.router(vertx)
 getRouter.route (HttpMethod.GET, "/api/now/table/incident/*")
 //getRouter.routeWithRegex(HttpMethod.GET, "\\/api\\/.*incident\\/(?<sysId>[^\\/]+)" )
@@ -259,8 +278,8 @@ getRouter.route (HttpMethod.GET, "/api/now/table/incident/*")
         JsonArray ticketList = snowImdb.listTickets()
         assert ticketList.size() == snowImdb.count()
     } else {
-            println "get ticket from IMDB using sysid $sysId"
-            ticket = snowImdb.getTicket(sysId)
+        println "get ticket from IMDB using sysid $sysId"
+        ticket = snowImdb.getTicket(sysId)
     }
 
 
@@ -322,91 +341,4 @@ postRouter.post("/api/now/table/incident/*")
 
 server.requestHandler(getRouter.&accept)
 server.requestHandler(postRouter.&accept)
-
-server.listen(8081, "localhost")
-
-println "started SNOW httpServer listening on port localhost:8081"
-
-//older stuff to check back on
-
-//now try and setup the route for API path interception
-/*allRouter.route ( "/api/now/table/incident")
-        .handler(BodyHandler.create())
-        .failureHandler{failureRoutingContext  -> println "failed to process request : " + failureRoutingContext.statusCode() + " with resp body : " + failureRoutingContext.getBodyAsJson().encodePrettily()}
-        .blockingHandler { routingContext ->
-
-    def request  = routingContext.request()
-    HttpMethod method = request.method()
-
-    def response = routingContext.response()
-    response.putHeader ("content-type", "text/plain")
-
-    def uri = routingContext.request().absoluteURI()
-    switch (method) {
-        case HttpMethod.GET:
-            println "processing a resource GET on uri : $uri "
-
-            JsonObject ticket = snowImdb.getLatestTicket()
-            response.end (ticket.encodePrettily())
-            break
-
-        case HttpMethod.POST:
-
-            //request.bodyHandler(BodyHandler.create())
-            String bodyEnc = routingContext.getBodyAsJson().encodePrettily()
-
-            println "processing a resource POST on uri : $uri"
-
-            println "post request received post data : " + bodyEnc
-
-            response.end ("(POST) howdi will")
-            break
-    }
-
-}*/
-//server.requestHandler(allRouter.&accept)
-/**
-Router postRouter = Router.router(vertx)
-postRouter.post("/api/now/table/incident/new").blockingHandler { routingContext ->
-//postRouter.route (HttpMethod.POST, "/api/now/table/incident/new").blockingHandler { routingContext ->
-    def request = routingContext.request()
-
-    println "processing http POST request "
-
-    String reply = "howdi will"
-    def response = routingContext.response()
-    response.putHeader ("content-type", "text/plain")
-    //response.putHeader ("content-length", "${reply.getBytes(Charset.forName("UTF-16")).size()}" )
-    //response.setChunked(true)
-    //response.write (createIncidentResponse.encodePrettily())
-    response.end (reply)
-
-    //response.write (reply)
-    //routingContext.response().end ()  //end handler chaining
-}.failureHandler{failureRoutingContext  ->
-    println "Post Error handler: write failed : " + failureRoutingContext.statusCode() + " with resp body : " + failureRoutingContext.bodyAsString()
-}
-
-Router getRouter = Router.router(vertx)
-getRouter.route (HttpMethod.GET, "/api/now/table/incident").blockingHandler { routingContext ->
-
-    def request = routingContext.request()
-
-    println "processing http GET request "
-
-    String reply = "(GET) howdi will"
-    def response = routingContext.response()
-    response.putHeader ("content-type", "text/plain")
-    //response.putHeader ("content-length", "${reply.getBytes(Charset.forName("UTF-16")).size()}" )
-    //response.setChunked(true)
-    //response.write (createIncidentResponse.encodePrettily())
-    response.end (reply)
-    //routingContext.response().end ()  //end handler chaining
-}.failureHandler{failureRoutingContext  ->
-    println "Get Error handler (GET): write failed : " + failureRoutingContext.statusCode() + " with resp body : " + failureRoutingContext.bodyAsString()
-}
-
- //server.requestHandler(postRouter.&accept)
- //server.requestHandler(getRouter.&accept)
-
- */
+*/

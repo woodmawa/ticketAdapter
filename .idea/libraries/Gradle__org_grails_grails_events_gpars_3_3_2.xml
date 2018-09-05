@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.grails:grails-events-gpars:3.3.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails/grails-events-gpars/3.3.2/35dd6c709a8b2e88edf049af20f281139da0944e/grails-events-gpars-3.3.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails/grails-events-gpars/3.3.2/50652dc13354416167df949155fe8a1a7d788a47/grails-events-gpars-3.3.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
