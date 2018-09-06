@@ -3,6 +3,12 @@ package com.softwood.bus
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
+/**
+ * deprecated -
+ * still works as a hack but using vertx event bus for now
+ *
+ *
+ */
 class HackEventBus {
 
     static Map subscribers = new ConcurrentHashMap()

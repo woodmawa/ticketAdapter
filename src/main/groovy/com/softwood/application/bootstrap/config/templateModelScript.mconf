@@ -1,0 +1,13 @@
+package com.softwood.bootstrap.config.offering
+
+
+// set this value to determine the order that config files will be run
+// any globally required value should be set to the binding
+// ensure that any dependant scripts run with higher order value than the script that
+// sets the required value in the binding.  Multiple non dependant scripts can run at same level
+def runConfigInOrder = 1
+
+Binding scriptBinding = getBinding()
+
+
+println "you can add your cmdb model config data here"

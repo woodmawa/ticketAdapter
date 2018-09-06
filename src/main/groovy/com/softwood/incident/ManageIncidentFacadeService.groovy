@@ -1,6 +1,6 @@
 package com.softwood.incident
 
-import com.softwood.Application.ConfigurableProjectApplication
+import com.softwood.application.ConfigurableProjectApplication
 import com.softwood.alarmEvent.Alarm
 import com.softwood.bus.HackEventBus
 

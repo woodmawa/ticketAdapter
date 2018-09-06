@@ -1,6 +1,6 @@
 package com.softwood.alarmEvent
 
-import com.softwood.Application.ConfigurableProjectApplication
+import com.softwood.application.ConfigurableProjectApplication
 import com.softwood.bus.HackEventBus
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec

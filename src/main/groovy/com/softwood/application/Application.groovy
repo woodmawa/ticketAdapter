@@ -1,8 +1,10 @@
-package com.softwood.Application
+package com.softwood.application
 
 import com.softwood.alarmEvent.Alarm
 import com.softwood.alarmEvent.Event
 import com.softwood.incident.ManageIncidentFacadeService
+import com.softwood.incident.adapters.AdapterFactory
+import com.softwood.incident.adapters.AdapterFactoryType
 import com.softwood.incident.adapters.MailAdapterPlugin
 import com.softwood.incident.adapters.simulators.SNOW.SnowApiServerSimulatorVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
@@ -19,10 +21,10 @@ class Application {
         //application.vertx.deployVerticle(SnowApiServerSimulatorVerticle as Verticle)
         //application.vertx.deployVerticle(SnowClientAdapterVerticle as Verticle)
 
-        SnowApiServerSimulatorVerticle server = new SnowApiServerSimulatorVerticle()
+        SnowApiServerSimulatorVerticle server = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.server)
         server.configureHttpServer()
 
-        SnowClientAdapterVerticle client = new SnowClientAdapterVerticle()
+        SnowClientAdapterVerticle client = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.client)
         client.configureHttpClient()
 
         HttpRequest request = client.apiGet("/api/now/table/incident")

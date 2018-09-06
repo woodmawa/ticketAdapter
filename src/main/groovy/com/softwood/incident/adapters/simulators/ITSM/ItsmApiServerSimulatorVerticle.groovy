@@ -1,5 +1,6 @@
-package com.softwood.incident.adapters.simulators.SNOW
+package com.softwood.incident.adapters.simulators.ITSM
 
+import com.softwood.incident.adapters.simulators.SNOW.SnowSimulatorIMDB
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
@@ -10,8 +11,9 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 
+//todo - this was clone - not fiexed for ITSM yet
 
-class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticle {
+class ItsmApiServerSimulatorVerticle extends AbstractVerticle implements Verticle {
 
     SnowSimulatorIMDB snowImdb = SnowSimulatorIMDB.getInstance()
     HttpServer server

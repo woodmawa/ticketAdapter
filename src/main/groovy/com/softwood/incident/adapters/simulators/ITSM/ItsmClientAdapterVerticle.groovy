@@ -1,20 +1,20 @@
-package com.softwood.incident.adapters.simulators.SNOW
+package com.softwood.incident.adapters.simulators.ITSM
 
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
-import io.vertx.core.http.HttpClient
 import io.vertx.core.http.HttpMethod
-import io.vertx.core.http.HttpServer
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 
-class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle {
+//todo - this was clone - not fiexed for ITSM yet
+
+class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
 
     WebClient client
     String error = ""

@@ -1,5 +1,6 @@
-package com.softwood.Application
+package com.softwood.application
 
+import com.softwood.application.bootstrap.BootStrap
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,7 @@ class ProjectApp implements ConfigurableProjectApplication {
 
         projectApp.withBinding (args) {
 
-            BootStrap bootStrap = new BootStrap()
+            BootStrap bootStrap = new BootStrap(binding:delegate)
 
             bootStrap.init()
 
