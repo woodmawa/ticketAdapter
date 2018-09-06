@@ -1,6 +1,7 @@
 package com.softwood.cmdb
 
 import com.softwood.utils.UuidUtil
+import groovy.transform.Canonical
 import groovy.transform.MapConstructor
 
 import java.time.LocalDateTime
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 //ensure role type is correctly set
 //@MapConstructor (post = {it.role = RoleType.CUSTOMER})
+
 class Customer extends OrgRoleInstance {
     UUID id = UuidUtil.timeBasedUuid
     String name
@@ -39,4 +41,9 @@ class Customer extends OrgRoleInstance {
         site.customer = null
         contracts.remove(site)
     }
+
+    String toString() {
+        "Customer ($name)"
+    }
+
 }

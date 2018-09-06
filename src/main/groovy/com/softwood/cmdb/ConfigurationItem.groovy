@@ -10,6 +10,10 @@ class ConfigurationItem {
     String name
     String alias
     String status
+    Customer customer
+    Optional<Site> owningSite
+    Optional<Site> remoteSite     //optional
+
     Optional<ServiceLevelAgreement> sla = new Optional()
 
     Optional<Site> site = new Optional()
@@ -28,6 +32,10 @@ class ConfigurationItem {
         !attVal?.isMultivalued() ? attVal?.value : attVal?.arrayValues
     }
 
+    def setCharacteristic (name, value) {
+        def attVal = attributes.get(name)
+        !attVal?.isMultivalued() ? attVal?.value = value : attVal?.arrayValues << value
+    }
 
 }
 

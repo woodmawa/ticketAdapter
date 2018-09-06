@@ -1,9 +1,11 @@
 package com.softwood.cmdb
 
 import com.softwood.utils.UuidUtil
+import groovy.transform.Canonical
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
+
 
 class Site {
     UUID id = UuidUtil.getTimeBasedUuid ()
@@ -21,5 +23,9 @@ class Site {
 
     void removeInventory (ConfigurationItem ci) {
         inventory.remove(ci)
+    }
+
+    String toString() {
+        "Site ($name)"
     }
 }

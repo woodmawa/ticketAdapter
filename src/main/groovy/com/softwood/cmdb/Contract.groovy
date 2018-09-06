@@ -1,9 +1,11 @@
 package com.softwood.cmdb
 
 import com.softwood.utils.UuidUtil
+import groovy.transform.Canonical
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
+
 
 class Contract {
     UUID id = UuidUtil.getTimeBasedUuid ()
@@ -43,5 +45,9 @@ class Contract {
 
     void removeMAG (MaintainerAgreement mag) {
         inventory.remove(mag)
+    }
+
+    String toString() {
+        "Contract ($reference)"
     }
 }
