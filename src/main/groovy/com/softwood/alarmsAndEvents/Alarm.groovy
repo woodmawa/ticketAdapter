@@ -1,7 +1,6 @@
-package com.softwood.alarmEvent
+package com.softwood.alarmsAndEvents
 
 import com.softwood.application.ConfigurableProjectApplication
-import com.softwood.bus.HackEventBus
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject
@@ -44,11 +43,8 @@ class Alarm implements Serializable{
         assert vertx
         def eventBus = vertx.eventBus()
 
-        eventBus.publish("cpeAlarm", this)
-        //eventBus.publish("cpeAlarm", this)  //  use vertx event bus
-        //publish ("cpeAlarm", this)  //manually publish event on 'cpeAlarm' topic
-        //HackEventBus.publish ("cpeAlarm", this) //stopped for now using vertx eventBus
-        this
+         eventBus.publish("cpeAlarm", this)  //vertx platform wraps with a message
+         this
     }
 
     String toString () {

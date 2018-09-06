@@ -3,17 +3,17 @@ package com.softwood.cmdb.views
 import com.softwood.cmdb.ConfigurationItem
 
 class ConnectionServiceView {
-    @Delegate ConfigurationItem
+    @Delegate ConfigurationItem connection
 
 
 
     ConnectionServiceView () {
-        ConfigurationItem = new ConfigurationItem()
+        connection = new ConfigurationItem()
     }
 
     ConnectionServiceView (ConfigurationItem ci) {
         assert ci
-        ConfigurationItem = ci
+        connection = ci
     }
 
 

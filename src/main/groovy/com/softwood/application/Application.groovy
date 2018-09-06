@@ -1,7 +1,7 @@
 package com.softwood.application
 
-import com.softwood.alarmEvent.Alarm
-import com.softwood.alarmEvent.Event
+import com.softwood.alarmsAndEvents.Alarm
+import com.softwood.alarmsAndEvents.Event
 import com.softwood.incident.ManageIncidentFacadeService
 import com.softwood.incident.adapters.AdapterFactory
 import com.softwood.incident.adapters.AdapterFactoryType

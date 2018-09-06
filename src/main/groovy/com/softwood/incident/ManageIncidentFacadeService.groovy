@@ -1,17 +1,23 @@
 package com.softwood.incident
 
 import com.softwood.application.ConfigurableProjectApplication
-import com.softwood.alarmEvent.Alarm
+import com.softwood.alarmsAndEvents.Alarm
 import com.softwood.bus.HackEventBus
-
+import com.softwood.cmdb.ConfigurationItem
+import com.softwood.incident.incidentFacadeProcessingCapabilities.CiContextResolver
+import com.softwood.incident.incidentFacadeProcessingCapabilities.FacadeRouter
 
 import javax.annotation.PostConstruct
 import javax.inject.Inject
 
 
-class ManageIncidentFacadeService /*implements EventBusAware */{
+class ManageIncidentFacadeService {
 
     @Inject ConfigurableProjectApplication app
+
+    //todo make this more dynamic later
+    FacadeRouter router = new FacadeRouter ()
+    CiContextResolver resolver = new CiContextResolver ()
 
     //constructor injection not working - frig
     ManageIncidentFacadeService (ConfigurableProjectApplication app) {
@@ -26,29 +32,22 @@ class ManageIncidentFacadeService /*implements EventBusAware */{
     }
 
     ManageIncidentFacadeService () {
-        //Closure handler = this.&onCpeAlarm
-        //HackEventBus.subscribe ("cpeAlarm", handler) //temp hack*/
-        //println "subscribed on 'cpeAlarm'"
-        //fix all these blasted event Bus's
-        //eventBus.consumer("cpeAlarm", handler)
-        /*eventBus.consumer("cpeAlarm") {message ->
-            println "message is of class : " + message.getClass()
 
-            String bod  = message.body()
-            println "MIFS, on event closure: received alarm $bod on topic 'cpeAlarm'"
-        }*/
     }
 
-
-    //get message from eventBus
-    void onCpeAlarm (alarm, topic) {
-
-        println "MIFS, on event closure: received alarm $alarm on topic $topic"
-    }
-
-    //handler for vertx event messaging
+    //handler for alarms published from messaging system, using vertx event messaging
     void vertxOnCpeAlarm (message) {
         Alarm alarm = message.body()
         println "vertx MIFS, on event closure: received alarm $alarm on topic $message.address"
+        ConfigurationItem ci = router.route (alarm)
+        def ticketAdapter = router.route (ci)
+
+
+        //fixed flow model at present
+        def ticket = ticketAdapter.createTicket ()
+        ticket.setContextDetails (ci)
+        ticket.setAlarmDeatils (alarm)
+        ticket.send ()
+
     }
 }

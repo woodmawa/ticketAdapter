@@ -3,19 +3,19 @@ package com.softwood.cmdb.views
 import com.softwood.cmdb.ConfigurationItem
 
 class DeviceView {
-    @Delegate ConfigurationItem
+    @Delegate ConfigurationItem device
 
     String hostname
     String managementAddress
     String alias
 
-    Device () {
-        ConfigurationItem = new ConfigurationItem()
+    DeviceView () {
+        device = new ConfigurationItem()
     }
 
-    Device (ConfigurationItem ci) {
+    DeviceView (ConfigurationItem ci) {
         assert ci
-        ConfigurationItem = ci
+        device = ci
     }
 
 

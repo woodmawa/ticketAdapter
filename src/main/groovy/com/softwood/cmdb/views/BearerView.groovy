@@ -3,16 +3,16 @@ package com.softwood.cmdb.views
 import com.softwood.cmdb.ConfigurationItem
 
 class BearerView {
-    @Delegate ConfigurationItem
+    @Delegate ConfigurationItem bearer
 
 
     BearerView() {
-        ConfigurationItem = new ConfigurationItem()
+        bearer = new ConfigurationItem()
     }
 
     BearerView(ConfigurationItem ci) {
         assert ci
-        ConfigurationItem = ci
+        bearer = ci
     }
 
 

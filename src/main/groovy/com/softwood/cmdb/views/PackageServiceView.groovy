@@ -11,7 +11,7 @@ class PackageServiceView {
 
 
     PackageServiceView() {
-        ConfigurationItem = new ConfigurationItem()
+        //ConfigurationItem ci = new ConfigurationItem()
     }
 
     PackageServiceView(ConfigurationItem ci) {

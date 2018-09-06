@@ -1,4 +1,4 @@
-package com.softwood.alarmEvent
+package com.softwood.alarmsAndEvents
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
