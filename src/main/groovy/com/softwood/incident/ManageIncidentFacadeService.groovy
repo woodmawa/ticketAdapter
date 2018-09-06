@@ -3,8 +3,7 @@ package com.softwood.incident
 import com.softwood.Application.ConfigurableProjectApplication
 import com.softwood.alarmEvent.Alarm
 import com.softwood.bus.HackEventBus
-import grails.events.annotation.Subscriber
-import grails.events.bus.EventBusAware
+
 
 import javax.annotation.PostConstruct
 import javax.inject.Inject

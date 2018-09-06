@@ -1,4 +1,4 @@
-package com.softwood.incident.adapters.simulators
+package com.softwood.incident.adapters.simulators.SNOW
 
 /**
  * sample :

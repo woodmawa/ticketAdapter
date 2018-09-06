@@ -1,8 +1,7 @@
-package com.softwood.incident.adapters.simulators
+package com.softwood.incident.adapters.simulators.SNOW
 
-import io.netty.buffer.ByteBuf
+
 import io.vertx.core.Vertx
-import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
 import io.vertx.core.json.JsonArray
@@ -10,8 +9,6 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
 import java.time.LocalDateTime
 
 //priority, severity being assigned by platform ?
@@ -132,8 +129,8 @@ def respBodyLen = jsonResult.getBytes().size()
 println "response content lengh $respBodyLen with body as json $json"
 println jsonResult
 
-//should be singleton
-SnowSimulatorIMDB snowImdb = new SnowSimulatorIMDB()
+// singleton db
+SnowSimulatorIMDB snowImdb = SnowSimulatorIMDB.getInstance()
 
 
 Vertx vertx = Vertx.vertx()

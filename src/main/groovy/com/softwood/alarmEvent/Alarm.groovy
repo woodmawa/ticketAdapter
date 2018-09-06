@@ -2,8 +2,6 @@ package com.softwood.alarmEvent
 
 import com.softwood.Application.ConfigurableProjectApplication
 import com.softwood.bus.HackEventBus
-import grails.events.EventPublisher
-import grails.events.annotation.Publisher
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonObject
@@ -14,7 +12,7 @@ import java.time.LocalDateTime
 //import grails.events.annotation.*
 
 
-class Alarm implements EventPublisher, Serializable{
+class Alarm implements Serializable{
 
     @Inject ConfigurableProjectApplication app
 

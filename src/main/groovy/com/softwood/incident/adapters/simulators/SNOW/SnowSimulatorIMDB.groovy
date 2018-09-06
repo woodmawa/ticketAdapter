@@ -1,4 +1,4 @@
-package com.softwood.incident.adapters.simulators
+package com.softwood.incident.adapters.simulators.SNOW
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -15,8 +15,17 @@ public class SnowSimulatorIMDB {
     JsonObject defaultTicket
     Long startRecordFrom = Long.decode ("0x4d2")  //convert hex to long
     int numberEnding = 1
+    static SnowSimulatorIMDB db
 
-    SnowSimulatorIMDB () {
+    //factory method - IMDB is singleton instance
+    static SnowSimulatorIMDB getInstance  () {
+        if (!db) {
+            db = new SnowSimulatorIMDB()
+        }
+        db
+    }
+
+    private SnowSimulatorIMDB () {
         String  defaultBaseTicketString = """
 {
   "result": {
