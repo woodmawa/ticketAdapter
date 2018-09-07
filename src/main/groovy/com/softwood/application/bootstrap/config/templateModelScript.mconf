@@ -1,13 +1,24 @@
-package com.softwood.bootstrap.config.offering
+package com.softwood.application.bootstrap.config.offering
 
 
 // set this value to determine the order that config files will be run
 // any globally required value should be set to the binding
 // ensure that any dependant scripts run with higher order value than the script that
 // sets the required value in the binding.  Multiple non dependant scripts can run at same level
+//Usage:
+//copy this template or use it directly.  read or add values to the script binding
+//this is essentially a groovy script and will be run in ordered sequence with any other config
+//files determined by the runConfigOrder number, and then alphabetically for files with sam run order
+//this is a full groovy script and will be compiled and run, and contain code, variables and logic as
+//required.  Intended use is to set up bootstrap data and references for the application so that
+//it doesn't start empty.
+//
+// NB If using Intellij configure the file type '*.mconf' to be associated with
+//groovy and you'll get in editor syntax support as well
+
 def runConfigInOrder = 1
 
-Binding scriptBinding = getBinding()
+Binding binding = getBinding()
 
 
-println "you can add your cmdb model config data here"
+//println "you can add your cmdb model config data here"

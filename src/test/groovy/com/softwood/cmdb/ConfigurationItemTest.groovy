@@ -31,4 +31,19 @@ class ConfigurationItemTest extends Specification {
         ci.name == "myCPE"
         ci.getCharacteristic("hostname") == "localhost"
     }
+
+    def "test missing property access resolved dyanamically "() {
+        given: "a new ci "
+        ConfigurationItem ci = new ConfigurationItem(name:"myCPE")
+        when: "we save a property thats not defined in the ci"
+        ci.hostname = ["localhost", "tent"] //trigger prop missing
+        Site site = new Site (name:"hq")  //use existing prop
+        ci.site = site
+
+        then:  " we can access that property as though it had always been there "
+        ci.hostname == ["localhost", "tent"]
+        ci.site.name == "hq"
+
+
+    }
 }

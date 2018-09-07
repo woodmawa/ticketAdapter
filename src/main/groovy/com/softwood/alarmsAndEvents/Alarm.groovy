@@ -1,5 +1,6 @@
 package com.softwood.alarmsAndEvents
 
+import com.softwood.application.Application
 import com.softwood.application.ConfigurableProjectApplication
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
@@ -13,24 +14,16 @@ import java.time.LocalDateTime
 
 class Alarm implements Serializable{
 
-    @Inject ConfigurableProjectApplication app
+    //frig for dagger IoC not working
+    @Inject ConfigurableProjectApplication app = Application.application
 
     //we want Alarm to be a flavour of event so use delegation
     @Delegate final Event event
 
     Alarm (event) {
-        this.event = event
-    }
-
-    //frig for dagger IoC not working
-    Alarm (ConfigurableProjectApplication app, event) {
-        this (event)
-
         // Register codec for alarm message
         app.vertx.eventBus().registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
-
-
-        this.app = app
+        this.event = event
     }
 
     //could use @Publisher ('<name>') defaults same as method
@@ -48,7 +41,7 @@ class Alarm implements Serializable{
     }
 
     String toString () {
-        "Alarm (id:$event.id, type:$event.type, name:$event.name, emitter:$event.ciReference)"
+        "Alarm (id:$event.id, type:$event.type, name:$event.name, ciReference:$event.ciReference)"
     }
 
 }

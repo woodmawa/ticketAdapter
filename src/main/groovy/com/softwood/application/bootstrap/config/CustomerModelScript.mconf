@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentLinkedQueue
 // sets the required value in the binding.  Multiple non dependant scripts can run at same level
 def runConfigInOrder = 1
 
-Binding scriptBinding = getBinding()
+Binding binding = getBinding()
 
-scriptBinding.customers = new ConcurrentLinkedQueue ()
+binding.customers = new ConcurrentLinkedQueue ()
 
 Customer cust = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
 Contract con = new Contract (reference: "digitalBank")

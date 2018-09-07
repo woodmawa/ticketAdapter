@@ -32,14 +32,14 @@ class Customer extends OrgRoleInstance {
 
     void addSite (Site site) {
         if (!sites.contains(site)){
-            contracts << site
+            sites << site
             site.customer = this
         }
     }
 
     void removeSite (Site site) {
         site.customer = null
-        contracts.remove(site)
+        sites.remove(site)
     }
 
     String toString() {

@@ -1,5 +1,6 @@
 package com.softwood.incident
 
+import com.softwood.application.Application
 import com.softwood.application.ConfigurableProjectApplication
 import com.softwood.alarmsAndEvents.Alarm
 import com.softwood.bus.HackEventBus
@@ -13,16 +14,14 @@ import javax.inject.Inject
 
 class ManageIncidentFacadeService {
 
-    @Inject ConfigurableProjectApplication app
+    //constructor injection not working - frig
+    @Inject ConfigurableProjectApplication app = Application.application
 
     //todo make this more dynamic later
     FacadeRouter router = new FacadeRouter ()
     CiContextResolver resolver = new CiContextResolver ()
 
-    //constructor injection not working - frig
-    ManageIncidentFacadeService (ConfigurableProjectApplication app) {
-        this()  //now call default constructor
-        this.app = app
+    ManageIncidentFacadeService () {
         def vertx = app.vertx
 
         def vEventBus = vertx.eventBus()
@@ -31,15 +30,12 @@ class ManageIncidentFacadeService {
         vEventBus.consumer("cpeAlarm", handler)
     }
 
-    ManageIncidentFacadeService () {
-
-    }
 
     //handler for alarms published from messaging system, using vertx event messaging
     void vertxOnCpeAlarm (message) {
         Alarm alarm = message.body()
         println "vertx MIFS, on event closure: received alarm $alarm on topic $message.address"
-        ConfigurationItem ci = router.route (alarm)
+        def ci = router.route (alarm)
         def ticketAdapter = router.route (ci)
 
 

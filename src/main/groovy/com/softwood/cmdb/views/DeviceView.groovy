@@ -1,13 +1,11 @@
 package com.softwood.cmdb.views
 
 import com.softwood.cmdb.ConfigurationItem
+import com.softwood.cmdb.Site
 
 class DeviceView {
     @Delegate ConfigurationItem device
 
-    String hostname
-    String managementAddress
-    String alias
 
     DeviceView () {
         device = new ConfigurationItem()
@@ -18,5 +16,15 @@ class DeviceView {
         device = ci
     }
 
+    def getMissingProperty (String name) {
+        device.name
+    }
 
+    def setMissingProperty (String name, value) {
+        device.name = value
+    }
+
+    String toString(){
+        "Device (name:$name, host:$device.hostname, managementAddress:$device.managementAddress)"
+    }
 }

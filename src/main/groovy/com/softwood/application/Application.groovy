@@ -13,31 +13,14 @@ import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 
 class Application {
+    //frig to get round dependency injection issue with dagger, just store on the Application directly
+    static ConfigurableProjectApplication application
+
     public static void main (args) {
 
-        ConfigurableProjectApplication application = ProjectApp.run (Application, args)
+        application = ProjectApp.run (Application, args)
         def vertx = application.vertx
 
-        //application.vertx.deployVerticle(SnowApiServerSimulatorVerticle as Verticle)
-        //application.vertx.deployVerticle(SnowClientAdapterVerticle as Verticle)
-
-        SnowApiServerSimulatorVerticle server = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.server)
-        server.configureHttpServer()
-
-        SnowClientAdapterVerticle client = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.client)
-        client.configureHttpClient()
-
-        HttpRequest request = client.apiGet("/api/now/table/incident")
-        client.apiSend (request) {ar ->
-            if (ar.statusCode() == 200)
-                println "Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
-            else
-                println "status: "+ ar.statusMessage()
-        }
-
-
-        Thread.sleep 1000
-        System.exit(0)
 
         /*com.softwood.incident.adapters.MailAdapterPlugin mail = new MailAdapterPlugin()
 
@@ -49,13 +32,12 @@ class Application {
         mail.sendMail("new incident", "$body", "will.woodman@outlook.com")
     */
 
-        //dagger IoC not working yet
-        def incidentProcessor = new ManageIncidentFacadeService(application)
+        def incidentProcessor = new ManageIncidentFacadeService()
 
 
         Event event = new Event (id:1, type:'critical', ciReference:"192.168.1.24", name:"Temperature Threshold Breached ")
 
-        Alarm alarm = new Alarm (application, event)
+        Alarm alarm = new Alarm (event)
 
         alarm.generateAlarm()
 
@@ -64,3 +46,25 @@ class Application {
 
     }
 }
+
+//application.vertx.deployVerticle(SnowApiServerSimulatorVerticle as Verticle)
+//application.vertx.deployVerticle(SnowClientAdapterVerticle as Verticle)
+/*
+SnowApiServerSimulatorVerticle server = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.server)
+server.configureHttpServer()
+
+SnowClientAdapterVerticle client = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.client)
+client.configureHttpClient()
+
+HttpRequest request = client.apiGet("/api/now/table/incident")
+client.apiSend (request) {ar ->
+    if (ar.statusCode() == 200)
+        println "Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
+    else
+        println "status: "+ ar.statusMessage()
+}
+
+
+Thread.sleep 1000
+System.exit(0)
+*/
