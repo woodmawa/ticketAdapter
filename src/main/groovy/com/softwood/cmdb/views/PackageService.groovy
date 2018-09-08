@@ -4,17 +4,19 @@ import com.softwood.cmdb.ConfigurationItem
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class PackageServiceView {
+class PackageService {
+
+    @Delegate ConfigurationItem pci
 
     String piName
     ConcurrentLinkedQueue ConfigurationItems = new ConcurrentLinkedQueue()
 
 
-    PackageServiceView() {
-        //ConfigurationItem ci = new ConfigurationItem()
+    PackageService() {
+        ConfigurationItem pci = new ConfigurationItem()
     }
 
-    PackageServiceView(ConfigurationItem ci) {
+    PackageService(ConfigurationItem ci) {
         assert ci
 
         if (!ConfigurationItems.contains(ci ))
@@ -35,4 +37,19 @@ class PackageServiceView {
             ConfigurationItems.remove(ci)
     }
 
+    void setProperty (String name, value) {
+        if (!metaClass.hasProperty(this, name)) {
+            ci."$name" = value
+        }
+        else
+            metaClass.setProperty(this, name, value)
+    }
+
+    def getProperty (String name) {
+        if (!metaClass.hasProperty(this, name)) {
+            ci."$name"
+        }
+        else
+            this.metaClass.getProperty(this, name)
+    }
 }

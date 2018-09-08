@@ -1,10 +1,9 @@
 package com.softwood.application.bootstrap.config
 
-import com.softwood.cmdb.Contract
+
 import com.softwood.cmdb.Customer
-import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
-import com.softwood.cmdb.views.DeviceView
+import com.softwood.cmdb.views.Device
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -22,9 +21,9 @@ Customer hsbc = binding.customers[0]
 
 Site hqsite = hsbc.sites[0]
 
-DeviceView router = new DeviceView(name:"Wan gateway ASR", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.24", managementAddress: "192.168.1.200", alias:"access router")
+Device router = new Device(name:"Wan gateway ASR", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.24", managementAddress: "192.168.1.200", alias:"access router")
 router.customer = hsbc
 router.site = hqsite
 
 inventory << router
-println "device  $router for $router.customer"
+println "ci  $router for $router.customer"
