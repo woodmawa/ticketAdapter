@@ -1,5 +1,6 @@
 package com.softwood.incident.adapters.simulators.SNOW
 
+import com.softwood.application.Application
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
@@ -37,7 +38,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle {
     void configureHttpClient() {
         Map options = [:] //[userAgent:"", ]
         if (!vertx)
-            vertx = Vertx.vertx()
+            vertx = Application.application.vertx
 
         client = WebClient.create(vertx)
         client

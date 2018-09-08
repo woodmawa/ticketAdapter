@@ -6,7 +6,7 @@ import org.apache.commons.mail.SimpleEmail
 import groovy.text.*
 
 
-class MailAdapterPlugin implements IncidentSystemAdapter {
+class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
     String name
     Email email
 

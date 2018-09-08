@@ -7,8 +7,8 @@ class DelegateTransformWithMethodMissingTest extends Specification {
 
     def "access attribute that does on exist on CMDB viewObject" () {
         given : "create a new ci "
-        Device dev = new Device (ipAddress: "192.168.1.1",  name: "myCpe" )
-        dev.hostname = "uk-hse-R1"
+        Device dev = new Device (ipAddress: "192.168.1.1", hostname: "uk-hse-R1",  name: "myCpe" )
+        //dev.hostname = "uk-hse-R1"
 
         when : "read delegated and actual atributes back "
         def ip = dev.ipAddress

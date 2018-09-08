@@ -21,7 +21,7 @@ class AdapterFactory {
 
     def static factory
 
-    static  newAdapter (String system, AdapterFactoryType type, Map properties=null) {
+    static def newAdapter (String system, AdapterFactoryType type, Map properties=null) {
 
         factory = adapterFactories."${system.toUpperCase()}"
 
@@ -30,9 +30,11 @@ class AdapterFactory {
         switch (type) {
             case AdapterFactoryType.server :
                  instance = (factory.apiSimulatorServer).newInstance()
+                instance.configureHttpServer()
                 break;
             case AdapterFactoryType.client  :
                 instance = (factory.apiClient).newInstance()
+                instance.configureHttpClient()
                 break;
 
         }
@@ -49,6 +51,7 @@ class AdapterFactory {
 //todo - work out basic standard methods
 interface IncidentSystemAdapter {
     String name
-    def send (message )
+    def post (message )
+    def get ()
 
 }

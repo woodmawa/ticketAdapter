@@ -12,8 +12,8 @@ import javax.inject.Singleton
 class ProjectApp implements ConfigurableProjectApplication {
 
     //use binding as a delegate - calling app.method will delegate calls to binding get/set property etc
-    @Delegate Binding appBinding = new Binding()
-    @Inject Vertx vertx //= Vertx.vertx()      // not firing - no vertx is injected
+    static Binding appBinding = new Binding()
+    static Vertx vertx //= Vertx.vertx()      // not firing - no vertx is injected
 
     def appClassInstance
 
@@ -22,9 +22,19 @@ class ProjectApp implements ConfigurableProjectApplication {
         //creates new projectApp and runs bootstrap etc
         ProjectApp projectApp = new ProjectApp (appClass, args)
 
+        ConfigSlurper slurper = new ConfigSlurper()
+        ConfigObject conf = slurper.parse (ApplicationConfiguration)
+
+        def confProps = conf.toProperties()
+        confProps.each {prop ->
+            appBinding.setProperty("$prop.key",  prop.value)
+        }
+
+        //todo: appBinding. conf.toProperties()
         projectApp.withBinding (args) {
 
-            BootStrap bootStrap = new BootStrap(binding:delegate)
+            def binding = delegate
+            BootStrap bootStrap = new BootStrap(binding)
 
             bootStrap.init()
 
@@ -66,11 +76,12 @@ class ProjectApp implements ConfigurableProjectApplication {
 
     }
 
-    def withBinding(args, closure) {
-        Closure context = closure.clone()
-        context.delegate = appBinding
+    def withBinding(args, closure ) {
+
+        //set the closur binding to be appBinding
+        closure.delegate = appBinding
         //run the closure
-        context(args)
+        closure (args)
     }
 
     void setVertx (Vertx vertx) {

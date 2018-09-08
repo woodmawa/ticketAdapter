@@ -36,7 +36,7 @@ class ConfigurationItem {
     }
 
     boolean hasCharacteristic (String name) {
-        attributes.contains(name)
+        attributes.containsKey(name)
     }
 
 
@@ -90,7 +90,7 @@ class ConfigurationItem {
         //def props = this.metaClass.properties.collect {it.name}
         if (!metaClass.hasProperty(this, name)) {
             def attVal = attributes."$name"
-            attVal.getValue()
+            attVal?.getValue()
         }
         else
             this.metaClass.getProperty(this, name)

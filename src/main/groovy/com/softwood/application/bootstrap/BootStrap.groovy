@@ -1,5 +1,6 @@
 package com.softwood.application.bootstrap
 
+import com.softwood.application.Application
 import groovy.io.FileType
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -25,6 +26,10 @@ class BootStrap {
     def runScriptOrder
     GroovyShell shell
     Binding binding
+
+    BootStrap (binding) {
+        this.binding = binding
+    }
 
 
     def init() {
