@@ -13,6 +13,7 @@ import io.vertx.ext.web.Router
 
 class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticle {
 
+    String name
     SnowSimulatorIMDB snowImdb = SnowSimulatorIMDB.getInstance()
     HttpServer server
 

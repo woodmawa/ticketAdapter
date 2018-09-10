@@ -18,6 +18,7 @@ import io.vertx.ext.web.client.WebClient
 
 class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, IncidentTicketAdapter {
 
+    String name
     WebClient client
     String error = ""
     Vertx vertx

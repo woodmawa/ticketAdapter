@@ -18,6 +18,10 @@ enum AdapterFactoryType {
     server
 }
 
+enum AdapterProtocolType {
+    Json, mail
+}
+
 /**
  * factory class for creating suitable client or server adapters
  *

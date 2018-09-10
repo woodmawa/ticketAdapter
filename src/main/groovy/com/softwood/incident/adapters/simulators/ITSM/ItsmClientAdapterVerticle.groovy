@@ -16,6 +16,7 @@ import io.vertx.ext.web.client.WebClient
 
 class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
 
+    String name
     WebClient client
     String error = ""
     Vertx vertx

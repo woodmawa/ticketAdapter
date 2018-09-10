@@ -7,6 +7,7 @@ import com.softwood.cmdb.ConfigurationItem
 import com.softwood.incident.IncidentTicket
 import com.softwood.incident.adapters.AdapterFactory
 import com.softwood.incident.adapters.AdapterFactoryType
+import com.softwood.incident.adapters.IncidentTicketAdapter
 
 
 //simple fixed flow at present
@@ -47,7 +48,7 @@ class FacadeRouter {
     }
 
     def route (ConfigurationItem ci) {
-        def ticketAdapter
+        IncidentTicketAdapter ticketAdapter
 
         ConfigurableProjectApplication app = Application.application
         def binding = app.binding
@@ -59,6 +60,7 @@ class FacadeRouter {
         //determine which adapter for get from factory
 
         ticketAdapter = AdapterFactory.newAdapter(confAdapterSystem, AdapterFactoryType.client)
+        ticketAdapter.name = "myClientAdapter"
         ticketAdapter
     }
 }

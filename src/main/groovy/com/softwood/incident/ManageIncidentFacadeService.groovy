@@ -56,12 +56,15 @@ class ManageIncidentFacadeService {
             HttpRequest request = ticketAdapter.apiGet ("/api/now/table/incident")
             ticketAdapter.apiSend (request) {ar ->
                 if (ar.statusCode() == 200)
-                    println "vertx MIFS tracing> Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
+                    println "vertx MIFS tracing> Snow api GET request received response " + ar.bodyAsJsonObject().encodePrettily()
                 else
                     println "vertx MIFS tracing> error, status: "+ ar.statusMessage()
             }
+            //todo - write the post action now for the alarm
 
         }
+
+        println "vertx MIFS tracing> finished OnCpeAlarm event: done Alarm processing for $alarm"
 
     }
 }
