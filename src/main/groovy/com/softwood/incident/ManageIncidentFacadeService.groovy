@@ -36,13 +36,16 @@ class ManageIncidentFacadeService {
     //handler for alarms published from messaging system, using vertx event messaging
     void vertxOnCpeAlarm (message) {
         Alarm alarm = message.body()
-        println "vertx MIFS, on event closure: received alarm $alarm on topic $message.address"
+        println "vertx MIFS tracing> on event closure: received alarm $alarm on topic $message.address"
         def matchedCi = router.route (alarm)  //should match on instances of Device
+        println "vertx MIFS tracing> matched alarm ciReference to ci : $matchedCi"
 
         matchedCi.each { Device  dci ->
 
             def ci = dci.ci
+
             def ticketAdapter = router.route(ci)
+            println "vertx MIFS tracing> resolved ticket adapter to use as : $ticketAdapter"
 
             //fixed flow model at present
             //def ticket = new Ticket () as Json - ticketAdapter.createTicket ()
@@ -53,10 +56,11 @@ class ManageIncidentFacadeService {
             HttpRequest request = ticketAdapter.apiGet ("/api/now/table/incident")
             ticketAdapter.apiSend (request) {ar ->
                 if (ar.statusCode() == 200)
-                    println "Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
+                    println "vertx MIFS tracing> Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
                 else
-                    println "status: "+ ar.statusMessage()
+                    println "vertx MIFS tracing> error, status: "+ ar.statusMessage()
             }
+
         }
 
     }
