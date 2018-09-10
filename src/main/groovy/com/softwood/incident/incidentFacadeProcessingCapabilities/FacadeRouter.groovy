@@ -51,7 +51,8 @@ class FacadeRouter {
 
         ConfigurableProjectApplication app = Application.application
         def binding = app.binding
-        def confAdapterSystem = binding.getProperty("defaultTicketAdapter.system")
+        String confAdapterSystem = binding.config.ticketAdapter.system
+        //def confAdapterSystem = binding.getProperty("defaultTicketAdapter.system")
 
 
 

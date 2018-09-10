@@ -8,6 +8,7 @@ import com.softwood.cmdb.ConfigurationItem
 import com.softwood.cmdb.views.Device
 import com.softwood.incident.incidentFacadeProcessingCapabilities.CiContextResolver
 import com.softwood.incident.incidentFacadeProcessingCapabilities.FacadeRouter
+import io.vertx.ext.web.client.HttpRequest
 
 import javax.annotation.PostConstruct
 import javax.inject.Inject
@@ -48,8 +49,14 @@ class ManageIncidentFacadeService {
             //ticket.setContextDetails (ci)
             //ticket.setAlarmDetails (alarm)
             //ticketAdapter.apiPost(tciket)
-            def result = ticketAdapter.apiGet ("/api/now/table/incident")
-            println "on routed alarm : result from get was $result"
+            //HttpRequest request = client.apiGet("/api/now/table/incident")
+            HttpRequest request = ticketAdapter.apiGet ("/api/now/table/incident")
+            ticketAdapter.apiSend (request) {ar ->
+                if (ar.statusCode() == 200)
+                    println "Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
+                else
+                    println "status: "+ ar.statusMessage()
+            }
         }
 
     }

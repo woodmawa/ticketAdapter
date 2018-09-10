@@ -21,7 +21,7 @@ Customer hsbc = binding.customers[0]
 
 Site hqsite = hsbc.sites[0]
 
-Device router = new Device(name:"Wan gateway ASR", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
+Device router = new Device(name:"Wan gateway ASR", category:"device", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
 router.customer = hsbc
 router.site = hqsite
 

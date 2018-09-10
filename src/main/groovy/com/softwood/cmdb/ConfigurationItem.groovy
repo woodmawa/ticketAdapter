@@ -11,6 +11,8 @@ class ConfigurationItem {
     String alias
     String status
     Customer customer
+    String category
+    Map hierarchy = [:]  //level1, to level5 - level names as key, value to hold visible display value
 
     Optional<ServiceLevelAgreement> sla = new Optional()
 
@@ -45,8 +47,11 @@ class ConfigurationItem {
         this.site = optSite
     }
 
-    Site getSite () {
-        site.get()
+    def getSite () {
+        if (site.ifPresent())
+            site.get()
+        else
+            Optional.empty()
     }
 
 
@@ -55,8 +60,11 @@ class ConfigurationItem {
         this.contract = optContract
     }
 
-    Site getContract () {
-        contract.get()
+    def getContract () {
+        if (contract.ifPresent())
+            contract.get()
+        else
+            Optional.empty()
     }
 
     void setSla (sla) {
@@ -64,8 +72,11 @@ class ConfigurationItem {
         this.sla = optSla
     }
 
-    Site getSla () {
-        sla.get()
+    def getSla () {
+        if (sla.ifPresent())
+            sla.get()
+        else
+            Optional.empty()
     }
 
     /**

@@ -23,12 +23,14 @@ class ProjectApp implements ConfigurableProjectApplication {
         ProjectApp projectApp = new ProjectApp (appClass, args)
 
         ConfigSlurper slurper = new ConfigSlurper()
+        slurper.setBinding()
         ConfigObject conf = slurper.parse (ApplicationConfiguration)
 
-        def confProps = conf.toProperties()
-        confProps.each {prop ->
-            appBinding.setProperty("$prop.key",  prop.value)
-        }
+        Map confMap = conf.toSorted()
+        println "confMap $confMap"
+
+        appBinding.config = conf
+        appBinding.configMap = confMap // belt and braces
 
         //todo: appBinding. conf.toProperties()
         projectApp.withBinding (args) {

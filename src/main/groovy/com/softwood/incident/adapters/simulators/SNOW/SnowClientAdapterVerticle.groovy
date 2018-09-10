@@ -1,6 +1,7 @@
 package com.softwood.incident.adapters.simulators.SNOW
 
 import com.softwood.application.Application
+import com.softwood.incident.adapters.IncidentTicketAdapter
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
@@ -15,7 +16,7 @@ import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 
-class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle {
+class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, IncidentTicketAdapter {
 
     WebClient client
     String error = ""
@@ -53,19 +54,19 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle {
      * @param port
      * @return
      */
-    HttpRequest apiJsonPost (String uri, String bodyString,  host="localhost", port=8081) {
+    HttpRequest apiPost (String uri, String bodyString,  host="localhost", port=8081) {
 
         JsonObject jsonBody = new JsonObject(bodyString)
         apiGet (client.post(uri), jsonBody, host, port)
     }
 
-    HttpRequest apiJsonPost (String uri, def instance,  host="localhost", port=8081) {
+    HttpRequest apiPost (String uri, def object,  host="localhost", port=8081) {
 
-        JsonObject jsonBody = new JsonObject (Json.encode(instance))
+        JsonObject jsonBody = new JsonObject (Json.encode(object))
         apiGet (client.post(uri), jsonBody, host, port)
     }
 
-    HttpRequest apiJsonPost (HttpRequest<Buffer> request, JsonObject jsonBody, host="localhost", port=8081) {
+    HttpRequest apiPost (HttpRequest<Buffer> request, JsonObject jsonBody, host="localhost", port=8081) {
         request.host(host).port(port)
         request.putHeader("accept", "application/text")
         request.putHeader("content-length", "${jsonBody.size()}" )
@@ -88,6 +89,8 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle {
         }
         HttpRequest<Buffer> request = client.get()
     }
+
+
 
     HttpRequest apiGet (String uri, host="localhost", port=8081) {
         apiGet (client.get(uri), host, port)

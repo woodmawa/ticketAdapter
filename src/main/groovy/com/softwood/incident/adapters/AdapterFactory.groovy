@@ -1,9 +1,17 @@
 package com.softwood.incident.adapters
 
+import com.softwood.application.Application
 import com.softwood.incident.adapters.simulators.ITSM.ItsmApiServerSimulatorVerticle
 import com.softwood.incident.adapters.simulators.ITSM.ItsmClientAdapterVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowApiServerSimulatorVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.http.HttpMethod
+import io.vertx.core.json.Json
+import io.vertx.core.json.JsonObject
+import io.vertx.ext.web.client.HttpRequest
+import io.vertx.ext.web.client.HttpResponse
+import io.vertx.ext.web.client.WebClient
 
 enum AdapterFactoryType {
     client,
@@ -16,8 +24,11 @@ enum AdapterFactoryType {
  */
 class AdapterFactory {
 
-    static def adapterFactories = [SNOW :[apiSimulatorServer: SnowApiServerSimulatorVerticle, apiClient: SnowClientAdapterVerticle ],
-            ITSM: [ApiSimulatorServer: ItsmApiServerSimulatorVerticle, apiClient: ItsmClientAdapterVerticle] ]
+    //read from config held in ApplicationConfiguration.groovy
+    static def adapterFactories = Application.application.binding.config.ticketAdapter.adapterFactories
+
+    //= [SNOW :[apiSimulatorServer: SnowApiServerSimulatorVerticle, apiClient: SnowClientAdapterVerticle ],
+    //        ITSM: [ApiSimulatorServer: ItsmApiServerSimulatorVerticle, apiClient: ItsmClientAdapterVerticle] ]
 
     def static factory
 
@@ -48,10 +59,3 @@ class AdapterFactory {
     }
 }
 
-//todo - work out basic standard methods
-interface IncidentSystemAdapter {
-    String name
-    def post (message )
-    def get ()
-
-}
