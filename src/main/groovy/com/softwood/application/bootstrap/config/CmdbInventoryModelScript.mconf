@@ -3,6 +3,7 @@ package com.softwood.application.bootstrap.config
 
 import com.softwood.cmdb.Customer
 import com.softwood.cmdb.Site
+import com.softwood.cmdb.views.ConnectionService
 import com.softwood.cmdb.views.Device
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -25,5 +26,15 @@ Device router = new Device(name:"Wan gateway ASR", category:"device", hostname:"
 router.customer = hsbc
 router.site = hqsite
 
-inventory << router
+Device custSwitch = new Device(name:"Wan gateway ASR", category:"device", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.78", managementIpAddress: "192.168.1.24", alias:"access router")
+custSwitch.customer = hsbc
+custSwitch.site = hqsite
+
+ConnectionService cct = new ConnectionService (name: "ipvpn connection ", bandwith: "10G", loopbackIpAddress : "192.168.5.80")
+
+router.addRelationshipTo(router, "connected to")  //one way
+
+inventory << router << custSwitch << cct
+
 println "ci  $router for $router.customer"
+println "router relationships : " + router.getRelationships ()

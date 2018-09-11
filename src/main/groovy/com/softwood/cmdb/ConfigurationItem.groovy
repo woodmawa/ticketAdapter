@@ -4,6 +4,7 @@ import com.softwood.utils.UuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class ConfigurationItem {
     UUID id = UuidUtil.getTimeBasedUuid ()  //generate a time based uuid
@@ -14,6 +15,9 @@ class ConfigurationItem {
     String category
     Map hierarchy = [:]  //level1, to level5 - level names as key, value to hold visible display value
 
+    //related CI where each entry is [ci, relationship] entries
+    ConcurrentHashMap<Object, Relationship> relatedTo = new ConcurrentHashMap()
+
     Optional<ServiceLevelAgreement> sla = new Optional()
 
     Optional<Site> site = new Optional()
@@ -21,6 +25,28 @@ class ConfigurationItem {
 
     ConcurrentHashMap<String, ciSpecificationCharacteristic> attributes = new ConcurrentHashMap()
     LocalDateTime createdDate =  LocalDateTime.now()
+
+    void addRelationshipTo (toCi, String relationshipName) {
+        Relationship relationship = new Relationship (toCi: toCi, fromCi: this,  name:relationshipName)
+        def entry = [toCi: relationship]
+        if (!relatedTo.contains (entry ))
+            relatedTo << entry
+
+    }
+
+    void removeRelationshipTo (toCi) {
+        if (relatedTo.contains (toCi))
+            relatedTo.remove(toCi)
+
+    }
+
+    Collection<Relationship> getRelationships (ci=null) {
+        if (!ci)
+            relatedTo.asList()
+        else if (relatedTo.contains(ci))
+            [relatedTo.ci]
+        else []
+    }
 
     void addCharacteristic (String name, value) {
         def attVal = new ciSpecificationCharacteristic(name, value)
