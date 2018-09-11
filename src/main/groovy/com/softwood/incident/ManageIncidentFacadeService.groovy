@@ -5,11 +5,14 @@ import com.softwood.application.ConfigurableProjectApplication
 import com.softwood.alarmsAndEvents.Alarm
 import com.softwood.bus.HackEventBus
 import com.softwood.cmdb.ConfigurationItem
+import com.softwood.cmdb.Site
 import com.softwood.cmdb.views.Device
 import com.softwood.incident.adapters.AdapterFactory
 import com.softwood.incident.adapters.AdapterFactoryType
 import com.softwood.incident.incidentFacadeProcessingCapabilities.CiContextResolver
 import com.softwood.incident.incidentFacadeProcessingCapabilities.FacadeRouter
+import groovy.json.JsonSlurper
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 
 import javax.annotation.PostConstruct
@@ -56,20 +59,35 @@ class ManageIncidentFacadeService {
             println "vertx MIFS tracing> resolved ticket adapter to use as : $ticketAdapter, for ci : $ci"
 
             //fixed flow model at present
-            //def ticket = new Ticket () as Json - ticketAdapter.createTicket ()
-            //ticket.setContextDetails (ci)
-            //ticket.setAlarmDetails (alarm)
-            //ticketAdapter.apiPost(tciket)
-            //HttpRequest request = client.apiGet("/api/now/table/incident")
+            def ticket = new IncidentTicket (title: "my $ci.category, is broken" ) // as Json - ticketAdapter.createTicket ()
+            ticket.customerName = ci.customer.name
+            ticket.siteName = ci.site?.name
+            ticket.sitePostalCode = ci.site?.postalCode
+            ticket.urgency = "1"
+            ticket.priority = "high"
+            ticket.severity = "high"
+            ticket.impact = "cant trade"
+            ticket.item = ci.name
+            ticket.requester = "will.woodman@techmahindra.com"
+            ticket.category = ci.category
+            ticket.description = """
+received alarm details on :
+${alarm.ciReference}, type $alarm.type,  with event charactistics 
+${alarm.eventCharacteristics}
+"""
+
+            JsonObject postBody = ticket.asJson()
+            def text = postBody.encodePrettily()
+            println "postBody as $text"
+
              def stem = Application.application.binding.uriApiStemPath
-            HttpRequest request = ticketAdapter.apiGet ("$stem/incident")
-            ticketAdapter.apiSend (request) {ar ->
+            HttpRequest request = ticketAdapter.apiPost ("$stem/incident", postBody)
+            ticketAdapter.apiSendPost (request, postBody) {ar ->
                 if (ar.statusCode() == 200)
-                    println "vertx MIFS tracing> Snow api GET request received response " + ar.bodyAsJsonObject().encodePrettily()
+                    println "vertx MIFS tracing> Snow api POST request received response " + ar.bodyAsJsonObject().encodePrettily()
                 else
                     println "vertx MIFS tracing> error, status: "+ ar.statusMessage()
             }
-            //todo - write the post action now for the alarm
 
         }
 

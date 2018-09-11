@@ -11,6 +11,8 @@ class Site {
     UUID id = UuidUtil.getTimeBasedUuid ()
     String name
     String siteContact
+    String address  //simple for now
+    String postalCode
     Customer customer
     LocalDateTime createdDateTime = LocalDateTime.now()
     ConcurrentLinkedQueue<ConfigurationItem> inventory = new ConcurrentLinkedQueue()

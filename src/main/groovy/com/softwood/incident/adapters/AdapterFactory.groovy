@@ -47,7 +47,7 @@ class AdapterFactory {
                 Application.application.binding.uriApiStemPath = "/api/now/table"
                 break
             case "ITSM" :
-                Application.application.binding.uriApiStemPath = "/api/xxx"  //tod figure out what the itsm stem is
+                Application.application.binding.uriApiStemPath = "/api/arsys/v1"
                 break
         }
 

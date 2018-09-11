@@ -9,8 +9,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
 trait PublicTicketTrait {
-    final UUID id = UuidUtil.timeBasedUuid
-    final String title
+    String title
     String description
     String status
     String impact
@@ -19,14 +18,15 @@ trait PublicTicketTrait {
     String priority
     String ticketIdentifier
     String clientTicketIdentifier
-    final String requester
+    String requester
     String originator
     String category
-    Customer customer   //final?
-    Optional<Site> site = new Optional()   //final?
+    String customerName
+    String siteName
+    String sitePostalCode
     String item //free format string
-    Optional<ConfigurationItem> ci = new Optional()
-    Optional<ConcurrentLinkedQueue<ConfigurationItem>> relatedCi = new Optional()
+    String ciName
+    String[] relatedCi = [""]
     LocalDateTime reportedDateTime
     LocalDateTime resolvedDateTime
     LocalDateTime closedDateTime

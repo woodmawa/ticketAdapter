@@ -19,10 +19,11 @@ class ConfigurationItem {
     //related CI where each entry is [ci, relationship] entries
     ConcurrentHashMap<Object, Relationship> relatedTo = new ConcurrentHashMap()
 
-    Optional<ServiceLevelAgreement> sla = new Optional()
+    Optional<ServiceLevelAgreement> sla = Optional.empty()
 
-    Optional<Site> site = new Optional()
-    Optional<Contract> contract = new Optional()
+    //Optional<Site> site = Optional.ofNullable(null) - having problems with ifPresent
+    Site site
+    Optional<Contract> contract = Optional.empty()
 
     ConcurrentHashMap<String, ciSpecificationCharacteristic> attributes = new ConcurrentHashMap()
     LocalDateTime createdDate =  LocalDateTime.now()
@@ -69,6 +70,7 @@ class ConfigurationItem {
     }
 
 
+    /*
     void setSite (site) {
         Optional optSite = new Optional<Site> (site)
         this.site = optSite
@@ -79,7 +81,7 @@ class ConfigurationItem {
             site.get()
         else
             Optional.empty()
-    }
+    }*/
 
 
     void setContract (contract) {

@@ -1,9 +1,16 @@
 package com.softwood.incident
 
+import com.softwood.utils.UuidUtil
+import io.vertx.core.json.JsonArray
+import io.vertx.core.json.JsonObject
+
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class IncidentTicket implements PublicTicketTrait {
+    final UUID id = UuidUtil.timeBasedUuid
+
     String closureCode
     boolean majorIncident
     String diagnosticResult
@@ -26,5 +33,34 @@ class IncidentTicket implements PublicTicketTrait {
 
     void assign (HelpDeskAgent agent) {
         assignee = agent
+    }
+
+    JsonObject asJson() {
+        JsonObject json = new JsonObject()
+
+        Map props = this.properties
+        props.each {key, value ->
+            if (value instanceof ConcurrentLinkedQueue)
+                return
+            if (key == "id")
+                return
+            if (value instanceof Class )
+                return
+            if (value instanceof LocalDateTime)
+                json.put (key, value.toString() )
+            if (value == null )
+                return
+            if (key == "relatedCi") {
+                JsonArray relCi = new JsonArray()
+                value.each {relCi.add (it)}
+                json.put (key, relCi)
+            } else {
+                println "adding $key and value : $value to json"
+                json.put (key, value)
+            }
+        }
+
+        //todo encode other values later
+        json
     }
 }

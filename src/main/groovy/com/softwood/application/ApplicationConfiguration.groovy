@@ -1,6 +1,7 @@
 package com.softwood.application
 
 import com.softwood.incident.adapters.AdapterProtocolType
+import com.softwood.incident.adapters.MailAdapterPlugin
 import com.softwood.incident.adapters.simulators.ITSM.ItsmApiServerSimulatorVerticle
 import com.softwood.incident.adapters.simulators.ITSM.ItsmClientAdapterVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowApiServerSimulatorVerticle
@@ -13,9 +14,12 @@ ticketAdapter {
     type = AdapterProtocolType.Json
 
     adapterFactories = [SNOW :[apiSimulatorServer: SnowApiServerSimulatorVerticle,
-                               apiClient: SnowClientAdapterVerticle ],
-                        ITSM: [ApiSimulatorServer: ItsmApiServerSimulatorVerticle,
-                               apiClient: ItsmClientAdapterVerticle] ]
+                               apiClient: SnowClientAdapterVerticle,
+                               mailClient: MailAdapterPlugin ],
+                        ITSM: [apiSimulatorServer: ItsmApiServerSimulatorVerticle,
+                               apiClient: ItsmClientAdapterVerticle,
+                               mailClient: MailAdapterPlugin]
+                        ]
 
 }
 

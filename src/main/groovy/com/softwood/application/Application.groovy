@@ -53,7 +53,7 @@ class Application {
         Thread.sleep(5000)
         println "closing down "
 
-        System.exit(0)
+        //System.exit(0)
     }
 }
 
