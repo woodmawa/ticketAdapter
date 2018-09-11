@@ -18,7 +18,25 @@ import io.vertx.ext.web.client.HttpRequest
 import javax.annotation.PostConstruct
 import javax.inject.Inject
 
-
+/**
+ * this is front end service class for processing alarms from OSS VIM platform
+ *
+ * alarms expected to be posted on the service bus, and processing starts on receipt of
+ * standard alarm subscription
+ *
+ * First the alarm is processed by the FacadeRouter to determine which CIs in the cmdb
+ * maybe related to alarm details
+ *
+ * for each ci we route again to get the TicketAdapter to use to send messages with
+ *
+ * config for this is set as start of ApplicationCconfiguration.groovy and read at runtime
+ * and uses factory to return an instance of the right type
+ *
+ * coupling with alarms is via the system event bus
+ *
+ * alarms can be injected via script, or via api post on AlarmAndEvents package
+ *
+ */
 class ManageIncidentFacadeService {
 
     //constructor injection not working - frig
@@ -59,30 +77,32 @@ class ManageIncidentFacadeService {
             println "vertx MIFS tracing> resolved ticket adapter to use as : $ticketAdapter, for ci : $ci"
 
             //fixed flow model at present
-            def ticket = new IncidentTicket (title: "my $ci.category, is broken" ) // as Json - ticketAdapter.createTicket ()
-            ticket.customerName = ci.customer.name
-            ticket.siteName = ci.site?.name
-            ticket.sitePostalCode = ci.site?.postalCode
-            ticket.urgency = "1"
-            ticket.priority = "high"
-            ticket.severity = "high"
-            ticket.impact = "cant trade"
-            ticket.item = ci.name
-            ticket.requester = "will.woodman@techmahindra.com"
-            ticket.category = ci.category
-            ticket.description = """
+            def newTicket = new IncidentTicket (title: "my $ci.category, is broken" ) // as Json - ticketAdapter.createTicket ()
+            newTicket.customerName = ci.customer.name
+            newTicket.siteName = ci.site?.name
+            newTicket.sitePostalCode = ci.site?.postalCode
+            newTicket.urgency = "1"
+            newTicket.priority = "high"
+            newTicket.severity = "high"
+            newTicket.impact = "cant trade"
+            newTicket.item = ci.name
+            newTicket.requester = "will.woodman@techmahindra.com"
+            newTicket.category = ci.category
+            newTicket.description = """
 received alarm details on :
 ${alarm.ciReference}, type $alarm.type,  with event charactistics 
 ${alarm.eventCharacteristics}
 """
 
-            JsonObject postBody = ticket.asJson()
+            JsonObject postBody = newTicket.asJson()
             def text = postBody.encodePrettily()
             println "postBody as $text"
 
              def stem = Application.application.binding.uriApiStemPath
-            HttpRequest request = ticketAdapter.apiPost ("$stem/incident", postBody)
-            ticketAdapter.apiSendPost (request, postBody) {ar ->
+            //HttpRequest request = ticketAdapter.apiPost ("$stem/incident", postBody)//.sendJsonObject (postBody)
+            HttpRequest request = ticketAdapter.apiPost ("$stem/incident", newTicket) {ar ->
+            //ticketAdapter.apiSend (request, postBody)
+
                 if (ar.statusCode() == 200)
                     println "vertx MIFS tracing> Snow api POST request received response " + ar.bodyAsJsonObject().encodePrettily()
                 else

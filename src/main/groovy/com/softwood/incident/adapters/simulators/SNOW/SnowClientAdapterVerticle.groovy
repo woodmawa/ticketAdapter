@@ -1,6 +1,7 @@
 package com.softwood.incident.adapters.simulators.SNOW
 
 import com.softwood.application.Application
+import com.softwood.incident.IncidentTicket
 import com.softwood.incident.adapters.IncidentTicketAdapter
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
@@ -22,6 +23,8 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
     WebClient client
     String error = ""
     Vertx vertx
+    String host
+    int port
 
     void start(Future<Void> future) {
         println "starting SNOW Api Client .. "
@@ -42,10 +45,31 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
         if (!vertx)
             vertx = Application.application.vertx
 
+        host = Application.application.binding.config.ticketAdapter.host
+        port = Application.application.binding.config.ticketAdapter.port
+
         client = WebClient.create(vertx)
         client
 
 
+
+    }
+
+    private JsonObject $convertTicketToSnowPostFormat (IncidentTicket genTicket) {
+        def postBody  = genTicket.asJson()
+        //need to convert a couple of generic keys to SNOW specific
+
+        def title = postBody.getString("title")
+        postBody.put("short_description", title)
+        postBody.remove("title")
+        def location = postBody.getString("siteName")
+        postBody.put("location", location)
+        postBody.remove("siteName")
+        postBody
+    }
+
+    private IncidentTicket $convertSnowResponseFormat (JsonObject response) {
+        //todo conversion
     }
 
     /**
@@ -56,28 +80,47 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
      * @return
      */
 
-    HttpRequest apiPost (String uri, JsonObject postBody,  host="localhost", port=8081) {
-        apiPost (client.post(uri), postBody, host, port)
+    HttpRequest apiPost (String uri, IncidentTicket genTicket, Closure handler = {}) {
+
+
+        JsonObject postBody =  $convertTicketToSnowPostFormat (genTicket)
+        apiPost (client.post(uri), postBody, handler)
     }
 
-    HttpRequest apiPost (String uri, String bodyString,  host="localhost", port=8081) {
+    HttpRequest apiPost (String uri, JsonObject postBody, Closure handler = {}) {
+        apiPost (client.post(uri), postBody, handler)
+    }
+
+    HttpRequest apiPost (String uri, String bodyString, Closure handler = {}) {
 
         JsonObject jsonBody = new JsonObject(bodyString)
-        apiPost (client.post(uri), jsonBody, host, port)
+        apiPost (client.post(uri), jsonBody,  handler)
     }
 
-    HttpRequest apiPost (String uri, def object,  host="localhost", port=8081) {
+    HttpRequest apiPost (String uri, def object, Closure handler = {}) {
 
         JsonObject jsonBody = new JsonObject (Json.encode(object))
-        apiPost (client.post(uri), jsonBody, host, port)
+        apiPost (client.post(uri), jsonBody, handler)
     }
 
-    HttpRequest apiPost (HttpRequest<Buffer> request, JsonObject jsonBody, host="localhost", port=8081) {
+    HttpRequest apiPost (HttpRequest<Buffer> request, JsonObject jsonBody,  Closure handler = {}) {
         request.host(host).port(port)
         request.putHeader("accept", "application/text")
         request.putHeader("content-type", "application/json" )
         request.putHeader("content-length", "${jsonBody.encode().size()}" )
         request.method (HttpMethod.POST)
+        request
+
+        request.sendJsonObject(jsonBody) {ar ->
+            HttpResponse<Buffer> postResult
+            if (ar.succeeded()) {
+                //obtain the response
+                postResult = ar.result()
+            } else {
+                error = ar.cause().getMessage()
+            }
+            handler (postResult)
+        }
         request
 
     }
@@ -99,20 +142,20 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
 
 
 
-    HttpRequest apiGet (String uri, host="localhost", port=8081) {
-        apiGet (client.get(uri), host, port)
+    HttpRequest apiGet (String uri) {
+        apiGet (client.get(uri))
     }
 
-    HttpRequest apiGet (HttpRequest<Buffer> request, host="localhost", port=8081) {
-        request.host(host).port(port)
+    HttpRequest apiGet (HttpRequest<Buffer> request) {
         request.putHeader("accept", "application/text")
         request.method (HttpMethod.GET)
         request
 
     }
 
-    void apiSendGet (HttpRequest<Buffer> request,  Closure handler) {
+    void apiGet (HttpRequest<Buffer> request,  Closure handler) {
         println "sending request [$request.method] to host: ${request.host}:${request.port}" + request.uri + " to server"
+        request.host(host).port(port)
         request.send {ar ->
             HttpResponse<Buffer> getResult
             if (ar.succeeded()) {
@@ -139,7 +182,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
         }
     }
 
-        void apiSend (HttpRequest<Buffer> request, JsonObject postBody,  Closure handler) {
+        void apiSend (HttpRequest<Buffer> request, JsonObject reqBody,  Closure handler) {
         println "sending request [$request.method] to host: ${request.host}:${request.port}" + request.uri + " to server"
         switch (request.method) {
             case  HttpMethod.GET :
@@ -155,7 +198,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
                 }
                 break
             case HttpMethod.POST :
-                request.sendJsonObject(postBody) {ar ->
+                request.sendJsonObject(reqBody) {ar ->
                     HttpResponse<Buffer> postResult
                     if (ar.succeeded()) {
                         //obtain the response

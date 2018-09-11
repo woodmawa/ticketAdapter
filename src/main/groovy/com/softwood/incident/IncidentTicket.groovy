@@ -42,15 +42,15 @@ class IncidentTicket implements PublicTicketTrait {
         props.each {key, value ->
             if (value instanceof ConcurrentLinkedQueue)
                 return
-            if (key == "id")
+            else if (key == "id")
                 return
-            if (value instanceof Class )
+            else if (value instanceof Class )
                 return
-            if (value instanceof LocalDateTime)
+            else if (value instanceof LocalDateTime)
                 json.put (key, value.toString() )
-            if (value == null )
+            else if (value == null )
                 return
-            if (key == "relatedCi") {
+            else if (key == "relatedCi") {
                 JsonArray relCi = new JsonArray()
                 value.each {relCi.add (it)}
                 json.put (key, relCi)

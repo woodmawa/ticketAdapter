@@ -17,11 +17,8 @@ interface IncidentTicketAdapter{
 
     HttpRequest apiGet (String uri)
     HttpRequest apiPost (String uri, String bodyString)
-    //void apiSend (HttpRequest<Buffer> request, Closure handler)
-    //void apiSend (HttpRequest<Buffer> request, JsonObject postBody, Closure handler)
 
     HttpRequest<Buffer> apiAddQueryparams (String uri, queryParams )
-
 
     boolean hasError ()
     void clearError ()

@@ -66,7 +66,6 @@ class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
 
             println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
 
-
             def response = routingContext.response()
 
             switch (method) {

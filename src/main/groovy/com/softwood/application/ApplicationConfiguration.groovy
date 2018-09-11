@@ -12,6 +12,8 @@ ticketAdapter {
     simulatorEnabled = true
     system = "Snow"
     type = AdapterProtocolType.Json
+    host = "localhost"
+    port = 8081
 
     adapterFactories = [SNOW :[apiSimulatorServer: SnowApiServerSimulatorVerticle,
                                apiClient: SnowClientAdapterVerticle,
@@ -23,3 +25,8 @@ ticketAdapter {
 
 }
 
+alarmServer {
+    host = "localhost"
+    port = 8090
+
+}

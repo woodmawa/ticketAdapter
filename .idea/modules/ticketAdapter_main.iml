@@ -10,7 +10,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
-    <orderEntry type="library" name="Gradle: io.github.http-builder-ng:http-builder-ng-core:1.0.3" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Gradle: org.grails:grails-bom:pom:3.3.2" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.uuid:java-uuid-generator:3.1.5" level="project" />
@@ -43,7 +42,6 @@
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-testng:2.5.2" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-xml:2.5.2" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy:2.5.2" level="project" />
-    <orderEntry type="library" name="Gradle: xml-resolver:xml-resolver:1.2" level="project" />
     <orderEntry type="library" name="Gradle: javax.mail:mail:1.4.5" level="project" />
     <orderEntry type="library" name="Gradle: javax.activation:activation:1.1.1" level="project" />
     <orderEntry type="library" name="Gradle: io.netty:netty-codec-http2:4.1.19.Final" level="project" />

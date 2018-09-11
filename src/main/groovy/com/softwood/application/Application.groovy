@@ -1,6 +1,7 @@
 package com.softwood.application
 
 import com.softwood.alarmsAndEvents.Alarm
+import com.softwood.alarmsAndEvents.AlarmApiServerVerticle
 import com.softwood.alarmsAndEvents.Event
 import com.softwood.incident.ManageIncidentFacadeService
 import com.softwood.incident.adapters.AdapterFactory
@@ -32,6 +33,10 @@ class Application {
         mail.sendMail("new incident", "$body", "will.woodman@outlook.com")
     */
 
+        def alarmServer = new AlarmApiServerVerticle ()
+        alarmServer.configureHttpServer()
+        println "started Alarm Api Server "
+
         def simulatedTicketServerEnabled = application.binding.config.ticketAdapter.simulatorEnabled
 
         if (simulatedTicketServerEnabled) {
@@ -43,15 +48,16 @@ class Application {
         def incidentProcessor = new ManageIncidentFacadeService()
 
 
-        Event event = new Event (id:1, type:'critical', ciReference:"192.168.1.24", name:"Temperature Threshold Breached ")
+        /* Event event = new Event (id:1, type:'critical', ciReference:"192.168.1.24", name:"Temperature Threshold Breached ")
 
         Alarm alarm = new Alarm (event)
 
-        alarm.generateAlarm()
+        alarm.generateAlarm() */
 
         println "resting "
-        Thread.sleep(5000)
-        println "closing down "
+
+        //Thread.sleep(5000)
+        //println "closing down "
 
         //System.exit(0)
     }

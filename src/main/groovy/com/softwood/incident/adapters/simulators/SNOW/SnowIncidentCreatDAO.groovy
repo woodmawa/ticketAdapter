@@ -105,6 +105,8 @@ package com.softwood.incident.adapters.simulators.SNOW
  * }
  *
  */
+
+//not using this right now - using IncidentTicket as wrapper and generate post body
 class SnowIncidentCreatDAO {
     String short_description
     String Comments

@@ -4,10 +4,12 @@ import com.softwood.application.Application
 import com.softwood.application.ConfigurableProjectApplication
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
 import javax.inject.Inject
 import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentLinkedQueue
 
 //import grails.events.annotation.*
 
@@ -38,6 +40,71 @@ class Alarm implements Serializable{
 
          eventBus.publish("cpeAlarm", this)  //vertx platform wraps with a message
          this
+    }
+
+    /**
+     *     catch property missing on map constructor call, and delegate to the embedded ci
+     */
+    def propertyMissing (String name) {
+        getProperty(name)
+    }
+
+    def propertyMissing (String name, value) {
+        setProperty(name, value)
+    }
+
+    /**
+     * intercept regular property accesses and delegate to embedded ci
+     */
+    void setProperty (String name, value) {
+        //println "invoked set property for $name with value $value "
+        if (!metaClass.hasProperty(this, name)) {
+            event?."$name" = value
+        }
+        else
+            metaClass.setProperty(this, name, value)
+    }
+
+    def getProperty (String name) {
+        if (!metaClass.hasProperty(this, name)) {
+            event?."$name"
+        }
+        else
+            this.metaClass.getProperty(this, name)
+    }
+
+    JsonObject toJson() {
+        JsonObject json = new JsonObject()
+
+        Map props = this.properties
+        props.each {key, value ->
+            if (value instanceof ConcurrentLinkedQueue)
+                return
+            else if (value instanceof Class )
+                return
+            else if (value instanceof LocalDateTime) {
+                json.put(key, value.toString())
+            }
+            else if (value == null )
+                return
+            else if (key == "app")
+                return
+            else if (key == "event")
+                return
+            else if (key == "eventCharacteristics") {
+                JsonObject details = new JsonObject()
+                value.each {details.put (it.key, it.value)}
+                json.put (key, details)
+            } else {
+                println "adding $key and value : $value to json"
+
+                json.put (key, value)
+            }
+        }
+
+        //todo encode other values later
+        json
+
     }
 
     String toString () {
