@@ -11,7 +11,9 @@ class DeviceCiTest extends Specification {
 
         when : ""
         def methods = router.metaClass.methods.collect {it.name}
+        def relations = router.metaClass.methods.findAll {it.name.contains "add"}
         println "list of methods $methods"
+        println "list of relationship methods $relations"
 
         then : "device responds to 'addRelationshipTo'"
         router.respondsTo('addRelationshipTo')

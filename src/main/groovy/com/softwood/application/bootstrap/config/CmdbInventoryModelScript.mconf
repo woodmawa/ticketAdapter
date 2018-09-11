@@ -22,17 +22,17 @@ Customer hsbc = binding.customers[0]
 
 Site hqsite = hsbc.sites[0]
 
-Device router = new Device(name:"Wan gateway ASR", category:"device", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
+Device router = new Device(name:"Wan gateway ASR", category:"Router", hostname:"UK-LON-ROUTER-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
 router.customer = hsbc
 router.site = hqsite
 
-Device custSwitch = new Device(name:"Wan gateway ASR", category:"device", hostname:"UK-LON-CWHQ", ipAddress: "192.168.1.78", managementIpAddress: "192.168.1.24", alias:"access router")
+Device custSwitch = new Device(name:"Wan gateway ASR", category:"Switch", hostname:"UK-LON-SWITCH-CWHQ", ipAddress: "192.168.2.78", managementIpAddress: "192.168.2.50", alias:"floor switch ")
 custSwitch.customer = hsbc
 custSwitch.site = hqsite
 
 ConnectionService cct = new ConnectionService (name: "ipvpn connection ", bandwith: "10G", loopbackIpAddress : "192.168.5.80")
 
-router.addRelationshipTo(router, "connected to")  //one way
+router.addRelationshipTo(cct, "connected to")  //one way
 
 inventory << router << custSwitch << cct
 

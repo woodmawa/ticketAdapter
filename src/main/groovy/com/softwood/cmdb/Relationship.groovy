@@ -9,4 +9,8 @@ class Relationship {
     String name
     def fromCi
     def toCi
+
+    String toString () {
+        "Relationship (name:$name, fromCi: $fromCi, toCi: $toCi)"
+    }
 }

@@ -15,6 +15,10 @@ class ConnectionService {
         this.ci = ci
     }
 
+    //alias method for CI name
+    String getServiceIdentifier () {
+        name
+    }
 
     /**
      *     catch property missing on map constructor call, and delegate to the embedded ci
@@ -46,4 +50,7 @@ class ConnectionService {
             this.metaClass.getProperty(this, name)
     }
 
+    String toString () {
+        "ConnectionService (serviceIdentifier:$name, owningSite $site)"
+    }
 }

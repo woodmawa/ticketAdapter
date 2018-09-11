@@ -32,6 +32,14 @@ class Application {
         mail.sendMail("new incident", "$body", "will.woodman@outlook.com")
     */
 
+        def simulatedTicketServerEnabled = application.binding.config.ticketAdapter.simulatorEnabled
+
+        if (simulatedTicketServerEnabled) {
+            String flavour = application.binding.config.ticketAdapter.system
+            println "Application startup: app has been configured to start with a simulated server"
+            def server = AdapterFactory.newAdapter(flavour, AdapterFactoryType.server)
+        }
+
         def incidentProcessor = new ManageIncidentFacadeService()
 
 
@@ -42,8 +50,10 @@ class Application {
         alarm.generateAlarm()
 
         println "resting "
-        Thread.sleep(2000)
+        Thread.sleep(5000)
+        println "closing down "
 
+        System.exit(0)
     }
 }
 

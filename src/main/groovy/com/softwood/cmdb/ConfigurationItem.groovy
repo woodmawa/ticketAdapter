@@ -12,6 +12,7 @@ class ConfigurationItem {
     String alias
     String status
     Customer customer
+    String type
     String category
     Map hierarchy = [:]  //level1, to level5 - level names as key, value to hold visible display value
 
@@ -42,7 +43,7 @@ class ConfigurationItem {
 
     Collection<Relationship> getRelationships (ci=null) {
         if (!ci)
-            relatedTo.asList()
+            relatedTo.collect {it.value}
         else if (relatedTo.contains(ci))
             [relatedTo.ci]
         else []

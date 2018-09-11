@@ -50,17 +50,9 @@ class FacadeRouter {
     def route (ConfigurationItem ci) {
         IncidentTicketAdapter ticketAdapter
 
-        ConfigurableProjectApplication app = Application.application
-        def binding = app.binding
-        String confAdapterSystem = binding.config.ticketAdapter.system
-        //def confAdapterSystem = binding.getProperty("defaultTicketAdapter.system")
 
+        //get configured ticket adapter client as return to facade
+        ticketAdapter = Application.application.binding.clientTicketAdapter
 
-
-        //determine which adapter for get from factory
-
-        ticketAdapter = AdapterFactory.newAdapter(confAdapterSystem, AdapterFactoryType.client)
-        ticketAdapter.name = "myClientAdapter"
-        ticketAdapter
     }
 }

@@ -6,6 +6,8 @@ import com.softwood.alarmsAndEvents.Alarm
 import com.softwood.bus.HackEventBus
 import com.softwood.cmdb.ConfigurationItem
 import com.softwood.cmdb.views.Device
+import com.softwood.incident.adapters.AdapterFactory
+import com.softwood.incident.adapters.AdapterFactoryType
 import com.softwood.incident.incidentFacadeProcessingCapabilities.CiContextResolver
 import com.softwood.incident.incidentFacadeProcessingCapabilities.FacadeRouter
 import io.vertx.ext.web.client.HttpRequest
@@ -28,6 +30,12 @@ class ManageIncidentFacadeService {
 
         def vEventBus = vertx.eventBus()
 
+        //determine which client adapter for get from factory, and save into the binding
+        String system = Application.application.binding.config.ticketAdapter.system
+        def ticketAdapter = AdapterFactory.newAdapter(system, AdapterFactoryType.client)
+        Application.application.binding.clientTicketAdapter = ticketAdapter
+
+        //setup the consumer endpoint to be invoked on inbound message
         Closure handler = this.&vertxOnCpeAlarm
         vEventBus.consumer("cpeAlarm", handler)
     }
@@ -45,7 +53,7 @@ class ManageIncidentFacadeService {
             def ci = dci.ci
 
             def ticketAdapter = router.route(ci)
-            println "vertx MIFS tracing> resolved ticket adapter to use as : $ticketAdapter"
+            println "vertx MIFS tracing> resolved ticket adapter to use as : $ticketAdapter, for ci : $ci"
 
             //fixed flow model at present
             //def ticket = new Ticket () as Json - ticketAdapter.createTicket ()
@@ -53,7 +61,8 @@ class ManageIncidentFacadeService {
             //ticket.setAlarmDetails (alarm)
             //ticketAdapter.apiPost(tciket)
             //HttpRequest request = client.apiGet("/api/now/table/incident")
-            HttpRequest request = ticketAdapter.apiGet ("/api/now/table/incident")
+             def stem = Application.application.binding.uriApiStemPath
+            HttpRequest request = ticketAdapter.apiGet ("$stem/incident")
             ticketAdapter.apiSend (request) {ar ->
                 if (ar.statusCode() == 200)
                     println "vertx MIFS tracing> Snow api GET request received response " + ar.bodyAsJsonObject().encodePrettily()

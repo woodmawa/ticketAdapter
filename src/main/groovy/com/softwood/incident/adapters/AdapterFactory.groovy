@@ -42,14 +42,25 @@ class AdapterFactory {
 
         def instance
 
+        switch (system.toUpperCase()) {
+            case "SNOW" :
+                Application.application.binding.uriApiStemPath = "/api/now/table"
+                break
+            case "ITSM" :
+                Application.application.binding.uriApiStemPath = "/api/xxx"  //tod figure out what the itsm stem is
+                break
+        }
+
         switch (type) {
             case AdapterFactoryType.server :
                  instance = (factory.apiSimulatorServer).newInstance()
                 instance.configureHttpServer()
+                instance.name = "$system Simulated Server"
                 break;
             case AdapterFactoryType.client  :
                 instance = (factory.apiClient).newInstance()
                 instance.configureHttpClient()
+                instance.name = "$system Simulated Client"
                 break;
 
         }

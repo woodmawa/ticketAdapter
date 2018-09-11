@@ -9,8 +9,7 @@ class Device {
 
     Device() {
         ci = new ConfigurationItem()
-        println "default constructor called - create delegate ci "
-        //this.metaClass.propertyMissing
+        ci.type = "Device"
     }
 
     Device(ConfigurationItem ci) {
@@ -33,7 +32,7 @@ class Device {
      * intercept regular property accesses and delegate to embedded ci
      */
     void setProperty (String name, value) {
-        println "invoked set property for $name with value $value "
+        //println "invoked set property for $name with value $value "
         if (!metaClass.hasProperty(this, name)) {
             ci?."$name" = value
         }
