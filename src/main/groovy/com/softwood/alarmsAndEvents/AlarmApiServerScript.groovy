@@ -11,7 +11,7 @@ import io.vertx.ext.web.handler.BodyHandler
 
 import java.time.LocalDateTime
 
-
+//this script just calculates packet size - rest disabled
 
  def resultLength = """{
   "name" : "my alarm",
