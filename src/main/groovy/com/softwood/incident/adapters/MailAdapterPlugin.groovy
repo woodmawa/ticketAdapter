@@ -41,11 +41,11 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
         if (userName == null || password == null ) {
             throw ExceptionInInitializerError.newInstance("mail userName and mail password must be set in the environment ")
         }
-        
+
         email.setHostName(mailConf.'server')
         email.setSmtpPort( mailConf.'port')
         //todo need to hide this - read from env variables of something
-        email.setAuthenticator(new DefaultAuthenticator("will.woodman", "polomint1xex49is"));
+        email.setAuthenticator(new DefaultAuthenticator(userName, password))
         email.setSSLOnConnect(mailConf.'sslEnabled')
         email.setFrom(mailConf.'from')
         email.setSubject(mailConf.'defaultSubject')
