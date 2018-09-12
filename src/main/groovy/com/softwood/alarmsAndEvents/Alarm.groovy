@@ -1,7 +1,23 @@
+/*
+ * Copyright 2018 Will woodman.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.softwood.alarmsAndEvents
 
 import com.softwood.application.Application
 import com.softwood.application.ConfigurableProjectApplication
+import groovy.json.JsonGenerator
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.json.JsonArray
@@ -24,8 +40,12 @@ class Alarm implements Serializable{
 
     Alarm (event) {
         // Register codec for alarm message
-        app.vertx.eventBus().registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
+        app?.vertx?.eventBus()?.registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
         this.event = event
+    }
+
+    Alarm () {
+        event = new Event()
     }
 
     //could use @Publisher ('<name>') defaults same as method
@@ -73,7 +93,28 @@ class Alarm implements Serializable{
             this.metaClass.getProperty(this, name)
     }
 
+    /**
+     * better cleaner implementation using groovy's JsonGenerator to control the format
+     * @return Alarm as JsonObject
+     */
     JsonObject toJson() {
+        def generator = new JsonGenerator.Options()
+        .excludeNulls()
+        .excludeFieldsByType (Class)
+        .excludeFieldsByName ("app")
+        .excludeFieldsByName("event")
+        .addConverter(LocalDateTime) {LocalDateTime t, String key ->
+            t.toString()
+        }
+        .build()
+
+        String  result = generator.toJson (this)
+        new JsonObject (result)
+
+    }
+
+
+    JsonObject toJsonOld() {
         JsonObject json = new JsonObject()
 
         Map props = this.properties

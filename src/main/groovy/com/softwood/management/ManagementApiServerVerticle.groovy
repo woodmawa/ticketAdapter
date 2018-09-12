@@ -14,33 +14,28 @@
  * limitations under the License.
  */
 
-package com.softwood.alarmsAndEvents
+package com.softwood.management
 
+import com.softwood.alarmsAndEvents.Alarm
+import com.softwood.alarmsAndEvents.Event
 import com.softwood.application.Application
-import com.softwood.incident.adapters.simulators.SNOW.SnowSimulatorIMDB
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
-import io.vertx.core.json.Json
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 
 import java.time.LocalDateTime
 
-
-class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
+class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
 
     String name
      HttpServer server
     String host
     int port
-    int baseAlarmId = 100
 
     void start(Future<Void> future) {
         println "starting Alarm server .. "
@@ -60,8 +55,8 @@ class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
 
     def configureHttpServer() {
 
-        host = Application.application.binding.config.alarmServer.host
-        port = Application.application.binding.config.alarmServer.port
+        host = Application.application.binding.config.management.host
+        port = Application.application.binding.config.management.port
 
         Vertx vertx = Vertx.vertx()
         HttpServer server = vertx.createHttpServer()  //start server after defining the routes?
@@ -75,7 +70,7 @@ class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
-        alarmApiRouter.route("/api/alarm/*")
+        alarmApiRouter.route("/api/management/*")
                 .handler(io.vertx.ext.web.handler.BodyHandler.create())
                 .blockingHandler { routingContext ->
 
@@ -97,15 +92,14 @@ class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
                     //get post body as Json text
                     JsonObject postBody = routingContext.getBodyAsJson()
 
-                    def alarm = processAlarmRequest (trailingParam, postBody)
-                    JsonObject jsonAlarm = generatePostResponse(trailingParam, alarm)
-                    def resultBody = jsonAlarm?.encodePrettily() ?: ""
+                    def alarm = processManagementRequest (trailingParam, postBody)
+                    JsonObject jsonResponse = generatePostResponse(trailingParam, alarm)
+                    def resultBody = jsonResponse?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0
                     response.putHeader("content-length", "$length")
 
-                    println "returning  Alarm Post result with length $length to client"
                     response.end(resultBody)
 
                     break
@@ -121,34 +115,22 @@ class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
 
-    private Alarm processAlarmRequest (String param, JsonObject postRequestBody) {
+    private JsonObject processManagementRequest (String param, JsonObject postRequestBody) {
 
         //build new generic alarm from postRequestBody - ignore param
-        Alarm alarm = new Alarm(new Event())
+        ApplicationManagement management = new ApplicationManagement()
 
-        alarm.ciReference = postRequestBody?.getString("ciReference")
-        alarm.createdDate = LocalDateTime.now()
-        alarm.id = baseAlarmId++
-        alarm.name = postRequestBody.getString("name") ?: "new alarm $baseAlarmId"
-        alarm.type = postRequestBody.getString("type") ?: "critical"
-        def specDetail = postRequestBody.getJsonObject("details") ?: new JsonObject()
-        alarm.eventCharacteristics = [:]
-        for (entry in specDetail)
-            alarm.eventCharacteristics.put (entry.key, entry.value )
+        JsonObject responseBody
+        Closure action
 
-
-        alarm.generateAlarm()  //post to event bus
-        println "sent alarm to event bus, returning Alarm as $alarm"
-        alarm
-
+        if (action = management."$param.toLowerCase()") {
+            println "performing management action $param"
+            responseBody = action (postRequestBody)
+        } else {
+            responseBody = """{ "NoAction" {"unknown management action" : "action : $param} }"""
+        }
+        responseBody
     }
 
-    private JsonObject generatePostResponse(String param, Alarm alarm) {
 
-        //def alarmMap = Json.mapper.convertValue ( alarm, Map.class )
-        //JsonObject responseBody = new JsonObject(alarmMap)
-        //JsonObject responseBody = new JsonObject(Json.encode(alarm))
-        JsonObject responseBody = alarm.toJson ()
-
-    }
 }

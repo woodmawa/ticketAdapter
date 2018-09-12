@@ -13,6 +13,18 @@ import java.time.LocalDateTime
 
 //this script just calculates packet size - rest disabled
 
+def alarm = new Alarm ()
+alarm.ciReference = "192.168"
+alarm.id = 27
+alarm.name = "my alarm"
+alarm.type = "critical"
+alarm.eventCharacteristics.put  ('threshold', '100% ')
+
+JsonObject result = alarm.toJson2()
+println "json result " + result.encodePrettily()
+
+System.exit (0)
+
  def resultLength = """{
   "name" : "my alarm",
   "ciReference" : "192.168.1.24",

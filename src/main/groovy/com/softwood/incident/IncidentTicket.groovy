@@ -1,6 +1,22 @@
+/*
+ * Copyright 2018 author : Will woodman.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.softwood.incident
 
 import com.softwood.utils.UuidUtil
+import groovy.json.JsonGenerator
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
@@ -35,32 +51,24 @@ class IncidentTicket implements PublicTicketTrait {
         assignee = agent
     }
 
-    JsonObject asJson() {
-        JsonObject json = new JsonObject()
+    /**
+     * better cleaner implementation using groovy's JsonGenerator to control the format
+     * @return Alarm as JsonObject
+     */
+    JsonObject toJson() {
+        def generator = new JsonGenerator.Options()
+                .excludeNulls()
+                .excludeFieldsByType (Class)
+                .excludeFieldsByType (Closure)
+                .addConverter(ConcurrentLinkedQueue) {ConcurrentLinkedQueue queue, String key -> queue.toArray() }
+                .addConverter(LocalDateTime) {LocalDateTime t, String key -> t.toString() }
+                .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
+        .build()
 
-        Map props = this.properties
-        props.each {key, value ->
-            if (value instanceof ConcurrentLinkedQueue)
-                return
-            else if (key == "id")
-                return
-            else if (value instanceof Class )
-                return
-            else if (value instanceof LocalDateTime)
-                json.put (key, value.toString() )
-            else if (value == null )
-                return
-            else if (key == "relatedCi") {
-                JsonArray relCi = new JsonArray()
-                value.each {relCi.add (it)}
-                json.put (key, relCi)
-            } else {
-                println "adding $key and value : $value to json"
-                json.put (key, value)
-            }
-        }
+        String  result = generator.toJson (this)
+        new JsonObject (result)
 
-        //todo encode other values later
-        json
     }
+
+
 }

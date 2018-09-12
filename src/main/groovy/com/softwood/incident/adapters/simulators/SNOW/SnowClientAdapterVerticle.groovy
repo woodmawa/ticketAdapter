@@ -56,7 +56,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
     }
 
     private JsonObject $convertTicketToSnowPostFormat (IncidentTicket genTicket) {
-        def postBody  = genTicket.asJson()
+        def postBody  = genTicket.toJson()
         //need to convert a couple of generic keys to SNOW specific
 
         def title = postBody.getString("title")

@@ -1,5 +1,22 @@
+/*
+ * Copyright 2018 author : Will woodman.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.softwood.incident.adapters
 
+import com.softwood.application.Application
+import com.softwood.application.ConfigurableProjectApplication
 import org.apache.commons.mail.DefaultAuthenticator
 import org.apache.commons.mail.Email
 import org.apache.commons.mail.SimpleEmail
@@ -10,18 +27,28 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
     String name
     Email email
 
+    def mailConf = Application.application.binding.config.ticketAdapter.mail
+
     //factory interface realisation
     def send (message) {
         sendMail ("new incident", message, "will.woodman@outlook.com")
     }
 
     Closure defaultConf = {
-        email.setHostName("mail.btinternet.com")
-        email.setSmtpPort( 465)
+
+        def userName = System.getProperty("mailUserName").toString()
+        def password = System.getProperty ("mailPassword").toString()
+        if (userName == null || password == null ) {
+            throw ExceptionInInitializerError.newInstance("mail userName and mail password must be set in the environment ")
+        }
+        
+        email.setHostName(mailConf.'server')
+        email.setSmtpPort( mailConf.'port')
+        //todo need to hide this - read from env variables of something
         email.setAuthenticator(new DefaultAuthenticator("will.woodman", "polomint1xex49is"));
-        email.setSSLOnConnect(true)
-        email.setFrom("will.woodman@btinternet.com")
-        email.setSubject("groovy TestMail")
+        email.setSSLOnConnect(mailConf.'sslEnabled')
+        email.setFrom(mailConf.'from')
+        email.setSubject(mailConf.'defaultSubject')
     }
 
     MailAdapterPlugin (Closure config = null) {
@@ -36,6 +63,7 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
 
 
     private def configure (config) {
+        //invoke methodClosure
         config()
     }
 

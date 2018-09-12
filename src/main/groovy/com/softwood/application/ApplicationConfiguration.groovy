@@ -14,6 +14,14 @@ ticketAdapter {
     type = AdapterProtocolType.Json
     host = "localhost"
     port = 8081
+    mail {
+        server = "mail.btinternet.com"
+        port = 465
+        protocol = "smtp"
+        from = "will.woodman@btinternet.com"
+        sslEnabled = true
+        defaultSubject = "email from alarm event to ticket processor"
+    }
 
     adapterFactories = [SNOW :[apiSimulatorServer: SnowApiServerSimulatorVerticle,
                                apiClient: SnowClientAdapterVerticle,
@@ -30,3 +38,11 @@ alarmServer {
     port = 8090
 
 }
+
+management{
+    //you can add aditional actions via config by adding the acction name and method closure to the map
+    configurableActions = [:]
+    host = "localhost"
+    port = 8080
+}
+
