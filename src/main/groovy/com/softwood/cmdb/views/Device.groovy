@@ -64,6 +64,6 @@ class Device {
     }
 
     String toString(){
-        "Device (name:$name, host:$ci.hostname, managementIpAddress:$ci.managementIpAddress)"
+        "Device (name:$name, host:$ci.hostname, managementIpAddress:$ci.managementIpAddress) [$ci]"
     }
 }

@@ -56,7 +56,7 @@ class Application {
         managementServer.configureHttpServer()
         println "started management actions listener service on : $manHost:$manPort "
 
-        //register the Alarm codec with the event bus - one time registration 
+        //register the Alarm codec with the event bus - one time registration
         vertx?.eventBus()?.registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
 
 

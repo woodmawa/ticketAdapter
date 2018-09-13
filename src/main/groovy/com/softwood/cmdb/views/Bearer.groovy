@@ -60,4 +60,8 @@ class Bearer {
             this.metaClass.getProperty(this, name)
     }
 
+    String toString () {
+        "BearerService (serviceIdentifier:$name, owningSite $site)  [$ci]"
+    }
+
 }

@@ -41,6 +41,7 @@ trait PublicTicketTrait {
     String sitePostalCode
     String item //free format string
     String ciName
+    String cmdb_ci
     String[] relatedCi = [""]
     LocalDateTime reportedDateTime
     LocalDateTime resolvedDateTime

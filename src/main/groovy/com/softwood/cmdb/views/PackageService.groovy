@@ -81,4 +81,9 @@ class PackageService {
         else
             this.metaClass.getProperty(this, name)
     }
+
+    String toString () {
+        "PackageService (serviceIdentifier:$piName, owningSite $site)  [$pci]"
+    }
+
 }

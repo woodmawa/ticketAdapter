@@ -150,6 +150,10 @@ class ConfigurationItem {
         else
             this.metaClass.getProperty(this, name)
     }
+
+    String toString() {
+        "Ci (id:$id, type: $type, name:$name)"
+    }
 }
 
 class ciSpecificationCharacteristic {

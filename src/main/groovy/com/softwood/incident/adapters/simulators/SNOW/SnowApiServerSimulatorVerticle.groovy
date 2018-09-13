@@ -67,11 +67,18 @@ class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
             println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
 
             def response = routingContext.response()
+            def resultBody
 
             switch (method) {
                 case HttpMethod.GET:  //todo getList processing
-                    JsonObject jsonTicket = generateGetResponse(snowImdb, trailingParam)
-                    def resultBody = jsonTicket?.encodePrettily() ?: ""
+                    if (trailingParam == "list") {
+                        JsonObject listResult = snowImdb.listTickets()
+                        resultBody = listResult?.encodePrettily() ?: ""
+                    }
+                    else {
+                        JsonObject jsonTicket = generateGetResponse(snowImdb, trailingParam)
+                        resultBody = jsonTicket?.encodePrettily() ?: ""
+                    }
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0
@@ -87,7 +94,7 @@ class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
                     JsonObject postBody = routingContext.getBodyAsJson()
 
                     JsonObject jsonTicket = generatePostResponse(snowImdb, trailingParam, postBody)
-                    def resultBody = jsonTicket?.encodePrettily() ?: ""
+                    resultBody = jsonTicket?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0

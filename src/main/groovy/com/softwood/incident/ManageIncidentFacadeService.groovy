@@ -101,6 +101,7 @@ class ManageIncidentFacadeService {
             newTicket.severity = "high"
             newTicket.impact = "cant trade"
             newTicket.item = ci.name
+            newTicket.cmdb_ci = ci.toString()
             newTicket.requester = "will.woodman@techmahindra.com"
             newTicket.category = ci.category
             newTicket.description = """

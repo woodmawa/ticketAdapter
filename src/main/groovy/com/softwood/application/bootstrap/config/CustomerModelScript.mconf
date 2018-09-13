@@ -25,6 +25,9 @@ Site site = new Site (name:"canary wharf HQ")
 cust.addSite (site)
 cust.addContract (con)
 
+site = new Site (name:"HSBC Docklands Datacentre")
+cust.addSite(site)
+
 customers << cust
 
 cust = new Customer (name:"ACME", role : RoleType.CUSTOMER )

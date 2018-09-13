@@ -66,6 +66,6 @@ class ConnectionService {
     }
 
     String toString () {
-        "ConnectionService (serviceIdentifier:$name, owningSite $site)"
+        "ConnectionService (serviceIdentifier:$name, owningSite $site)  [$ci]"
     }
 }

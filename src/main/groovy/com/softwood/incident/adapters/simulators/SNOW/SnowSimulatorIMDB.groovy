@@ -25,6 +25,7 @@ public class SnowSimulatorIMDB {
         db
     }
 
+    //note site and postal code are not in SNOW std - added for simulator demo
     private SnowSimulatorIMDB () {
         String  defaultBaseTicketString = """
 {
@@ -67,6 +68,8 @@ public class SnowSimulatorIMDB {
     "activity_due": "",
     "correlation_display": "",
     "company": "unknown",
+    "site": "unknown",      
+    "postalCode": "unknown",      
     "active": "true",
     "due_date": "",
     "assignment_group": {
@@ -172,7 +175,9 @@ public class SnowSimulatorIMDB {
         builder.content.result.urgency =  params.urgency ?: ""
         builder.content.result.severity =  params.severity ?: ""
         builder.content.result.location =  params.location ?: ""
-        builder.content.result.company =  params.company ?: ""
+        builder.content.result.company =  params.customerName ?: ""
+        builder.content.result.site =  params.siteName ?: ""
+        builder.content.result.postalCode =  params.sitePostalCode ?: ""
         builder.content.result.caller_id =  params.caller_id ?: ""
         builder.content.result.cmdb_ci =  params.cmdb_ci ?: ""
         builder.content.result.comments =  params.comments ?: ""
@@ -197,19 +202,36 @@ public class SnowSimulatorIMDB {
 
     }
 
-    /* in reality this deosnt appear to be supported officually in the API
+    /* in reality this deosnt appear to be supported officially in the SNOW API
      * see https://developer.servicenow.com/app.do#!/rest_api_doc?v=istanbul&id=r_TableAPI-GETid
+     *
+     * doing this for demo purposes
      *
      * probably need to chunk this in the vertx handler
      */
-    JsonArray listTickets () {
+    JsonObject listTickets (limit=0) {
         JsonArray results = new JsonArray ()
 
-        snowImdb.each (key, record) {
-            results.add(record)
+
+        snowImdb.each {String key , JsonObject ticketResult ->
+            JsonObject listEntry = new JsonObject()
+            //drop one level down for details
+            JsonObject ticket = ticketResult.getValue("result")
+
+            listEntry.put ("incident ticket", ticket.getValue("sys_id"))
+            JsonObject summaryDetails = new JsonObject ()
+            summaryDetails.put("incident number", ticket.getValue("number"))
+            summaryDetails.put("customer", ticket.getValue("company"))
+            summaryDetails.put("title", ticket.getValue("short_description"))
+            summaryDetails.put("createDate", ticket.getValue("sys_created_on"))
+
+            listEntry.put("header", summaryDetails)
+            results.add(listEntry)
         }
 
-
+        JsonObject listResult = new JsonObject()
+        listResult.put ("incident list", results)
+        listResult
     }
 
     // current number of records in IMDB
