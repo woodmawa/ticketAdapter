@@ -16,19 +16,13 @@
 package com.softwood.application
 
 import com.softwood.alarmsAndEvents.Alarm
-import com.softwood.alarmsAndEvents.AlarmApiServerVerticle
+import com.softwood.alarmsAndEvents.AlarmAPI.AlarmApiServerVerticle
 import com.softwood.alarmsAndEvents.AlarmMessageCodec
-import com.softwood.alarmsAndEvents.Event
+import com.softwood.cmdb.cmdbApi.CmdbApiServerVerticle
 import com.softwood.incident.ManageIncidentFacadeService
 import com.softwood.incident.adapters.AdapterFactory
 import com.softwood.incident.adapters.AdapterFactoryType
-import com.softwood.incident.adapters.MailAdapterPlugin
-import com.softwood.incident.adapters.simulators.SNOW.SnowApiServerSimulatorVerticle
-import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
 import com.softwood.management.ManagementApiServerVerticle
-import io.vertx.core.Verticle
-import io.vertx.ext.web.client.HttpRequest
-import io.vertx.ext.web.client.HttpResponse
 
 class Application {
     //frig to get round dependency injection issue with dagger, just store on the Application directly
@@ -65,6 +59,12 @@ class Application {
         def alarmServer = new AlarmApiServerVerticle ()
         alarmServer.configureHttpServer()
         println "started Alarm Api Server listener service on : $manHost:$manPort "
+
+        def cmdbHost = Application.application.binding.config.cmdbServer.host
+        def cmdbPort = Application.application.binding.config.cmdbServer.port
+        def cmdbServer = new CmdbApiServerVerticle()
+        cmdbServer.configureHttpServer()
+        println "started Cmdb Api Server listener service on : $cmdbHost:$cmdbPort "
 
         def simulatedTicketServerEnabled = application.binding.config.ticketAdapter.simulatorEnabled
 

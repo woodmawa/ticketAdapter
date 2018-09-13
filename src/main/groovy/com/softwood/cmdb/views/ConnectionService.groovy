@@ -16,13 +16,20 @@
 package com.softwood.cmdb.views
 
 import com.softwood.cmdb.ConfigurationItem
+import groovy.json.JsonGenerator
+import io.vertx.core.json.JsonObject
 
-class ConnectionService {
+import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentLinkedQueue
+
+class ConnectionService  {
     @Delegate ConfigurationItem ci
 
 
     ConnectionService() {
         ci = new ConfigurationItem()
+        ci.type = "ConnectionService"
+
     }
 
     ConnectionService(ConfigurationItem ci) {
@@ -50,6 +57,7 @@ class ConnectionService {
      * intercept regular property accesses and delegate to embedded ci
      */
     void setProperty (String name, value) {
+        //println "invoked set property for $name with value $value "
         if (!metaClass.hasProperty(this, name)) {
             ci?."$name" = value
         }
@@ -65,7 +73,30 @@ class ConnectionService {
             this.metaClass.getProperty(this, name)
     }
 
+    /**
+     * better cleaner implementation using groovy's JsonGenerator to control the format
+     * @return Alarm as JsonObject
+     */
+    JsonObject toJson() {
+        def generator = new JsonGenerator.Options()
+                .excludeNulls()
+                .excludeFieldsByType (Class)
+                .excludeFieldsByType (Closure)
+                .addConverter(ConcurrentLinkedQueue) { ConcurrentLinkedQueue queue, String key -> queue.toArray() }
+                .addConverter(LocalDateTime) { LocalDateTime t, String key -> t.toString() }
+                .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
+                .addConverter(Optional) {Optional opt, String key ->
+                    if (opt.isPresent())
+                        opt.get().toString()
+                }
+                .build()
+
+        String  result = generator.toJson (this)
+        new JsonObject (result)
+
+    }
+
     String toString () {
-        "ConnectionService (serviceIdentifier:$name, owningSite $site)  [$ci]"
+        "ConnectionService (serviceIdentifier:$name, owningSite $site) [type:$ci.type, id:$ci.id]"
     }
 }

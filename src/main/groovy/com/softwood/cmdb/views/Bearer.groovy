@@ -16,6 +16,11 @@
 package com.softwood.cmdb.views
 
 import com.softwood.cmdb.ConfigurationItem
+import groovy.json.JsonGenerator
+import io.vertx.core.json.JsonObject
+
+import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class Bearer {
     @Delegate ConfigurationItem ci
@@ -60,8 +65,31 @@ class Bearer {
             this.metaClass.getProperty(this, name)
     }
 
+    /**
+     * better cleaner implementation using groovy's JsonGenerator to control the format
+     * @return Alarm as JsonObject
+     */
+    JsonObject toJson() {
+        def generator = new JsonGenerator.Options()
+                .excludeNulls()
+                .excludeFieldsByType (Class)
+                .excludeFieldsByType (Closure)
+                .addConverter(ConcurrentLinkedQueue) { ConcurrentLinkedQueue queue, String key -> queue.toArray() }
+                .addConverter(LocalDateTime) { LocalDateTime t, String key -> t.toString() }
+                .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
+                .addConverter(Optional) {Optional opt, String key ->
+                   if (opt.isPresent())
+                    opt.get().toString()
+                }
+                .build()
+
+        String  result = generator.toJson (this)
+        new JsonObject (result)
+
+    }
+
     String toString () {
-        "BearerService (serviceIdentifier:$name, owningSite $site)  [$ci]"
+        "BearerService (serviceIdentifier:$name, owningSite $site)  [type:$ci.type, id:$ci.id]"
     }
 
 }

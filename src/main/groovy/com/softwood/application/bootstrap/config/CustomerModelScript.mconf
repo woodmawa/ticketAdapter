@@ -21,11 +21,13 @@ Customer cust = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
 Contract con = new Contract (reference: "digitalBank")
 
 Site site = new Site (name:"canary wharf HQ")
+site.postalCode = "E14 5AH"
 
 cust.addSite (site)
 cust.addContract (con)
 
 site = new Site (name:"HSBC Docklands Datacentre")
+site.postalCode = "E14 3AB"
 cust.addSite(site)
 
 customers << cust

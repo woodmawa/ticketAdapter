@@ -39,6 +39,12 @@ alarmServer {
 
 }
 
+cmdbServer {
+    host = "localhost"
+    port = 8082
+
+}
+
 management{
     //you can add aditional actions via config by adding the acction name and method closure to the map
     configurableActions = [:]

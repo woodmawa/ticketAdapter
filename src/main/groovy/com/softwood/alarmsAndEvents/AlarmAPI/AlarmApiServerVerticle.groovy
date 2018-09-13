@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.softwood.alarmsAndEvents
+package com.softwood.alarmsAndEvents.AlarmAPI
 
+import com.softwood.alarmsAndEvents.Alarm
+import com.softwood.alarmsAndEvents.Event
 import com.softwood.application.Application
 import com.softwood.incident.adapters.simulators.SNOW.SnowSimulatorIMDB
 import groovy.json.JsonOutput

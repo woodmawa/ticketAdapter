@@ -16,6 +16,8 @@
 package com.softwood.cmdb
 
 import com.softwood.utils.UuidUtil
+import groovy.json.JsonGenerator
+import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
@@ -194,6 +196,7 @@ class ciSpecificationCharacteristic {
         else
             arrayValues = value
     }
+
 
     String toString () {
         "ciAttVal (name:$propertyName, value:${value ?: arrayValues} )"

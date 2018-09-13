@@ -15,45 +15,16 @@
  */
 package com.softwood.cmdb.views
 
-import com.softwood.cmdb.ConfigurationItem
 import groovy.json.JsonGenerator
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class PackageService {
-
-    @Delegate ConfigurationItem pci
-
-    String piName
-    ConcurrentLinkedQueue ConfigurationItems = new ConcurrentLinkedQueue()
-
-
-    PackageService() {
-        ConfigurationItem pci = new ConfigurationItem()
-    }
-
-    PackageService(ConfigurationItem ci) {
-        assert ci
-
-        if (!ConfigurationItems.contains(ci ))
-            ConfigurationItems << ci
-    }
-
-    void addConfigurationItem (ci) {
-        assert ci
-
-        if (!ConfigurationItems.contains(ci ))
-            ConfigurationItems << ci
-    }
-
-    void removeConfigurationItem (ci) {
-        assert ci
-
-        if (!ConfigurationItems.contains(ci ))
-            ConfigurationItems.remove(ci)
-    }
+/**
+ * common view feature methods common to all the view types
+ */
+trait CmdbViewTrait {
 
     /**
      *     catch property missing on map constructor call, and delegate to the embedded ci
@@ -70,8 +41,9 @@ class PackageService {
      * intercept regular property accesses and delegate to embedded ci
      */
     void setProperty (String name, value) {
+        //println "invoked set property for $name with value $value "
         if (!metaClass.hasProperty(this, name)) {
-            pci?."$name" = value
+            ci?."$name" = value
         }
         else
             metaClass.setProperty(this, name, value)
@@ -79,7 +51,7 @@ class PackageService {
 
     def getProperty (String name) {
         if (!metaClass.hasProperty(this, name)) {
-            pci?."$name"
+            ci?."$name"
         }
         else
             this.metaClass.getProperty(this, name)
@@ -97,19 +69,11 @@ class PackageService {
                 .addConverter(ConcurrentLinkedQueue) { ConcurrentLinkedQueue queue, String key -> queue.toArray() }
                 .addConverter(LocalDateTime) { LocalDateTime t, String key -> t.toString() }
                 .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
-                .addConverter(Optional) {Optional opt, String key ->
-                    if (opt.isPresent())
-                        opt.get().toString()
-                }
+                .addConverter(Optional) {Optional opt, String key -> opt.get()toString() }
                 .build()
 
         String  result = generator.toJson (this)
         new JsonObject (result)
 
     }
-
-    String toString () {
-        "PackageService (serviceIdentifier:$piName, owningSite $site) [type:$pci.type, id:$pci.id]"
-    }
-
 }
