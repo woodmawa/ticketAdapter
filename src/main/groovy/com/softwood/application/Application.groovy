@@ -17,6 +17,7 @@ package com.softwood.application
 
 import com.softwood.alarmsAndEvents.Alarm
 import com.softwood.alarmsAndEvents.AlarmApiServerVerticle
+import com.softwood.alarmsAndEvents.AlarmMessageCodec
 import com.softwood.alarmsAndEvents.Event
 import com.softwood.incident.ManageIncidentFacadeService
 import com.softwood.incident.adapters.AdapterFactory
@@ -54,6 +55,10 @@ class Application {
         def managementServer = new ManagementApiServerVerticle()
         managementServer.configureHttpServer()
         println "started management actions listener service on : $manHost:$manPort "
+
+        //register the Alarm codec with the event bus - one time registration 
+        vertx?.eventBus()?.registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
+
 
         def alarmHost = Application.application.binding.config.alarmServer.host
         def alarmPort = Application.application.binding.config.alarmServer.port

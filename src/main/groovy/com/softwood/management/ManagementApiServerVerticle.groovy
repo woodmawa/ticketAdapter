@@ -27,6 +27,7 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.RoutingContext
 
 import java.time.LocalDateTime
 
@@ -36,6 +37,8 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
      HttpServer server
     String host
     int port
+    ApplicationManagement managementService = new ApplicationManagement()
+
 
     void start(Future<Void> future) {
         println "starting Alarm server .. "
@@ -62,7 +65,7 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
         HttpServer server = vertx.createHttpServer()  //start server after defining the routes?
 
 
-        Router alarmApiRouter = Router.router(vertx)
+        Router managementApiRouter = Router.router(vertx)
 
         /**
          * cant get two routers with different methods to listen on same URI
@@ -70,7 +73,7 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
-        alarmApiRouter.route("/api/management/*")
+        managementApiRouter.route("/api/management/*")
                 .handler(io.vertx.ext.web.handler.BodyHandler.create())
                 .blockingHandler { routingContext ->
 
@@ -83,17 +86,29 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
             String[] segments = uri.split("/")
             def trailingParam = (segments[-1] != "alarm") ? segments[-1] : null //get last segment
 
-            println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
+            println "Management server, processing http [$method] request and found trailing param as '$trailingParam' on uri : $uri "
 
             def response = routingContext.response()
 
             switch (method) {
                 case HttpMethod.POST:
-                    //get post body as Json text
+                    //get post body as Json
                     JsonObject postBody = routingContext.getBodyAsJson()
 
-                    def alarm = processManagementRequest (trailingParam, postBody)
-                    JsonObject jsonResponse = generatePostResponse(trailingParam, alarm)
+                    JsonObject jsonResponse = processManagementRequest (routingContext, trailingParam, postBody)
+                    def resultBody = jsonResponse?.encodePrettily() ?: ""
+
+                    response.putHeader("content-type", "application/json")
+                    def length = resultBody.getBytes().size() ?: 0
+                    response.putHeader("content-length", "$length")
+
+                    response.end(resultBody)
+
+                    break
+
+                case HttpMethod.GET:
+
+                    JsonObject jsonResponse  = processManagementRequest (routingContext, trailingParam, new JsonObject ())
                     def resultBody = jsonResponse?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
@@ -107,26 +122,24 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
 
         }
 
-        server.requestHandler(alarmApiRouter.&accept)
+        server.requestHandler(managementApiRouter.&accept)
         server.listen(port, host)
-        println "started Alarm httpServer listening on port $host:$port"
+        println "started Management httpServer listening on port $host:$port"
         server
 
     }
 
 
-    private JsonObject processManagementRequest (String param, JsonObject postRequestBody) {
+    private JsonObject processManagementRequest (RoutingContext rc, String param, JsonObject postRequestBody) {
 
         //build new generic alarm from postRequestBody - ignore param
-        ApplicationManagement management = new ApplicationManagement()
-
         JsonObject responseBody
         Closure action
 
-        action = management?."$param.toLowerCase()"
+        action = managementService.actions."${param.toLowerCase()}"
         if (action) {
             println "performing management action $param"
-            responseBody = action (postRequestBody)
+            responseBody = action (rc, postRequestBody)
         } else {
             responseBody = new JsonObject ("""{ "NoAction" {"unknown management action" : "action : $param} }""")
         }

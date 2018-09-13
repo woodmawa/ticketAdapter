@@ -40,7 +40,6 @@ class Alarm implements Serializable{
 
     Alarm (event) {
         // Register codec for alarm message
-        app?.vertx?.eventBus()?.registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
         this.event = event
     }
 
