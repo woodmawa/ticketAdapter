@@ -36,12 +36,9 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
 
     Closure defaultConf = {
 
-        def userName = System.getProperty("mailUserName").toString()
-        def password = System.getProperty ("mailPassword").toString()
-        if (userName == null || password == null ) {
-            throw ExceptionInInitializerError.newInstance("mail userName and mail password must be set in the environment ")
-        }
+        def userName, password
 
+        (userName, password) = resolveUserAndPasswordConfiguration()
         email.setHostName(mailConf.'server')
         email.setSmtpPort( mailConf.'port')
         //todo need to hide this - read from env variables of something
@@ -49,6 +46,22 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
         email.setSSLOnConnect(mailConf.'sslEnabled')
         email.setFrom(mailConf.'from')
         email.setSubject(mailConf.'defaultSubject')
+    }
+
+    def resolveUserAndPasswordConfiguration () {
+        def userName = System.getProperty("mailUserName").toString()
+        if (!userName)
+            userName = System.getenv("mailUserName")
+        def password = System.getProperty ("mailPassword").toString()
+        if (!password)
+            password = System.getenv("mailPassword")
+
+        if (userName == null || password == null ) {
+            throw ExceptionInInitializerError.newInstance("mail userName and mail password must be set in the environment ")
+        }
+
+        //multivalue return can also use [userName, password]
+        new Tuple2 (userName, password)
     }
 
     MailAdapterPlugin (Closure config = null) {

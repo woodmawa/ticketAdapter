@@ -24,6 +24,7 @@ import com.softwood.incident.adapters.AdapterFactoryType
 import com.softwood.incident.adapters.MailAdapterPlugin
 import com.softwood.incident.adapters.simulators.SNOW.SnowApiServerSimulatorVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
+import com.softwood.management.ManagementApiServerVerticle
 import io.vertx.core.Verticle
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
@@ -48,9 +49,17 @@ class Application {
         mail.sendMail("new incident", "$body", "will.woodman@outlook.com")
     */
 
+        def manHost = Application.application.binding.config.management.host
+        def manPort = Application.application.binding.config.management.port
+        def managementServer = new ManagementApiServerVerticle()
+        managementServer.configureHttpServer()
+        println "started management actions listener service on : $manHost:$manPort "
+
+        def alarmHost = Application.application.binding.config.alarmServer.host
+        def alarmPort = Application.application.binding.config.alarmServer.port
         def alarmServer = new AlarmApiServerVerticle ()
         alarmServer.configureHttpServer()
-        println "started Alarm Api Server "
+        println "started Alarm Api Server listener service on : $manHost:$manPort "
 
         def simulatedTicketServerEnabled = application.binding.config.ticketAdapter.simulatorEnabled
 

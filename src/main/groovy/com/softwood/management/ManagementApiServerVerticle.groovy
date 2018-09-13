@@ -123,11 +123,12 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
         JsonObject responseBody
         Closure action
 
-        if (action = management."$param.toLowerCase()") {
+        action = management?."$param.toLowerCase()"
+        if (action) {
             println "performing management action $param"
             responseBody = action (postRequestBody)
         } else {
-            responseBody = """{ "NoAction" {"unknown management action" : "action : $param} }"""
+            responseBody = new JsonObject ("""{ "NoAction" {"unknown management action" : "action : $param} }""")
         }
         responseBody
     }
