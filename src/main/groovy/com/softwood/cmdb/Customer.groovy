@@ -18,6 +18,7 @@ package com.softwood.cmdb
 import com.softwood.utils.UuidUtil
 import groovy.transform.Canonical
 import groovy.transform.MapConstructor
+import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -30,7 +31,7 @@ class Customer extends OrgRoleInstance {
     String name
     RoleType role
     LocalDateTime createdDateTime = LocalDateTime.now()
-    ConcurrentLinkedQueue<Contract> sites = new ConcurrentLinkedQueue()
+    ConcurrentLinkedQueue<Site> sites = new ConcurrentLinkedQueue()
     ConcurrentLinkedQueue<Contract> contracts = new ConcurrentLinkedQueue()
 
     void addContract (Contract contract) {
@@ -57,8 +58,21 @@ class Customer extends OrgRoleInstance {
         sites.remove(site)
     }
 
+/*    JsonObject toJson () {
+
+        def json = new JsonObject ("""{"id": "${id.toString()}",
+"name" : "$name",
+"role" : "$role",
+"createdDateTime" : "${createdDateTime.toString()}", 
+"sites" : "${sites.asList()}",
+"contracts" : "${contracts.asList()}"
+}""")
+        json
+    }*/
+
+
     String toString() {
-        "Customer ($name)"
+        "Customer (name:$name, id:${id.toString()} )"
     }
 
 }

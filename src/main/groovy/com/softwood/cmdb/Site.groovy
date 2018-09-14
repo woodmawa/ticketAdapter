@@ -17,6 +17,7 @@ package com.softwood.cmdb
 
 import com.softwood.utils.UuidUtil
 import groovy.transform.Canonical
+import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -42,7 +43,8 @@ class Site {
         inventory.remove(ci)
     }
 
+
     String toString() {
-        "Site ($name)"
+        "Site (name:$name, id:${id.toString()} )"
     }
 }

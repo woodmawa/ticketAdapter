@@ -15,13 +15,12 @@
  */
 package com.softwood.cmdb
 
+import com.softwood.utils.JsonUtils
 import com.softwood.utils.UuidUtil
-import groovy.json.JsonGenerator
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class ConfigurationItem {
     UUID id = UuidUtil.getTimeBasedUuid ()  //generate a time based uuid
@@ -42,7 +41,7 @@ class ConfigurationItem {
     Site site
     Optional<Contract> contract = Optional.empty()
 
-    ConcurrentHashMap<String, ciSpecificationCharacteristic> attributes = new ConcurrentHashMap()
+    ConcurrentHashMap<String, CiSpecificationCharacteristic> attributes = new ConcurrentHashMap()
     LocalDateTime createdDate =  LocalDateTime.now()
 
     void addRelationshipTo (toCi, String relationshipName) {
@@ -68,7 +67,7 @@ class ConfigurationItem {
     }
 
     void addCharacteristic (String name, value) {
-        def attVal = new ciSpecificationCharacteristic(name, value)
+        def attVal = new CiSpecificationCharacteristic(name, value)
         attributes.put (name, attVal)
     }
 
@@ -85,20 +84,6 @@ class ConfigurationItem {
     boolean hasCharacteristic (String name) {
         attributes.containsKey(name)
     }
-
-
-    /*
-    void setSite (site) {
-        Optional optSite = new Optional<Site> (site)
-        this.site = optSite
-    }
-
-    def getSite () {
-        if (site.ifPresent())
-            site.get()
-        else
-            Optional.empty()
-    }*/
 
 
     void setContract (contract) {
@@ -134,7 +119,7 @@ class ConfigurationItem {
         //if not a fixed class property
         //def props = this.metaClass.properties.collect {it.name}
         if (!metaClass.hasProperty(this, name)) {
-            def attVal = new ciSpecificationCharacteristic(name, value)
+            def attVal = new CiSpecificationCharacteristic(name, value)
             attributes.put (name, attVal)
 
         }
@@ -153,19 +138,39 @@ class ConfigurationItem {
             this.metaClass.getProperty(this, name)
     }
 
+    /**
+     * better cleaner implementation using groovy's JsonGenerator to control the format
+     * @return Alarm as JsonObject
+     */
+   JsonObject toJson() {
+        def generator = new JsonUtils.Options()
+                .excludeByTypes (Class, Closure)
+                .excludeByNames("ci","attributes")  //dont do self
+                .registerConverter(LocalDateTime, {it.toString()})
+                .build()
+
+
+
+        String  result = generator.toJson (this)
+        //todo got to fix this!!!
+        //String result = """{"name":"${this.name}","type":"${this.type}"}"""
+        new JsonObject (result)
+
+    }
+
     String toString() {
         "Ci (id:$id, type: $type, name:$name)"
     }
 }
 
-class ciSpecificationCharacteristic {
+class CiSpecificationCharacteristic {
     String propertyName
     def value
     Collection arrayValues = []
 
-    ciSpecificationCharacteristic () {}
+    CiSpecificationCharacteristic() {}
 
-    ciSpecificationCharacteristic (name, value) {
+    CiSpecificationCharacteristic(name, value) {
         propertyName = name
         if (!(value instanceof Collection) )
             this.value = value

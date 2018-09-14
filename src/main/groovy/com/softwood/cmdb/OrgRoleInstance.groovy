@@ -19,6 +19,7 @@ package com.softwood.cmdb
 enum RoleType {
     CUSTOMER, SUPPLIER, MAINTAINER, MANUFACTURER, SERVICE_PROVIDER
 }
+
 abstract class OrgRoleInstance {
     String name
     RoleType role
