@@ -144,8 +144,8 @@ class ConfigurationItem {
      */
    JsonObject toJson() {
         def generator = new JsonUtils.Options()
-                .excludeByTypes (Class, Closure)
-                .excludeByNames("ci","attributes")  //dont do self
+                .excludeFieldByTypes (Class, Closure)
+                .excludeFieldByNames("ci","attributes")  //dont do self
                 .registerConverter(LocalDateTime, {it.toString()})
                 .build()
 

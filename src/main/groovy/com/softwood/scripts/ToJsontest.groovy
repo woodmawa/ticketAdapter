@@ -1,13 +1,12 @@
 package com.softwood.scripts
 
-import com.softwood.cmdb.CiSpecificationCharacteristic
+
 import com.softwood.cmdb.Contract
 import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
 import com.softwood.cmdb.views.Device
 import com.softwood.utils.JsonUtils
-import groovy.json.JsonOutput
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
@@ -15,7 +14,10 @@ import java.time.LocalDateTime
 
 JsonUtils.Options options = new JsonUtils.Options()
 options.registerConverter(LocalDateTime) {it.toString()}
-options.excludeByNames("class")
+//options.excludeFieldByNames("class")
+options.excludeClass (false)
+options.excludeFieldByNames("ci")
+options.summaryClassFormEnabled(true)
 
 def generator = options.build()
 

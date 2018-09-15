@@ -1,10 +1,11 @@
 package com.softwood.utils
 
-
+import groovy.transform.CompileStatic
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
 import java.time.Instant
+
 
 class JsonUtils {
 
@@ -18,11 +19,18 @@ class JsonUtils {
     class Options {
         private boolean excludeNulls = true
         private boolean excludeClass = true
+        private boolean summaryEnabled = false
         private List excludedFieldNames = []
         private List excludedFieldTypes = []
         Map converters = new HashMap()
 
         //methods use method chainimg style
+
+        Options summaryClassFormEnabled  (boolean value) {
+            summaryEnabled = value
+            this
+        }
+
         Options excludeNulls (boolean value) {
             excludeNulls = value
             this
@@ -32,7 +40,7 @@ class JsonUtils {
             excludeClass = value
             this
         }
-        Options excludeByNames (String name, args=null){
+        Options excludeFieldByNames(String name, args=null){
             excludedFieldNames << name
             if (args) {
                 args.each {excludedFieldNames << it}
@@ -40,7 +48,7 @@ class JsonUtils {
             this
         }
 
-        Options excludeByTypes (Class clazz, args=null){
+        Options excludeFieldByTypes(Class clazz, args=null){
             excludedFieldTypes << clazz
             if (args) {
                 args.each {excludedFieldTypes << it}
@@ -67,16 +75,18 @@ class JsonUtils {
         JsonObject json = new JsonObject()
 
         if (classInstanceHasBeenEncodedOnce[(pogo)]) {
-            def item = (pogo.name) ?: "replicated"
+            def item = (pogo.hasProperty ("name")) ?pogo.name: pogo.getClass().simpleName
             json.put(item, pogo.toString())
             return
         }
 
-        if (pogo instanceof List || pogo instanceof Queue ) {
+        /* List || pogo instanceof Queue )*/
+        if (pogo instanceof Iterable) {
             //println "process an list/queue type"
-            if (options.excludeNulls)
+            if (options.excludeNulls) {
                 if (pogo.size() == 0)
                     return
+            }
             JsonArray jList = new JsonArray ()
             pogo.each {
                 def jItem = this.toJson (it)
@@ -84,15 +94,13 @@ class JsonUtils {
                     jList.add (jItem)
             }
             jList
-            //println "> return list : $jList"
             return jList
         } else if (pogo instanceof Map) {
-            if (options.excludeNulls)
+            if (options.excludeNulls) {
                 if (pogo.size() == 0)
                     return
-
-            //println "process a map type"
-            pogo.each {
+            }
+             pogo.each {
                 if (supportedStandardTypes.contains (it.value.getClass())) {
                     json.put (it.key, it.value)
                 } else {
@@ -149,7 +157,7 @@ class JsonUtils {
             }
             else if (prop.key == "class" && prop.value instanceof Class ) {
                 if (!options.excludeClass)
-                    json.put (prop.key, prop.value.name)
+                    json.put ("classType", prop.value.canonicalName)
                 continue
             } else if (prop.value instanceof Enum ) {
                 json.put (prop.key, prop.value.toString())
@@ -162,10 +170,20 @@ class JsonUtils {
                     def jsonEncClass
                     classInstanceHasBeenEncodedOnce.putAll ([(pogo) : new Boolean (true)])
 
-                    jsonEncClass = this?.toJson (prop.value)
-                     //println "prop '${prop?.key}', with non std type '${prop?.value?.getClass()}' encodes as  " + jsonEncClass
-                    if (jsonEncClass)
-                        json.put(prop.key, jsonEncClass)
+                    if (!options.summaryEnabled) {
+                        jsonEncClass = this?.toJson(prop.value)
+                        if (jsonEncClass)
+                            json.put(prop.key, jsonEncClass)
+                    }else {
+                        //if summary enabled just put the field and toString form
+                        if (options.excludeClass == false) {
+                            def wrapper = new JsonObject ()
+                            wrapper.put("classType", prop.value.getClass().canonicalName)
+                            wrapper.put (prop.key, prop.value.toString())
+                            json.put("$prop.key", wrapper)
+                        } else
+                            json.put (prop.key, prop.value.toString())
+                    }
                 }
             }
         }
