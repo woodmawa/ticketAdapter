@@ -22,7 +22,9 @@ import com.softwood.cmdb.cmdbApi.CmdbApiServerVerticle
 import com.softwood.incident.ManageIncidentFacadeService
 import com.softwood.incident.adapters.AdapterFactory
 import com.softwood.incident.adapters.AdapterFactoryType
+import com.softwood.management.ApplicationManagement
 import com.softwood.management.ManagementApiServerVerticle
+import com.softwood.request.requestApi.RequestApiServerVerticle
 
 class Application {
     //frig to get round dependency injection issue with dagger, just store on the Application directly
@@ -33,7 +35,9 @@ class Application {
         application = ProjectApp.run (Application, args)
         def vertx = application.vertx
 
+        ApplicationManagement manageApp = new ApplicationManagement()
 
+        //System.addShutdownHook (manageApp.&shutdown)
         /*com.softwood.incident.adapters.MailAdapterPlugin mail = new MailAdapterPlugin()
 
         Map incDetails = [title:"help me", description: "its broke again", item:"damn printer",
@@ -59,6 +63,12 @@ class Application {
         def alarmServer = new AlarmApiServerVerticle ()
         alarmServer.configureHttpServer()
         println "started Alarm Api Server listener service on : $manHost:$manPort "
+
+        def requestManagementHost = Application.application.binding.config.requestServer.host
+        def requestManagementPort = Application.application.binding.config.requestServer.port
+        def requestManagementServer = new RequestApiServerVerticle()
+        requestManagementServer.configureHttpServer()
+        println "started Request Management Api Server listener service on : $requestManagementHost:$requestManagementPort "
 
         def cmdbHost = Application.application.binding.config.cmdbServer.host
         def cmdbPort = Application.application.binding.config.cmdbServer.port
@@ -94,22 +104,3 @@ class Application {
 
 //application.vertx.deployVerticle(SnowApiServerSimulatorVerticle as Verticle)
 //application.vertx.deployVerticle(SnowClientAdapterVerticle as Verticle)
-/*
-SnowApiServerSimulatorVerticle server = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.server)
-server.configureHttpServer()
-
-SnowClientAdapterVerticle client = AdapterFactory.newAdapter ("SNOW", AdapterFactoryType.client)
-client.configureHttpClient()
-
-HttpRequest request = client.apiGet("/api/now/table/incident")
-client.apiSend (request) {ar ->
-    if (ar.statusCode() == 200)
-        println "Snow api got response " + ar.bodyAsJsonObject().encodePrettily()
-    else
-        println "status: "+ ar.statusMessage()
-}
-
-
-Thread.sleep 1000
-System.exit(0)
-*/

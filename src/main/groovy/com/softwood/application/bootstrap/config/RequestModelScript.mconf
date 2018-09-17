@@ -1,0 +1,22 @@
+package com.softwood.application.bootstrap.config
+
+import com.softwood.cmdb.Contract
+import com.softwood.cmdb.Customer
+import com.softwood.cmdb.RoleType
+import com.softwood.cmdb.Site
+
+import java.util.concurrent.ConcurrentLinkedQueue
+
+// set this value to determine the order that config files will be run
+// any globally required value should be set to the binding
+// ensure that any dependant scripts run with higher order value than the script that
+// sets the required value in the binding.  Multiple non dependant scripts can run at same level
+def runConfigInOrder = 3
+
+Binding binding = getBinding()
+
+binding.requests = new ConcurrentLinkedQueue ()
+
+
+
+println "customers requests $binding.requests"

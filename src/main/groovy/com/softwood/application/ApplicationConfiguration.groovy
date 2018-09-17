@@ -39,9 +39,15 @@ alarmServer {
 
 }
 
+requestServer {
+    host = "localhost"
+    port = 8080
+
+}
+
 cmdbServer {
     host = "localhost"
-    port = 8082
+    port = 8080
 
 }
 
