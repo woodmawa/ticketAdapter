@@ -29,10 +29,34 @@ class BillOfMaterials {
 
     }
 
+    //return Collection of lines in this basket for site
     Collection getSiteItemsList (Site site) {
         if (basket.containsKey(site)) {
             basket.get(site)
 
+        }
+    }
+
+    Collection getAllItemsList () {
+        def allLines = []
+        basket.each { key, value ->
+            allLines << value.toList()
+        }
+
+        allLines
+    }
+
+    /**
+     * each entry starts with site, then itemLines
+     * @return
+     */
+    Collection getAllItemsBySiteSortedList () {
+        def allLines = []
+        basket.each {key, value ->
+
+            allLines << site
+            allLines << value.toList()
+            allLines.sort  {a,b -> a[0] <=> b[0]}
         }
     }
 }
