@@ -4,6 +4,18 @@ plugins {
     id "net.ltgt.apt" version "0.18"  //for dagger2 ioc
 }
 
+//ensure resources is accessible to project
+sourceSets {
+    main {
+        groovy {
+            srcDirs= ["src/main/groovy"]
+        }
+        resources {
+            srcDirs= ["src/main/resources"]
+        }
+    }
+}
+
 group 'com.softwood'
 version '1.0-SNAPSHOT'
 
@@ -41,6 +53,7 @@ dependencies {
     compile group: 'io.vertx', name: 'vertx-core', version: '3.5.3'
     compile group: 'io.vertx', name: 'vertx-web', version: '3.5.3'
     compile group: 'io.vertx', name: 'vertx-web-client', version: '3.5.3'
+    compile group: 'io.vertx', name: 'vertx-web-templ-thymeleaf', version: '3.5.3'
 
     // compile time time IoC https://mvnrepository.com/artifact/com.google.dagger/dagger
     compile group: 'com.google.dagger', name: 'dagger', version: '2.17'
