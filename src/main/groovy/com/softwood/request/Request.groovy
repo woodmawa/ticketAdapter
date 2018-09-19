@@ -7,7 +7,13 @@ import java.time.LocalDateTime
 class Request {
     String requestIdentifier
     Customer customer
-    LocalDateTime createdDate
+    String status
+    LocalDateTime createdDate = LocalDateTime.now()
+    LocalDateTime requiredDate
+    LocalDateTime authorisedDate
     String contactDetails
     String priorty = "normal"
+    BillOfMaterials bom  = new BillOfMaterials()
+
+
 }

@@ -3,8 +3,10 @@ package com.softwood.application.bootstrap.config
 
 import com.softwood.cmdb.Customer
 import com.softwood.cmdb.Site
+import com.softwood.cmdb.views.Application
 import com.softwood.cmdb.views.ConnectionService
 import com.softwood.cmdb.views.Device
+import com.softwood.request.ProductOffering
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -21,6 +23,7 @@ binding.inventory = new ConcurrentLinkedQueue ()
 Customer hsbc = binding.customers[0]
 
 Site hqsite = hsbc.sites[0]
+Site dc = hsbc.sites[1]
 
 Device router = new Device(name:"Wan gateway ASR", category:"Router", hostname:"UK-LON-ROUTER-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
 router.customer = hsbc
@@ -37,6 +40,22 @@ cct.site = hqsite
 router.addRelationshipTo(cct, "connected to")  //one way
 
 inventory << router << custSwitch << cct
+
+binding.products = new ConcurrentLinkedQueue ()
+ProductOffering prodOffer = new ProductOffering (name:"vxlan extension service", type: "connection service")
+
+products << prodOffer
+
+//security
+prodOffer = new ProductOffering (name:"Secure Connection", type: "security service")
+products << prodOffer
+
+
+Application app = new Application (name:"CRM", software:"Siebel")
+app.customer = hsbc
+app.site = dc
+
+inventory << app
 
 println "ci  $router for $router.customer"
 println "router relationships : " + router.getRelationships ()
