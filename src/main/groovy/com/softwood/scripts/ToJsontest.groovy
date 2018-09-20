@@ -10,6 +10,7 @@ import com.softwood.utils.JsonUtils
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentLinkedQueue
 
 
 JsonUtils.Options options = new JsonUtils.Options()
@@ -21,7 +22,29 @@ options.excludeFieldByNames("ci")
 
 def generator = options.build()
 
+class A {
+    String name = "a"
+    B binst = new B()
+    ConcurrentLinkedQueue list = new ConcurrentLinkedQueue()
+    String toString () {
+        "A(name: $name)"
+    }
+}
 
+class B {
+    String name = "b"
+
+    String toString () {
+        "B(name: $name)"
+    }
+}
+
+def a = new A()
+a.list<< new B()
+a.list << new B()
+
+println "basic array : " + generator.toJson (a).encodePrettily()
+System.exit(0)
 
 //println "basic array : " + generator.toJson ([1,2,3])
 
