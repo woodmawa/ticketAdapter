@@ -60,7 +60,7 @@ reqApiRouter.route("/*")
     def uri = ctx.request().absoluteURI()
     def response = ctx.response()
 
-    Controller controller = resolveController (uri)
+    //Controller controller = resolveController (uri)
     //look at last name but one
 
     response.putHeader("content-type", "text/html")

@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 class BillOfMaterials {
     //site is expected index into the map,  with array of lineItems as value type
-    LinkedHashMap basket = new ConcurrentHashMap<Site, ConcurrentLinkedQueue<LineItem> >()
+    private LinkedHashMap basket = new ConcurrentHashMap<Site, ConcurrentLinkedQueue<LineItem> >()
 
     void clear () {
         basket.clear()

@@ -1,12 +1,13 @@
 package com.softwood.request.requestApi
 
 import com.softwood.application.Application
+import com.softwood.cmdb.Customer
 
 import java.util.concurrent.ConcurrentHashMap
 
 class RequestDbServices {
 
-    private static def requests = Application.application.binding.inventory
+    private static def requests = Application.application.binding.requests
     private static def customers = Application.application.binding.customers
 
     static def requestsDb = [customers:customers, requests:requests]
@@ -19,27 +20,33 @@ class RequestDbServices {
     }
 
     static RequestDbServices getDb () {
-        requestsDb
+        requestsDb.requests
     }
 
 
-    def reqList (String type, Closure filter=null) {
-        if (type == null)
-            type == "all"
+    def requestList (Closure filter=null) {
 
         def requestList
 
         if (!filter) {
-            if (type == "all")
-                requestList = inventory.collect().toList()
-            else
-             requestList = inventory.findAll{it?.type.toLowerCase() == type.toLowerCase()}.toList()
+            requestList = requests.collect().toList()
         } else {
 
         }
         requestList
     }
 
+    def requestByCustomerList (Customer cust, Closure filter=null) {
+
+        def requestList
+
+        if (!filter) {
+            requestList = requests.findAll{it.customer.name == cust.name}.toList()
+        } else {
+
+        }
+        requestList
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package com.softwood.incident.adapters.simulators.SNOW
 
+import com.softwood.cmdb.views.Application
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
@@ -37,6 +38,7 @@ class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
         Vertx vertx = Vertx.vertx()
         HttpServer server = vertx.createHttpServer()  //start server after defining the routes?
 
+        def simPort = com.softwood.application.Application.application.binding.config.ticketAdapter.simulatorPort
 
         Router allApiRouter = Router.router(vertx)
 
@@ -109,7 +111,7 @@ class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
         }
 
         server.requestHandler(allApiRouter.&accept)
-        server.listen(8081, "localhost")
+        server.listen(simPort, "localhost")
         println "started SNOW httpServer listening on port localhost:8081"
         server
 

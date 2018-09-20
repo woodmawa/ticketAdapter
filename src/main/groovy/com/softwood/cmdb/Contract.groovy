@@ -63,6 +63,6 @@ class Contract {
     }
 
     String toString() {
-        "Contract ($reference)"
+        "Contract ($reference) [id:${id.toString()}]"
     }
 }

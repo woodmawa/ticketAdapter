@@ -15,6 +15,7 @@
  */
 package com.softwood.cmdb
 
+import com.softwood.request.Request
 import com.softwood.utils.UuidUtil
 import groovy.transform.Canonical
 import groovy.transform.MapConstructor
@@ -33,6 +34,7 @@ class Customer extends OrgRoleInstance {
     LocalDateTime createdDateTime = LocalDateTime.now()
     ConcurrentLinkedQueue<Site> sites = new ConcurrentLinkedQueue()
     ConcurrentLinkedQueue<Contract> contracts = new ConcurrentLinkedQueue()
+    ConcurrentLinkedQueue<Request> requests = new ConcurrentLinkedQueue()
 
     void addContract (Contract contract) {
         if (!contracts.contains(contract)){
@@ -58,6 +60,18 @@ class Customer extends OrgRoleInstance {
         sites.remove(site)
     }
 
+    void addRequest (Request request) {
+        if (!requests.contains(request)){
+            requests << request
+            request.customer = this
+        }
+    }
+
+    void removeRequest (Request request) {
+        request.customer = null
+        requests.remove(request)
+    }
+
 /*    JsonObject toJson () {
 
         def json = new JsonObject ("""{"id": "${id.toString()}",
@@ -72,7 +86,7 @@ class Customer extends OrgRoleInstance {
 
 
     String toString() {
-        "Customer (name:$name, id:${id.toString()} )"
+        "Customer (name:$name) [id:${id.toString()}] )"
     }
 
 }

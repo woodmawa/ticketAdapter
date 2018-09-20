@@ -40,16 +40,14 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     String host
     int port
 
-    Map cmdb
     RequestDbServices requestServices
 
     RequestApiServerVerticle() {
         requestServices = new RequestDbServices()
-        cmdb = RequestDbServices.db
     }
 
     void start(Future<Void> future) {
-        println "starting Cmdb server .. "
+        println "starting Request server .. "
         //server = configureHttpServer()
         //server.listen(8081, "localhost")
 
@@ -58,7 +56,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
     void stop(Future<Void> future) {
-        println "stopped Cmdb server  "
+        println "stopped Request server  "
         future.complete()
 
     }
@@ -66,14 +64,14 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
     def configureHttpServer() {
 
-        host = Application.application.binding.config.cmdbServer.host
-        port = Application.application.binding.config.cmdbServer.port
+        host = Application.application.binding.config.requestServer.host
+        port = Application.application.binding.config.requestServer.port
 
         Vertx vertx = Vertx.vertx()
         HttpServer server = vertx.createHttpServer()  //start server after defining the routes?
 
 
-        Router cmdbApiRouter = Router.router(vertx)
+        Router requestApiRouter = Router.router(vertx)
 
         /**
          * cant get two routers with different methods to listen on same URI
@@ -81,7 +79,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
-        cmdbApiRouter.route("/api/ci/*")
+        requestApiRouter.route("/api/request/*")
                 .handler(io.vertx.ext.web.handler.BodyHandler.create())
                 .blockingHandler { routingContext ->
 
@@ -94,7 +92,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
             String[] segments = uri.split("/")
             def trailingParam = (segments[-1] != "ci") ? segments[-1] : null //get last segment
 
-            println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
+            println "processing http [$method] Request and found trailing param as $trailingParam on uri : $uri "
 
             def response = routingContext.response()
 
@@ -118,15 +116,15 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
                 case HttpMethod.GET:
 
-                    def ci = getInventoryRequest (trailingParam)
-                    JsonObject jsonAlarm = generateResponse(trailingParam, ci)
+                    def requests = getRequestTickets (trailingParam)
+                    JsonObject jsonAlarm = generateResponse(trailingParam, requests)
                     def resultBody = jsonAlarm?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0
                     response.putHeader("content-length", "$length")
 
-                    println "returning  Ci Post result with length $length to client"
+                    println "returning  Requests get result with length $length to client"
                     response.end(resultBody)
 
                     break
@@ -135,16 +133,17 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
         }
 
-        server.requestHandler(cmdbApiRouter.&accept)
+        server.requestHandler(requestApiRouter.&accept)
         server.listen(port, host)
-        println "started Cmdb httpServer listening on port $host:$port"
+        println "started RequestManagement httpServer listening on port $host:$port"
         server
 
     }
 
 
-    private def processInventoryRequest (String param, JsonObject postRequestBody) {
+    private def processRequestTicket (String param, JsonObject postRequestBody) {
 
+        //todo rewrite all this
         def ci
 
         switch (postRequestBody?.getString("type")) {
@@ -172,33 +171,31 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
 
           //post to event bus
-        cmdb.ci << ci
+        requests << ci
         println "created inventory $ci, and added to IMDB Cmdb"
         ci
 
     }
 
     //Todo - process query params on the end
-    private def getInventoryRequest (String param) {
+    private def getRequestTickets (String param) {
 
-        /*def ciListByTpe = cmdb.inventory.findAll {
-            println "testing $it"
-            it?.type.toLowerCase() == param.toLowerCase()} */
-        ciServices.ciList (param)
+
+        requestServices.requestList ()
     }
 
-    private JsonObject generateResponse(String param, def ciView) {
+    private JsonObject generateResponse(String param, def request) {
 
         JsonObject jsonObject
-        if (ciView instanceof List) {
+        if (request instanceof List) {
             JsonArray jsonArray = new JsonArray()
-            ciView.each {ci ->
-                def json = ci.toJson()
+            request.each {req ->
+                def json = req.toJson()
                 jsonArray.add(json)}
             jsonObject = new JsonObject ()
-            jsonObject.put ("inventoryList", jsonArray)
+            jsonObject.put ("requestList", jsonArray)
         } else {
-            jsonObject = ciView.toJson()
+            jsonObject = request.toJson()
         }
 
         jsonObject

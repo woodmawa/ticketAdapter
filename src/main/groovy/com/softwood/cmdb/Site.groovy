@@ -45,6 +45,6 @@ class Site {
 
 
     String toString() {
-        "Site (name:$name, id:${id.toString()} )"
+        "Site (name:$name, postalCode:$postalCode) [id:${id.toString()}] )"
     }
 }

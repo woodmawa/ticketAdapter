@@ -10,10 +10,11 @@ import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
 
 ticketAdapter {
     simulatorEnabled = true
+    simulatorPort = 8091
     system = "Snow"
     type = AdapterProtocolType.Json
     host = "localhost"
-    port = 8081
+    port = 8091
     mail {
         server = "mail.btinternet.com"
         port = 465
@@ -41,13 +42,13 @@ alarmServer {
 
 requestServer {
     host = "localhost"
-    port = 8080
+    port = 8082
 
 }
 
 cmdbServer {
     host = "localhost"
-    port = 8080
+    port = 8081
 
 }
 
