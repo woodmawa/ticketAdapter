@@ -19,13 +19,16 @@ options.registerConverter(LocalDateTime) {it.toString()}
 //options.excludeFieldByNames("class")
 //options.excludeClass (false)
 options.excludeFieldByNames("ci")
+options.jsonApiCompoundDocument(true)
+options.jsonApiOptionalLinks(true)
 //options.summaryClassFormEnabled(true)
 
 def generator = options.build()
 
 class A {
     String name = "a"
-    B binst = new B()
+    int id
+    B binst = new B(id:200)
     ConcurrentLinkedQueue listOfC = new ConcurrentLinkedQueue()
     String toString () {
         "A(name: $name)"
@@ -34,6 +37,7 @@ class A {
 
 class B {
     String name = "b"
+    int id
 
     String toString () {
         "B(name: $name)"
@@ -42,22 +46,23 @@ class B {
 
 class C {
     String name = "c"
+    int id
 
     String toString () {
         "C(name: $name)"
     }
 }
 
-def a = new A()
-a.listOfC<< new C()
-a.listOfC << new C()
+def a = new A(id:100)
+a.listOfC<< new C(id:1)
+a.listOfC << new C(id:2)
 
 println "A with B and array of C : " + generator.toJsonApi(a).encodePrettily()
 
 println "-----"
 
-def js = JsonOutput.toJson (a)
-        println JsonOutput.prettyPrint(js)
+/*def js = JsonOutput.toJson (a)
+        println JsonOutput.prettyPrint(js)*/
 System.exit(0)
 
 //println "basic array : " + generator.toJson ([1,2,3])
