@@ -7,6 +7,7 @@ import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
 import com.softwood.cmdb.views.Device
 import com.softwood.utils.JsonUtils
+import groovy.json.JsonOutput
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
@@ -25,7 +26,7 @@ def generator = options.build()
 class A {
     String name = "a"
     B binst = new B()
-    ConcurrentLinkedQueue list = new ConcurrentLinkedQueue()
+    ConcurrentLinkedQueue listOfC = new ConcurrentLinkedQueue()
     String toString () {
         "A(name: $name)"
     }
@@ -39,11 +40,24 @@ class B {
     }
 }
 
-def a = new A()
-a.list<< new B()
-a.list << new B()
+class C {
+    String name = "c"
 
-println "basic array : " + generator.toJson (a).encodePrettily()
+    String toString () {
+        "C(name: $name)"
+    }
+}
+
+def a = new A()
+a.listOfC<< new C()
+a.listOfC << new C()
+
+println "A with B and array of C : " + generator.toJsonApi(a).encodePrettily()
+
+println "-----"
+
+def js = JsonOutput.toJson (a)
+        println JsonOutput.prettyPrint(js)
 System.exit(0)
 
 //println "basic array : " + generator.toJson ([1,2,3])

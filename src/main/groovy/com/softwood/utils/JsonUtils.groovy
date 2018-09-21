@@ -138,7 +138,110 @@ class JsonUtils {
 
     }
 
-    private def encodeFieldType (prop) {
+    def toJsonApi (def pogo) {
+
+        iterLevel++
+        def jsonApiObject = new JsonObject()
+        def jsonAttributes = new JsonObject()
+        def jsonRelationships = new JsonObject()
+        JsonArray includesArray = new JsonArray()
+
+        boolean compoundDoc = false //assume no extra levels at start
+        boolean includeLinks = true
+
+        if (Iterable.isAssignableFrom(pogo.getClass()) )
+            jsonApiObject =  encodeIterableType(pogo)
+        else if (Map.isAssignableFrom(pogo.getClass()))
+            jsonApiObject =  encodeMapType(pogo )
+        else {
+            def json = new JsonObject()
+            if (classInstanceHasBeenEncodedOnce[(pogo)]) {
+                println "already encoded pogo $pogo so just put toString summary and stop recursing"
+
+                def item = (pogo.hasProperty ("name")) ? pogo.name : pogo.getClass().simpleName
+                json.put(item, pogo.toString())
+                iterLevel--
+                return json
+            }
+
+            if (!classInstanceHasBeenEncodedOnce.containsKey((pogo))) {
+                classInstanceHasBeenEncodedOnce.putAll([(pogo): new Boolean(true)])
+                println "iterLev $iterLevel: adding pogo $pogo encoded once list"
+            }
+
+
+            Map props = pogo.properties
+            def iterableFields = props.findAll {Iterable.isAssignableFrom(it.value.getClass())}
+            def nonIterableFields = props - iterableFields
+
+            jsonAttributes = new JsonObject()
+            def jsonApiEncoded = true
+            //do attributes
+            for (prop in nonIterableFields) {
+                def field = encodeFieldType(prop, jsonApiEncoded)
+                if (field ) {
+                    //if field is itself a JsonObject add to relationhips
+                    if (field instanceof JsonObject) {
+                        def id = (prop.value.hasProperty ("id")) ? pogo.id : "tba"
+                        def type = prop.value.getClass().simpleName
+                        JsonObject container = new JsonObject ()
+                        JsonObject links = new JsonObject()
+                        JsonObject data = new JsonObject()
+                        data.put ("type", type)
+                        data.put ("id", id)
+                        links.put ("self", "http://xxx:yy/api/<parent res>/<p_id>/relationships/<entity> - related entity link uri here ")
+                        links.put ("related", "http://xxx:yy/api/<parent res>/<p_id>/<this entity> - related entity uri here ")
+                        container.put("links", links)
+                        container.put("data", data)
+                        jsonRelationships.put (prop.key, container)
+                    }
+                    else
+                        //if basic field type - add to attributes
+                        jsonAttributes.put(prop.key, field)
+                }
+
+            }
+
+            //do relationships
+            for (prop in iterableFields){
+                compoundDoc = true
+                def arrayResult = encodeIterableType ( prop.value, jsonApiEncoded)
+                if (arrayResult) {
+                    includesArray.add (arrayResult)
+                    jsonRelationships.put(prop.key, arrayResult)
+                    //json.put(pogo.getClass().simpleName, jsonFields)
+                }
+            }
+
+        }
+
+        iterLevel--
+        if (iterLevel == 0) {
+            //format the final document to back to the client
+            JsonObject container = new JsonObject()
+            container.put("type", pogo.getClass().simpleName)
+            container.put("id", pogo.hasProperty("id") ? pogo?.id : "1")
+            if (jsonAttributes)
+                container.put("attributes", jsonAttributes)
+            if (jsonRelationships)
+                container.put("relationships", jsonRelationships)
+            if (compoundDoc) {
+                //todo includesArray.add(jsonObjects)
+                container.put ("included", includesArray)
+            }
+            if (includeLinks) {
+                JsonObject links = new JsonObject ()
+                links.put ("self", "http://xxx:yy/api/<this res>/<id>/")
+                container.put ("links", links)
+            }
+            jsonApiObject.put("data", container)
+
+            classInstanceHasBeenEncodedOnce.clear()
+        }
+        jsonApiObject
+
+    }
+    private def encodeFieldType (prop, jsonApiEncoded = false) {
         def json = new JsonObject()
         Closure converter
 
@@ -193,7 +296,11 @@ class JsonUtils {
                 def jsonEncClass
 
                 if (!options.summaryEnabled) {
-                    jsonEncClass = this?.toJson(prop.value)
+                    if (!jsonApiEncoded) {
+                        jsonEncClass = this?.toJson(prop.value)
+                    } else {
+                        jsonEncClass = this?.toJsonApi(prop.value)
+                    }
                     if (jsonEncClass)
                         return jsonEncClass
                 }else {
@@ -211,7 +318,7 @@ class JsonUtils {
     }
 
 
-    private JsonArray encodeIterableType (iterable) {
+    private JsonArray encodeIterableType (iterable, jsonApiEncoded = false) {
         JsonObject json = new JsonObject()
         JsonArray jList = new JsonArray ()
 
@@ -229,7 +336,13 @@ class JsonUtils {
                 if (supportedStandardTypes.contains (it.getClass())) {
                     jList.add (it.value)
                 } else {
-                    def jItem = this.toJson(it)
+                    def jItem
+                    if (!jsonApiEncoded) {
+                        jItem = this.toJson(it)
+                    }
+                    else {
+                        jItem = this.toJsonApi(it)
+                    }
                     if (jItem)
                         jList.add(jItem)
                 }
@@ -240,7 +353,7 @@ class JsonUtils {
 
     }
 
-    private JsonObject encodeMapType (map) {
+    private JsonObject encodeMapType (map, jsonApiEncoded = false) {
         JsonObject json = new JsonObject()
 
         /* Map */
@@ -256,7 +369,15 @@ class JsonUtils {
                 if (supportedStandardTypes.contains (it.value.getClass())) {
                     json.put (it.key, it.value)
                 } else {
-                   json.put (it.key, this.toJson(it))
+                    def jItem
+                    if (!jsonApiEncoded) {
+                        jItem = this.toJson(it)
+                    }
+                    else {
+                        jItem = this.toJsonApi(it)
+                    }
+                    if (jItem)
+                        json.put (it.key, jItem)
                 }
             }
 
