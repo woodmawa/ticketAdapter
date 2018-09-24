@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.apache.tools.ant.taskdefs.PathConvert
 
+import javax.inject.Inject
 import java.time.Instant
 import java.time.temporal.Temporal
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -16,13 +17,15 @@ class JsonUtils {
     Map classInstanceHasBeenEncodedOnce = new LinkedHashMap()
     int iterLevel = 0
 
-    private Options options
+    public Options options
     private JsonUtils (Options options) {
         this.options = options
     }
 
     class Options {
 
+        @Inject private String host = "localhost" //assumed default
+        @Inject private int port = 8080 //assumed default
         private boolean optionalLinks = false
         private boolean includeVersion = false
         private boolean compoundDocument = false
@@ -35,13 +38,13 @@ class JsonUtils {
         //todo too hard codes still
         Closure linkNamingStrategy = {String linkType, Class type, String attributeName, String id ->
             if (linkType == "self") {
-                return "http://localhost:port/api/${type.simpleName}/$id"
+                return "http://$host:$port/api/${type.simpleName}/$id"
             }
             if (linkType == "parent") {
-                return "http://localhost:port/api/${type.simpleName}/$id/relationships/$attributeName"
+                return "http://$host:$port/api/${type.simpleName}/$id/relationships/$attributeName"
             }
             if (linkType == "related") {
-                return "http://localhost:port/api/${type.simpleName}/$id/$attributeName"
+                return "http://$host:$port/api/${type.simpleName}/$id/$attributeName"
 
             }
         }
@@ -55,6 +58,14 @@ class JsonUtils {
             converters.put(URI, {it.toString()})
             converters.put(UUID, {it.toString()})
             this
+        }
+
+        Options setHost (String hostname) {
+            host = hostname
+        }
+
+        Options setPort (int portNumber) {
+            port = portNumber
         }
 
         Options jsonApiIncludeVersion  (boolean value = false) {
@@ -211,7 +222,8 @@ class JsonUtils {
 
             Map props = pogo.properties
             def iterableFields = props.findAll {Iterable.isAssignableFrom(it.value.getClass())}
-            def nonIterableFields = props - iterableFields
+            def mapFields = props.findAll {Map.isAssignableFrom(it.value.getClass())}
+            def nonIterableFields = props - iterableFields - mapFields
 
             jsonAttributes = new JsonObject()
             //do attributes
@@ -243,9 +255,28 @@ class JsonUtils {
 
             }
 
-            //do relationships
+            //do list type relationships
             for (prop in iterableFields){
                 def arrayResult = encodeIterableType ( (Iterable)prop.value, jsonApiEncoded, includedArray)
+                if (arrayResult) {
+                    JsonObject container = new JsonObject ()
+                    if (options.optionalLinks) {
+                        JsonObject links = new JsonObject()
+                        //fix hard coded links, use naming Strategy
+                        links.put("self", "http://xxx:yy/api/<parent res>/<p_id>/relationships/<entity> - array field type of related entity link uri here ")
+                        links.put("related", "http://xxx:yy/api/<parent res>/<p_id>/<this entity> - array field type of related entity uri here ")
+                        container.put("links", links)
+                    }
+                    container.put("data", arrayResult)
+                    jsonRelationships.put ("$prop.key", container)
+                }
+            }
+
+            //do map type relationships
+            for (prop in mapFields){
+                //prop is mapEntry to key = attribute name, and value is the real map
+                def propValueMapEntrySetIterator =  (prop.value as Map).entrySet()
+                def arrayResult = encodeIterableType ( (Iterable)propValueMapEntrySetIterator, jsonApiEncoded, includedArray)
                 if (arrayResult) {
                     JsonObject container = new JsonObject ()
                     if (options.optionalLinks) {
@@ -407,7 +438,7 @@ class JsonUtils {
         JsonObject json = new JsonObject()
         JsonArray jList = new JsonArray ()
 
-        /* List || instanceof Queue )*/
+        /* List || instanceof Queue || Map.Entry from any entrySet iterator )*/
         if (Iterable.isAssignableFrom(iterable.getClass())) {
             //println "process an list/queue type"
             if (options.excludeNulls) {
@@ -425,16 +456,28 @@ class JsonUtils {
                         jItem = this.toJson(it)
                     }
                     else {
+                        def id, type
                         //in json api the entries in array get encoded as rows of 'data':
-                        def id = (it.hasProperty ("id")) ? (it as GroovyObject).getProperty("id") : "tba"
-                        def type = it.getClass().simpleName
+                        if (Map.Entry.isAssignableFrom(it.getClass())) {
+                            //if the iterable is from a map type attribute - double dereference to get object
+                            id = (it.value.hasProperty("id")) ? (it.value as GroovyObject).getProperty("id") : "unknown"
+                            type = it.value.getClass().simpleName
+                        } else {
+                            //else entry is  like a list type
+                            id = (it.hasProperty("id")) ? (it as GroovyObject).getProperty("id") : "unknown"
+                            type = it.getClass().simpleName
+                        }
                         jItem = new JsonObject()
                         jItem.put ("type", type)
                         jItem.put ("id", id)
                         if (options.compoundDocument) {
                             //encode each iterable object, which will add and compoundDoc 'included' entries
-                            def encodedClassInstance = toJsonApi (it, includedArray )
-                            //println "iterLevel : $iterLevel, encIterableType, compoundDoc, enc class $it, encodes as $encodedClassInstance "
+                            def encodedClassInstance
+                            if (Map.Entry.isAssignableFrom(it.getClass()))
+                                //double derefence to object if from map attribute
+                                encodedClassInstance = toJsonApi (it.value, includedArray )
+                            else
+                                encodedClassInstance = toJsonApi (it, includedArray )
                         }
 
                     }
@@ -461,7 +504,7 @@ class JsonUtils {
             }
 
             map.each {Map.Entry it ->
-                println "encodeMapType:  iterlevel $iterLevel:> given map field param, adding each item pogo: $it  to JsonObject "
+                //println "encodeMapType:  iterlevel $iterLevel:> given map field param, adding each item pogo: $it  to JsonObject "
                 if (supportedStandardTypes.contains (it.value.getClass())) {
                     json.put ((String) it.key, it.value)
                 } else {
@@ -470,7 +513,18 @@ class JsonUtils {
                         jItem = this.toJson(it.value)
                     }
                     else {
-                        jItem = this.toJsonApi(it.value, includedArray)
+                        //in json api the entries in array get encoded as rows of 'data':
+                        def id = (it.value.hasProperty ("id")) ? (it.value as GroovyObject).getProperty("id") : "tba"
+                        def type = it.value.getClass().simpleName
+                        jItem = new JsonObject()
+                        jItem.put ("type", type)
+                        jItem.put ("id", id)
+
+                        if (options.compoundDocument) {
+                            //encode each iterable object, which will add and compoundDoc 'included' entries
+                            def encodedClassInstance = toJsonApi (it.value, includedArray )
+                        }
+
                     }
                     if (jItem)
                         json.put ((String)it.key, jItem)

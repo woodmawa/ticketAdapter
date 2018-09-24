@@ -11,6 +11,7 @@ import groovy.json.JsonOutput
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
@@ -33,7 +34,11 @@ class A {
     String toString () {
         "A(name: $name)"
     }
+
+    ConcurrentHashMap<String, Object> objectMap = new ConcurrentHashMap()
 }
+
+println "basic map : " + generator.toJson ([fred:1,joe:2])
 
 class B {
     String name = "b"
@@ -53,11 +58,22 @@ class C {
     }
 }
 
+class D {
+    String name = "d"
+    int id
+
+    String toString () {
+        "D(name: $name)"
+    }
+}
+
 def a = new A(id:100)
 a.listOfC<< new C(id:1)
 a.listOfC << new C(id:2)
 
-println "A with B and array of C : " + generator.toJsonApi(a).encodePrettily()
+a.objectMap.put ("firstD", new D(id:300))
+
+println "A with B and array of C, and map of D's : " + generator.toJsonApi(a).encodePrettily()
 
 println "-----"
 
@@ -67,7 +83,6 @@ System.exit(0)
 
 //println "basic array : " + generator.toJson ([1,2,3])
 
-//println "basic map : " + generator.toJson ([fred:1,joe:2])
 
 Customer cust = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
 //println "basic cust, no reference fields  : " + generator.toJson(cust).encodePrettily()
