@@ -203,9 +203,9 @@ class JsonUtils {
         }
 
         if (Iterable.isAssignableFrom(pogo.getClass()) )
-            jsonApiObject =  encodeIterableType(pogo as Iterable)
+            jsonApiObject =  encodeIterableType( pogo as Iterable)
         else if (Map.isAssignableFrom(pogo.getClass()))
-            jsonApiObject =  encodeMapType(pogo as Map, jsonApiEncoded, includedArray )
+            jsonApiObject =  encodeMapType ( pogo as Map, jsonApiEncoded, includedArray )
         else {
             def json = new JsonObject()
             if (classInstanceHasBeenEncodedOnce[(pogo)]) {
@@ -232,7 +232,10 @@ class JsonUtils {
                 if (field ) {
                     //if field is itself a JsonObject add to relationhips
                     if (field instanceof JsonObject) {
-                        def id = (prop.value.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id") : "tba"
+                        def id = (prop.value.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id").toString() : "unknown"
+                        def altId = (prop.value.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
+                        if (id == "unknown" && altId != "unknown")
+                            id = altId
                         def type = prop.value.getClass().simpleName
                         JsonObject container = new JsonObject()
                         JsonObject data = new JsonObject()
@@ -257,14 +260,21 @@ class JsonUtils {
 
             //do list type relationships
             for (prop in iterableFields){
-                def arrayResult = encodeIterableType ( (Iterable)prop.value, jsonApiEncoded, includedArray)
+                def arrayResult = encodeIterableType ((Iterable)prop.value, jsonApiEncoded, includedArray)
                 if (arrayResult) {
                     JsonObject container = new JsonObject ()
                     if (options.optionalLinks) {
+                        //then we need to reference the links from parent pogo to its property we have just encoded
                         JsonObject links = new JsonObject()
-                        //fix hard coded links, use naming Strategy
-                        links.put("self", "http://xxx:yy/api/<parent res>/<p_id>/relationships/<entity> - array field type of related entity link uri here ")
-                        links.put("related", "http://xxx:yy/api/<parent res>/<p_id>/<this entity> - array field type of related entity uri here ")
+                        def id = (pogo.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id").toString() : "unknown"
+                        def altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
+                        if (id == "unknown" && altId != "unknown")
+                            id = altId
+                        def idStr = "$id".toString()
+                        Closure linkNames = this.getLinkNamingStrategy()
+
+                        links.put ("self", linkNames ("parent", pogo.getClass(), (String)prop.key, idStr))
+                        links.put ("related", linkNames ("related", pogo.getClass(), (String)prop.key, idStr))
                         container.put("links", links)
                     }
                     container.put("data", arrayResult)
@@ -275,15 +285,20 @@ class JsonUtils {
             //do map type relationships
             for (prop in mapFields){
                 //prop is mapEntry to key = attribute name, and value is the real map
-                def propValueMapEntrySetIterator =  (prop.value as Map).entrySet()
-                def arrayResult = encodeIterableType ( (Iterable)propValueMapEntrySetIterator, jsonApiEncoded, includedArray)
+                def arrayResult = encodeMapType ((prop.value as Map), jsonApiEncoded, includedArray)
                 if (arrayResult) {
                     JsonObject container = new JsonObject ()
                     if (options.optionalLinks) {
                         JsonObject links = new JsonObject()
-                        //fix hard coded links, use naming Strategy
-                        links.put("self", "http://xxx:yy/api/<parent res>/<p_id>/relationships/<entity> - array field type of related entity link uri here ")
-                        links.put("related", "http://xxx:yy/api/<parent res>/<p_id>/<this entity> - array field type of related entity uri here ")
+                        def id = (pogo.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id").toString() : "unknown"
+                        def altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
+                        if (id == "unknown" && altId != "unknown")
+                            id = altId
+                        def idStr = "$id".toString()
+                        Closure linkNames = this.getLinkNamingStrategy()
+
+                        links.put ("self", linkNames ("parent", pogo.getClass(), (String)prop.key, idStr))
+                        links.put ("related", linkNames ("related", pogo.getClass(), (String)prop.key, idStr))
                         container.put("links", links)
                     }
                     container.put("data", arrayResult)
@@ -356,7 +371,7 @@ class JsonUtils {
 
     }
 
-    @CompileStatic
+  @CompileStatic
     private def encodeFieldType (Map.Entry prop, boolean jsonApiEncoded = false, JsonArray includedArray = null) {
         def json = new JsonObject()
         Closure converter
@@ -456,28 +471,22 @@ class JsonUtils {
                         jItem = this.toJson(it)
                     }
                     else {
-                        def id, type
-                        //in json api the entries in array get encoded as rows of 'data':
-                        if (Map.Entry.isAssignableFrom(it.getClass())) {
-                            //if the iterable is from a map type attribute - double dereference to get object
-                            id = (it.value.hasProperty("id")) ? (it.value as GroovyObject).getProperty("id") : "unknown"
-                            type = it.value.getClass().simpleName
-                        } else {
-                            //else entry is  like a list type
-                            id = (it.hasProperty("id")) ? (it as GroovyObject).getProperty("id") : "unknown"
-                            type = it.getClass().simpleName
-                        }
+                        def id, altId, type
+                        def pogo
+                        pogo = it
+                        id = (pogo.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id") : "unknown"
+                        altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
+                        if (id == "unknown" && altId != "unknown")
+                            id = altId
+                        type = it.getClass().simpleName
+
                         jItem = new JsonObject()
                         jItem.put ("type", type)
                         jItem.put ("id", id)
+
                         if (options.compoundDocument) {
                             //encode each iterable object, which will add and compoundDoc 'included' entries
-                            def encodedClassInstance
-                            if (Map.Entry.isAssignableFrom(it.getClass()))
-                                //double derefence to object if from map attribute
-                                encodedClassInstance = toJsonApi (it.value, includedArray )
-                            else
-                                encodedClassInstance = toJsonApi (it, includedArray )
+                            def  encodedClassInstance = toJsonApi (it, includedArray )
                         }
 
                     }
@@ -492,7 +501,7 @@ class JsonUtils {
     }
 
     @CompileStatic
-    private JsonObject encodeMapType (map, jsonApiEncoded = false, JsonArray includedArray=null) {
+    private JsonObject encodeMapType ( map, jsonApiEncoded = false, JsonArray includedArray=null) {
         JsonObject json = new JsonObject()
 
         /* Map */
@@ -513,15 +522,18 @@ class JsonUtils {
                         jItem = this.toJson(it.value)
                     }
                     else {
+                        def id, altId, type
+                        def pogo
+
                         //in json api the entries in array get encoded as rows of 'data':
-                        def id = (it.value.hasProperty ("id")) ? (it.value as GroovyObject).getProperty("id") : "tba"
-                        def type = it.value.getClass().simpleName
+                        id = (it.value.hasProperty ("id")) ? (it.value as GroovyObject).getProperty("id") : "tba"
+                        type = it.value.getClass().simpleName
                         jItem = new JsonObject()
                         jItem.put ("type", type)
                         jItem.put ("id", id)
 
                         if (options.compoundDocument) {
-                            //encode each iterable object, which will add and compoundDoc 'included' entries
+                            //double derefence to object if from map attribute
                             def encodedClassInstance = toJsonApi (it.value, includedArray )
                         }
 
