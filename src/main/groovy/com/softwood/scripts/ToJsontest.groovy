@@ -30,6 +30,8 @@ class A {
     String name = "a"
     int id
     B binst = new B(id:200)
+    List basicNumericList = [1,2,3]
+    List mixedList = [1, new D(id:1000)]
     ConcurrentLinkedQueue listOfC = new ConcurrentLinkedQueue()
     String toString () {
         "A(name: $name)"
