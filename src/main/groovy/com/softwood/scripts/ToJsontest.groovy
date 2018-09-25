@@ -26,6 +26,7 @@ options.jsonApiOptionalLinks(true)
 
 def generator = options.build()
 
+/*
 class A {
     String name = "a"
     int id
@@ -81,13 +82,16 @@ println "-----"
 
 /*def js = JsonOutput.toJson (a)
         println JsonOutput.prettyPrint(js)*/
-System.exit(0)
+
+
+//System.exit(0)
 
 //println "basic array : " + generator.toJson ([1,2,3])
 
 
 Customer cust = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
-//println "basic cust, no reference fields  : " + generator.toJson(cust).encodePrettily()
+//println "basic cust, no reference fields  : " + generator.toJsonApi(cust).encodePrettily()
+
 
 println "----"
 
@@ -97,13 +101,14 @@ def device = new Device (name:"fred")
 cust.addSite(site)
 //println "cust, with 1 site  : " + generator.toJson(cust).encodePrettily()
 println "----"
-println "site, encodes as  : " + generator.toJson(site).encodePrettily()
+println "site, encodes as  : " + generator.toJsonApi(site).encodePrettily()
 println "----"
+System.exit (0)
 
 System.exit(0)
 Contract con = new Contract (reference: "digitalBank")
 cust.addContract(con)
-println "cust, with 1 site, 1 contract  : " + generator.toJson(cust).encodePrettily()
+println "cust, with 1 site, 1 contract  : " + generator.toJsonApi(cust).encodePrettily()
 
 Device router = new Device(name:"Wan gateway ASR", category:"Router", hostname:"UK-LON-ROUTER-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
 router.customer = cust
@@ -113,7 +118,7 @@ router.site = site
 println "cust one site, one contract : " + generator.toJson(cust).encodePrettily()
 
 println "----"
-println "site : " + generator.toJson(site).encodePrettily()
+println "site : " + generator.toJsonApi(site).encodePrettily()
 
 println "----"
 
@@ -123,7 +128,7 @@ JsonObject json
 //json= generator.toJson (site )
 //println "site as json : " + json.encodePrettily()
 
-json = generator.toJson (router)
+json = generator.toJsonApi (router)
 
 println "router as json" + json.encodePrettily()
 

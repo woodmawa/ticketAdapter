@@ -221,8 +221,18 @@ class JsonUtils {
             }
 
             Map props = pogo.properties
-            def iterableFields = props.findAll {Iterable.isAssignableFrom(it.value.getClass())}
-            def mapFields = props.findAll {Map.isAssignableFrom(it.value.getClass())}
+            def iterableFields = props.findAll {
+                def clazz = it?.value?.getClass()
+                if (clazz)
+                    Iterable.isAssignableFrom(clazz)
+                else
+                    false}
+            def mapFields = props.findAll {
+                def clazz = it?.value?.getClass()
+                if (clazz)
+                    Map.isAssignableFrom(clazz)
+                else
+                    false}
             def nonIterableFields = props - iterableFields - mapFields
 
             jsonAttributes = new JsonObject()
@@ -344,10 +354,15 @@ class JsonUtils {
         if (iterLevel == 0) {
             //format the final document to back to the client
             JsonObject container = new JsonObject()
+            JsonObject version = new JsonObject ()
+            version.put ("version", "1.0")
             if (options.includeVersion)
-                container.put ("jsonapi", "version1.0")
+                container.put ("jsonapi", version)
             String type = pogo.getClass().simpleName
-            def  id = pogo.hasProperty("id") ? (pogo as GroovyObject)?.getProperty("id") : "1"
+            def  id = pogo.hasProperty("id") ? (pogo as GroovyObject)?.getProperty("id").toString() : "unknown"
+            def  altId = pogo.hasProperty("name") ? (pogo as GroovyObject)?.getProperty("name") : "unknown"
+            if (id == "unknown && altid != unknown")
+                id = altId
             container.put("type", type)
             container.put("id", id )
             if (jsonAttributes && jsonAttributes.size() != 0)
@@ -482,7 +497,7 @@ class JsonUtils {
 
                         jItem = new JsonObject()
                         jItem.put ("type", type)
-                        jItem.put ("id", id)
+                        jItem.put ("id", id.toString())
 
                         if (options.compoundDocument) {
                             //encode each iterable object, which will add and compoundDoc 'included' entries
