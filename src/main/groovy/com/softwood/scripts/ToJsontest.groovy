@@ -101,8 +101,10 @@ def device = new Device (name:"fred")
 cust.addSite(site)
 //println "cust, with 1 site  : " + generator.toJson(cust).encodePrettily()
 println "----"
-println "site, encodes as  : " + generator.toJsonApi(site).encodePrettily()
+println "site, as jsonapi encodes as  : " + generator.toJsonApi(site).encodePrettily()
 println "----"
+//println "site, as json encodes as  : " + generator.toJson(site).encodePrettily()
+//println "----"
 System.exit (0)
 
 System.exit(0)

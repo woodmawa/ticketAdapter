@@ -528,7 +528,6 @@ class JsonUtils {
             }
 
             map.each {Map.Entry it ->
-                //println "encodeMapType:  iterlevel $iterLevel:> given map field param, adding each item pogo: $it  to JsonObject "
                 if (supportedStandardTypes.contains (it.value.getClass())) {
                     json.put ((String) it.key, it.value)
                 } else {
