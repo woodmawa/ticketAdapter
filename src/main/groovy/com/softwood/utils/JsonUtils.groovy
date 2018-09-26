@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class JsonUtils {
 
     List supportedStandardTypes = [Integer, Double, Float, byte[], Object, String, Boolean, Instant, JsonArray, JsonObject, CharSequence, Enum]
+    List simpleAttributeTypes = [Number, byte[], Temporal, UUID, URI, String, Boolean, Instant, CharSequence, Enum]
     Map classInstanceHasBeenEncodedOnce = new LinkedHashMap()
     int iterLevel = 0
 
@@ -126,7 +127,7 @@ class JsonUtils {
 
     def toJson (def pogo) {
 
-        def json
+        def json = new JsonObject()
 
         iterLevel++
 
@@ -135,14 +136,14 @@ class JsonUtils {
         else if (Map.isAssignableFrom(pogo.getClass()))
             json =  encodeMapType(pogo )
         else {
-            json = new JsonObject()
+            //json = new JsonObject()
             if (classInstanceHasBeenEncodedOnce[(pogo)]) {
                 println "already encoded pogo $pogo so just put toString summary and stop recursing"
 
-                def item = (pogo.hasProperty ("name")) ? pogo.name : pogo.getClass().simpleName
-                json.put(item, pogo.toString())
+                //def item = (pogo.hasProperty ("name")) ? pogo.name : pogo.getClass().simpleName
+                //json.put(item, pogo.toString())
                 iterLevel--
-                return json
+                return pogo.toString()//json
             }
 
             if (!classInstanceHasBeenEncodedOnce.containsKey((pogo))) {
@@ -152,26 +153,82 @@ class JsonUtils {
 
 
             Map props = pogo.properties
-            def iterableFields = props.findAll {Iterable.isAssignableFrom(it.value.getClass())}
-            def nonIterableFields = props - iterableFields
+            def iterableFields = props.findAll { def clazz = it?.value?.getClass()
+                if (clazz)
+                    Iterable.isAssignableFrom(clazz)
+                else
+                    false
+            }
+            def mapFields = props.findAll { def clazz = it?.value?.getClass()
+                if (clazz)
+                    Map.isAssignableFrom(clazz)
+                else
+                    false
+            }
+            def nonIterableFields = props - iterableFields - mapFields
 
             def jsonFields = new JsonObject()
+            def jsonAttributes = new JsonObject()
+            def jsonEntityReferences = new JsonObject()
+            def jsonCollections = new JsonObject()
+            def jsonMaps = new JsonObject()
+
             for (prop in nonIterableFields) {
                 def field = encodeFieldType(prop)
                 if (field ) {
-                    jsonFields.put(prop.key, field)
-                    //json.put (pogo.getClass().simpleName, jsonFields)
-                }
+                    /* if (isSimpleAttribute(prop.value.getClass()))
+                        jsonAttributes.put(prop.key, field)
+                    else
+                        jsonEntityReferences.put (prop.key, field)*/
+                    def id = (pogo.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id").toString() : "unknown"
+                    def altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
+                    if (id == "unknown" && altId != "unknown")
+                        id = altId
 
+                    def wrapper = new JsonObject()
+                    wrapper.put ("type", prop.value.getClass().simpleName)
+                    if (!isSimpleAttribute(prop.value.getClass()))
+                        wrapper.put ("id", id)
+                    wrapper.put ("value", field )
+                    jsonAttributes.put (prop.key, wrapper )
+                }
             }
             for (prop in iterableFields){
                 def arrayResult = encodeIterableType ( prop.value)
                 if (arrayResult) {
-                    jsonFields.put(prop.key, arrayResult)
-                    //json.put(pogo.getClass().simpleName, jsonFields)
+                    //jsonFields.put(prop.key, arrayResult)
+                    jsonCollections.put(prop.key, arrayResult)
                 }
             }
-            json.put (pogo.getClass().simpleName, jsonFields)
+            for (prop in mapFields){
+                def result = encodeMapType ( prop.value)
+                if (result) {
+                    jsonMaps.put(prop.key, result)
+                }
+            }
+
+            def id = (pogo.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id").toString() : "unknown"
+            def altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
+            if (id == "unknown" && altId != "unknown")
+                id = altId
+            def type = pogo.getClass()name
+            jsonFields.put ("type", type)
+            jsonFields.put ("attributes", jsonAttributes)
+            if (options.excludeNulls == true ) {
+                if (jsonCollections.size() > 0 )
+                    jsonFields.put("collectionAttributes", jsonCollections)
+                if (jsonMaps.size() > 0 )
+                    jsonFields.put("mapAttributes", jsonMaps)
+
+            } else {
+                jsonFields.put("collectionAttributes", jsonCollections)
+                jsonFields.put("mapAttributes", jsonMaps)
+
+            }
+
+            //json.put (pogo.getClass().simpleName, jsonFields)
+            //json.put (pogo.getClass().name, jsonFields)
+            json.put ("data", jsonFields)
         }
         iterLevel--
         if (iterLevel == 0) {
@@ -221,18 +278,18 @@ class JsonUtils {
             }
 
             Map props = pogo.properties
-            def iterableFields = props.findAll {
-                def clazz = it?.value?.getClass()
+            def iterableFields = props.findAll { def clazz = it?.value?.getClass()
                 if (clazz)
                     Iterable.isAssignableFrom(clazz)
                 else
-                    false}
-            def mapFields = props.findAll {
-                def clazz = it?.value?.getClass()
+                    false
+            }
+            def mapFields = props.findAll { def clazz = it?.value?.getClass()
                 if (clazz)
                     Map.isAssignableFrom(clazz)
                 else
-                    false}
+                    false
+            }
             def nonIterableFields = props - iterableFields - mapFields
 
             jsonAttributes = new JsonObject()
@@ -571,5 +628,9 @@ class JsonUtils {
             key.isAssignableFrom(clazz)
         }
         entry?.value
+    }
+
+    private boolean isSimpleAttribute (Class<?> clazz) {
+        simpleAttributeTypes.find {(it as Class).isAssignableFrom (clazz)}
     }
 }

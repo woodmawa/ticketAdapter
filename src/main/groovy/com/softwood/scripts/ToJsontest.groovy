@@ -22,6 +22,7 @@ options.registerConverter(LocalDateTime) {it.toString()}
 options.excludeFieldByNames("ci")
 options.jsonApiCompoundDocument(true)
 options.jsonApiOptionalLinks(true)
+options.excludeNulls(true)
 //options.summaryClassFormEnabled(true)
 
 def generator = options.build()
@@ -103,14 +104,16 @@ cust.addSite(site)
 println "----"
 println "site, as jsonapi encodes as  : " + generator.toJsonApi(site).encodePrettily()
 println "----"
-//println "site, as json encodes as  : " + generator.toJson(site).encodePrettily()
+println "site, as json encodes as  : " + generator.toJson(site).encodePrettily()
 //println "----"
-System.exit (0)
+//System.exit (0)
 
-System.exit(0)
+
 Contract con = new Contract (reference: "digitalBank")
 cust.addContract(con)
-println "cust, with 1 site, 1 contract  : " + generator.toJsonApi(cust).encodePrettily()
+println "cust, with 1 site, 1 contract  : " + generator.toJson(cust).encodePrettily()
+
+System.exit (0)
 
 Device router = new Device(name:"Wan gateway ASR", category:"Router", hostname:"UK-LON-ROUTER-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
 router.customer = cust
