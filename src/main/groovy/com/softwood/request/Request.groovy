@@ -16,7 +16,7 @@ class Request {
     LocalDateTime requiredDate
     LocalDateTime authorisedDate
     String contactDetails
-    String priorty = "normal"
+    String priority = "normal"
     BillOfMaterials bom  = new BillOfMaterials()
 
     String toString() {
