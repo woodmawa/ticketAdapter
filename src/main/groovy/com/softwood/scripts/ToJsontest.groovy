@@ -113,27 +113,27 @@ Contract con = new Contract (reference: "digitalBank")
 cust.addContract(con)
 println "cust, with 1 site, 1 contract  : " + generator.toJson(cust).encodePrettily()
 
-System.exit (0)
+//System.exit (0)
 
 Device router = new Device(name:"Wan gateway ASR", category:"Router", hostname:"UK-LON-ROUTER-CWHQ", ipAddress: "192.168.1.60", managementIpAddress: "192.168.1.24", alias:"access router")
 router.customer = cust
 router.site = site
 
-
+/*
 println "cust one site, one contract : " + generator.toJson(cust).encodePrettily()
 
 println "----"
 println "site : " + generator.toJsonApi(site).encodePrettily()
 
 println "----"
-
+*/
 
 
 JsonObject json
 //json= generator.toJson (site )
 //println "site as json : " + json.encodePrettily()
 
-json = generator.toJsonApi (router)
+json = generator.toJson (router)
 
 println "router as json" + json.encodePrettily()
 

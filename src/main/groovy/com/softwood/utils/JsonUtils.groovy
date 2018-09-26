@@ -211,8 +211,10 @@ class JsonUtils {
             def altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
             if (id == "unknown" && altId != "unknown")
                 id = altId
-            def type = pogo.getClass()name
+            def type = pogo.getClass().name
             jsonFields.put ("type", type)
+            if (!isSimpleAttribute(pogo.getClass()))
+                jsonFields.put ("id", id)
             jsonFields.put ("attributes", jsonAttributes)
             if (options.excludeNulls == true ) {
                 if (jsonCollections.size() > 0 )

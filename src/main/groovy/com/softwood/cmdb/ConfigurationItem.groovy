@@ -30,10 +30,10 @@ class ConfigurationItem {
     Customer customer
     String type
     String category
-    Map hierarchy = [:]  //level1, to level5 - level names as key, value to hold visible display value
+    Map ciHierarchy = [:]  //level1, to level5 - level names as key, value to hold visible display value
 
     //related CI where each entry is [ci, relationship] entries
-    ConcurrentHashMap<Object, Relationship> relatedTo = new ConcurrentHashMap()
+    ConcurrentHashMap<Object, Relationship> relatedToCi = new ConcurrentHashMap()
 
     Optional<ServiceLevelAgreement> sla = Optional.empty()
 
@@ -41,7 +41,7 @@ class ConfigurationItem {
     Site site
     Optional<Contract> contract = Optional.empty()
 
-    ConcurrentHashMap<String, CiSpecificationCharacteristic> attributes = new ConcurrentHashMap()
+    ConcurrentHashMap<String, CiSpecificationCharacteristic> ciAttributes = new ConcurrentHashMap()
     LocalDateTime createdDate =  LocalDateTime.now()
 
     void addRelationshipTo (toCi, String relationshipName) {
@@ -120,7 +120,7 @@ class ConfigurationItem {
         //def props = this.metaClass.properties.collect {it.name}
         if (!metaClass.hasProperty(this, name)) {
             def attVal = new CiSpecificationCharacteristic(name, value)
-            attributes.put (name, attVal)
+            ciAttributes.put (name, attVal)
 
         }
         else
@@ -131,7 +131,7 @@ class ConfigurationItem {
     def getProperty (String name) {
         //def props = this.metaClass.properties.collect {it.name}
         if (!metaClass.hasProperty(this, name)) {
-            def attVal = attributes."$name"
+            def attVal = ciAttributes."$name"
             attVal?.getValue()
         }
         else
