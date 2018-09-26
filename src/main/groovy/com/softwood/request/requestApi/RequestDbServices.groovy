@@ -48,5 +48,15 @@ class RequestDbServices {
         requestList
     }
 
+    def getRequestById (id) {
 
+        def result
+
+        if (!id) {
+            result = requests.collect().toList()
+        } else {
+            result = requests.find {it.id.toString() == "$id".toString()}
+        }
+        result
+    }
 }

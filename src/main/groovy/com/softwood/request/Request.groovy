@@ -8,7 +8,7 @@ import io.vertx.core.json.JsonObject
 import java.time.LocalDateTime
 
 class Request {
-    UUID id = UuidUtil.timeBasedUuid
+    Long id
     String requestIdentifier  //business string
     Customer customer
     String status
@@ -18,17 +18,6 @@ class Request {
     String contactDetails
     String priorty = "normal"
     BillOfMaterials bom  = new BillOfMaterials()
-
-    JsonObject toJson () {
-        JsonUtils.Options options = new JsonUtils.Options()
-        assert options != null
-        assert options.respondsTo ("excludeNulls")
-        options.excludeNulls()
-        options.excludeClass(true)
-        JsonUtils generator = options.build()
-        generator.toJson (this)
-
-    }
 
     String toString() {
         "Request (requestIdentifier: $requestIdentifier, status: $status)"

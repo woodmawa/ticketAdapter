@@ -18,32 +18,50 @@ package com.softwood.request.requestApi
 
 
 import com.softwood.application.Application
-import com.softwood.cmdb.cmdbApi.CmdbDbServices
-import com.softwood.cmdb.views.Bearer
-import com.softwood.cmdb.views.ConnectionService
-import com.softwood.cmdb.views.Device
-import com.softwood.cmdb.views.PackageService
+import com.softwood.utils.JsonUtils
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
+
+import java.time.LocalDateTime
 
 class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
     String name
-     HttpServer server
+    HttpServer server
     String host
     int port
 
     RequestDbServices requestServices
+    JsonUtils summaryJsonGenerator
+    JsonUtils jsonGenerator
 
     RequestApiServerVerticle() {
         requestServices = new RequestDbServices()
+
+        JsonUtils.Options sumOptions = new JsonUtils.Options()
+        sumOptions.registerConverter(LocalDateTime) {it.toString()}
+        sumOptions.excludeFieldByNames("ci")
+        sumOptions.excludeNulls(true)
+        sumOptions.summaryClassFormEnabled(true)
+
+        summaryJsonGenerator = sumOptions.build()
+
+        JsonUtils.Options options = new JsonUtils.Options()
+        options.registerConverter(LocalDateTime) {it.toString()}
+        options.excludeFieldByNames("ci")
+        options.excludeNulls(true)
+        options.summaryClassFormEnabled(true)
+
+        jsonGenerator = options.build()
+
+        host = Application.application.binding.config.requestServer.host
+        port = Application.application.binding.config.requestServer.port
     }
 
     void start(Future<Void> future) {
@@ -90,7 +108,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
             //split uri into path segments and look at last segment matched
             String[] segments = uri.split("/")
-            def trailingParam = (segments[-1] != "ci") ? segments[-1] : null //get last segment
+            def trailingParam = (segments[-1] != "request") ? segments[-1] : null //get last segment
 
             println "processing http [$method] Request and found trailing param as $trailingParam on uri : $uri "
 
@@ -117,8 +135,8 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
                 case HttpMethod.GET:
 
                     def requests = getRequestTickets (trailingParam)
-                    JsonObject jsonAlarm = generateResponse(trailingParam, requests)
-                    def resultBody = jsonAlarm?.encodePrettily() ?: ""
+                    JsonObject listResult = generateResponse(trailingParam, requests)
+                    def resultBody = listResult?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0
@@ -144,58 +162,28 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     private def processRequestTicket (String param, JsonObject postRequestBody) {
 
         //todo rewrite all this
-        def ci
-
-        switch (postRequestBody?.getString("type")) {
-            case "Device" :
-                ci = new Device()
-                break
-            case "Circuit" :
-                ci = new ConnectionService()
-                break
-            case "Bearer" :
-                ci =new Bearer()
-                break
-            case "PackageService" :
-                ci = new PackageService()
-                break
-
-        }
-
-
-        //loop through PostBody and assign all params into the ci
-        ci.name = postRequestBody?.getString("name")
-        /*for (entry in specDetail)
-            alarm.eventCharacteristics.put (entry.key, entry.value )
-         */
-
-
-          //post to event bus
-        requests << ci
-        println "created inventory $ci, and added to IMDB Cmdb"
-        ci
 
     }
 
     //Todo - process query params on the end
     private def getRequestTickets (String param) {
 
-
-        requestServices.requestList ()
+        if (param)
+            requestServices.getRequestById(param)
+        else
+            requestServices.requestList ()
     }
 
     private JsonObject generateResponse(String param, def request) {
 
         JsonObject jsonObject
         if (request instanceof List) {
-            JsonArray jsonArray = new JsonArray()
-            request.each {req ->
-                def json = req.toJson()
-                jsonArray.add(json)}
+            def formattedResp = summaryJsonGenerator.toJson (request)
+
             jsonObject = new JsonObject ()
-            jsonObject.put ("requestList", jsonArray)
+            jsonObject.put ("requestList", formattedResp)
         } else {
-            jsonObject = request.toJson()
+            jsonObject = jsonGenerator.toJson (request)
         }
 
         jsonObject

@@ -47,14 +47,14 @@ class ConfigurationItem {
     void addRelationshipTo (toCi, String relationshipName) {
         Relationship relationship = new Relationship (toCi: toCi, fromCi: this,  name:relationshipName)
         def entry = [toCi: relationship]
-        if (!relatedTo.contains (entry ))
-            relatedTo << entry
+        if (!relatedToCi.contains (entry ))
+            relatedToCi << entry
 
     }
 
     void removeRelationshipTo (toCi) {
-        if (relatedTo.contains (toCi))
-            relatedTo.remove(toCi)
+        if (relatedToCi.contains (toCi))
+            relatedToCi.remove(toCi)
 
     }
 
@@ -68,21 +68,21 @@ class ConfigurationItem {
 
     void addCharacteristic (String name, value) {
         def attVal = new CiSpecificationCharacteristic(name, value)
-        attributes.put (name, attVal)
+        ciAttributes.put (name, attVal)
     }
 
     def getCharacteristic (String name) {
-        def attVal = attributes.get(name)
+        def attVal = ciAttributes.get(name)
         !attVal?.isMultivalued() ? attVal?.value : attVal?.arrayValues
     }
 
     def setCharacteristic (String name, value) {
-        def attVal = attributes.get(name)
+        def attVal = ciAttributes.get(name)
         !attVal?.isMultivalued() ? attVal?.value = value : attVal?.arrayValues << value
     }
 
     boolean hasCharacteristic (String name) {
-        attributes.containsKey(name)
+        ciAttributes.containsKey(name)
     }
 
 
@@ -136,26 +136,6 @@ class ConfigurationItem {
         }
         else
             this.metaClass.getProperty(this, name)
-    }
-
-    /**
-     * better cleaner implementation using groovy's JsonGenerator to control the format
-     * @return Alarm as JsonObject
-     */
-   JsonObject toJson() {
-        def generator = new JsonUtils.Options()
-                .excludeFieldByTypes (Class, Closure)
-                .excludeFieldByNames("ci","attributes")  //dont do self
-                .registerConverter(LocalDateTime, {it.toString()})
-                .build()
-
-
-
-        String  result = generator.toJson (this)
-        //todo got to fix this!!!
-        //String result = """{"name":"${this.name}","type":"${this.type}"}"""
-        new JsonObject (result)
-
     }
 
     String toString() {

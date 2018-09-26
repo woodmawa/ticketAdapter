@@ -21,7 +21,7 @@ binding.requests = new ConcurrentLinkedQueue ()
 
 Customer hsbc = customers[0]
 
-Request req = new Request(bom:new BillOfMaterials(), status: "open", requestIdentifier: "first request")
+Request req = new Request(id: 1, bom:new BillOfMaterials(), status: "open", requestIdentifier: "first request")
 //req.customer = hsbc done in addRequest
 hsbc.addRequest (req)
 
