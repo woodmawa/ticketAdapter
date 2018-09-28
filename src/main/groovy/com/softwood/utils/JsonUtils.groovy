@@ -180,15 +180,19 @@ class JsonUtils {
                         jsonAttributes.put(prop.key, field)
                     else
                         jsonEntityReferences.put (prop.key, field)*/
-                    def id = (pogo.hasProperty("id")) ? (pogo as GroovyObject).getProperty("id").toString() : "unknown"
-                    def altId = (pogo.hasProperty("name")) ? (pogo as GroovyObject).getProperty("name") : "unknown"
-                    if (id == "unknown" && altId != "unknown")
-                        id = altId
+                    def id = (prop.value.hasProperty("id")) ? (prop.value as GroovyObject).getProperty("id").toString() : "unknown"
+                    def name = (prop.value.hasProperty("name")) ? (prop.value as GroovyObject).getProperty("name") : "unknown"
+                    if (id == "unknown" && name != "unknown")
+                        id = name
 
                     def wrapper = new JsonObject()
                     wrapper.put ("type", prop.value.getClass().simpleName)
-                    if (!isSimpleAttribute(prop.value.getClass()))
-                        wrapper.put ("id", id)
+                    if (!isSimpleAttribute(prop.value.getClass())) {
+                        if (id != "unknown")
+                            wrapper.put("id", id)
+                        if (name != "unknown")
+                            wrapper.put("name", name)
+                    }
                     wrapper.put ("value", field )
                     jsonAttributes.put (prop.key, wrapper )
                 }
@@ -215,7 +219,7 @@ class JsonUtils {
             jsonFields.put ("type", type)
             if (!isSimpleAttribute(pogo.getClass())) {
                 jsonFields.put("id", id)
-                if (name != "unknown" && name != id)
+                if (name != "unknown" )
                     jsonFields.put("name", name)
             }
             jsonFields.put ("attributes", jsonAttributes)
