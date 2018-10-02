@@ -135,8 +135,8 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
                 case HttpMethod.GET:
 
                     def requests = getRequestTickets (trailingParam)
-                    JsonObject listResult = generateResponse(trailingParam, requests)
-                    def resultBody = listResult?.encodePrettily() ?: ""
+                    JsonObject getResult = generateResponse(trailingParam, requests)
+                    def resultBody = getResult?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0
@@ -168,7 +168,9 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     //Todo - process query params on the end
     private def getRequestTickets (String param) {
 
-        if (param)
+        if (param == 'count')  //not really REST more of an action but ...
+            requestServices.requestListSize ()
+        else if (param)
             requestServices.getRequestById(param)
         else
             requestServices.requestList ()
@@ -182,7 +184,11 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
             jsonObject = new JsonObject ()
             jsonObject.put ("requestList", formattedResp)
-        } else {
+        } else if (param == "count") {
+            jsonObject = new JsonObject ()
+            jsonObject.put ("requestListSize", request as Long)
+        }
+        else {
             jsonObject = jsonGenerator.toJson (request)
         }
 

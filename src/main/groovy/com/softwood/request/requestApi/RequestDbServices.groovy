@@ -23,6 +23,9 @@ class RequestDbServices {
         requestsDb.requests
     }
 
+    def requestListSize() {
+        requests.size()
+    }
 
     def requestList (Closure filter=null) {
 

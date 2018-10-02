@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 class Request {
     Long id
     String requestIdentifier  //business string
+    String title = ""
     Customer customer
     String status
     LocalDateTime createdDate = LocalDateTime.now()
