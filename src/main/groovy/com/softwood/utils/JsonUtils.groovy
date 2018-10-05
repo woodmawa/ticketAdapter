@@ -175,6 +175,14 @@ class JsonUtils {
             json =  encodeIterableType(pogo)
         else if (Map.isAssignableFrom(pogo.getClass()))
             json =  encodeMapType(pogo )
+        else if (isSimpleAttribute(pogo.getClass())){
+            /*JsonObject wrapper = new JsonObject()
+            wrapper.put ("type", pogo.getClass().simpleName )
+            wrapper.put ("value", pogo.toString())
+            json = wrapper*/
+            iterLevel--
+            return pogo
+        }
         else {
             //json = new JsonObject()
             if (classInstanceHasBeenEncodedOnce[(pogo)]) {
@@ -567,7 +575,8 @@ class JsonUtils {
                     //if summary enabled just put the field and toString form
                     if (options.excludeClass == false) {
                         def wrapper = new JsonObject ()
-                        wrapper.put("type", prop.value.getClass().canonicalName)
+                        wrapper.put("entityType", prop.value.getClass().canonicalName)
+                        wrapper.put ("isSummary" , true )
                         wrapper.put ((String)prop.key, prop.value.toString())
                         return wrapper
                     } else

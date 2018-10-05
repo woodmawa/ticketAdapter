@@ -33,6 +33,10 @@ bom.addToBasket( hsbc.sites[0], products[0])
 Request req = new Request(id: 1, bom: bom, status: "open", requestIdentifier: "first request", title: "brand new ticket")
 //req.customer = hsbc done in addRequest
 hsbc.addRequest (req)
+requests << req
+
+ req = new Request(id: 2,  status: "open", requestIdentifier: "second request", title: "second brand new ticket")
+hsbc.addRequest(req)
 
 requests << req
 

@@ -86,7 +86,7 @@ class Customer extends OrgRoleInstance {
 
 
     String toString() {
-        "Customer (name:$name) [id:${id.toString()}] )"
+        "Customer (name:$name) [id:${id.toString()}]"
     }
 
 }
