@@ -19,6 +19,7 @@ package com.softwood.request.requestApi
 
 import com.softwood.application.Application
 import com.softwood.utils.JsonUtils
+import groovy.json.JsonGenerator
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
@@ -56,7 +57,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         options.registerConverter(LocalDateTime) {it.toString()}
         options.excludeFieldByNames("ci")
         options.excludeNulls(true)
-        options.summaryClassFormEnabled(true)
+        options.summaryClassFormEnabled(false)
 
         jsonGenerator = options.build()
 
@@ -190,6 +191,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         }
         else {
             jsonObject = jsonGenerator.toJson (request)
+
         }
 
         jsonObject

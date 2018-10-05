@@ -6,6 +6,8 @@ import io.vertx.core.json.JsonObject
 import org.apache.tools.ant.taskdefs.PathConvert
 
 import javax.inject.Inject
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 import java.time.Instant
 import java.time.temporal.Temporal
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -17,6 +19,7 @@ class JsonUtils {
     List simpleAttributeTypes = [Number, byte[], Temporal, UUID, URI, String, Boolean, Instant, CharSequence, Enum]
     Map classInstanceHasBeenEncodedOnce = new LinkedHashMap()
     int iterLevel = 0
+    List defaultGroovyClassFields = ['$staticClassInfo', '__$stMC', 'metaClass', '$callSiteArray']
 
     public Options options
     private JsonUtils (Options options) {
@@ -35,6 +38,8 @@ class JsonUtils {
         private boolean summaryEnabled = false
         private List excludedFieldNames = []
         private List excludedFieldTypes = []
+        private int defaultExpandLevels = 2
+
         Map converters = new HashMap<Class, Closure>()
         //todo too hard codes still
         Closure linkNamingStrategy = {String linkType, Class type, String attributeName, String id ->
@@ -59,6 +64,10 @@ class JsonUtils {
             converters.put(URI, {it.toString()})
             converters.put(UUID, {it.toString()})
             this
+        }
+
+        Options setExpandLevels (level){
+            defaultExpandLevels = level
         }
 
         Options setHost (String hostname) {
@@ -125,6 +134,37 @@ class JsonUtils {
         }
     }
 
+    //only want the real fields not getXXX property access methods
+    private Map getDeclaredProperties (pogo) {
+        Class clazz = pogo.getClass()
+        List thisFields = []
+
+        //get all the fields all way up hiererachy
+        while (clazz) {
+            thisFields.addAll (clazz.declaredFields)
+            clazz = clazz.getSuperclass()
+        }
+
+        Map props = [:]
+
+        //only collect non synthetic and non private
+        thisFields.each { Field f ->
+            def synthetic = f.isSynthetic()
+            def privateField = Modifier.isPrivate(f.modifiers)  //test to see if private is set
+            if(!synthetic) {
+                    def accessible = f.isAccessible()
+                    if (!accessible)
+                        f.setAccessible(true)
+
+                    props << ["$f.name": f.get(pogo)]
+                    f.setAccessible(accessible)  //reset to orig
+
+
+            }
+        }
+        props
+    }
+
     def toJson (def pogo) {
 
         def json = new JsonObject()
@@ -152,7 +192,8 @@ class JsonUtils {
             }
 
 
-            Map props = pogo.properties
+            //Map props = pogo.properties
+            Map props = getDeclaredProperties (pogo)
             def iterableFields = props.findAll { def clazz = it?.value?.getClass()
                 if (clazz)
                     Iterable.isAssignableFrom(clazz)
@@ -167,6 +208,8 @@ class JsonUtils {
             }
             def nonIterableFields = props - iterableFields - mapFields
 
+            //println "toJson: pogo ($pogo) has nonIterableFields $nonIterableFields at  iterLev ($iterLevel) "
+
             def jsonFields = new JsonObject()
             def jsonAttributes = new JsonObject()
             def jsonEntityReferences = new JsonObject()
@@ -174,12 +217,9 @@ class JsonUtils {
             def jsonMaps = new JsonObject()
 
             for (prop in nonIterableFields) {
+
                 def field = encodeFieldType(prop)
                 if (field ) {
-                    /* if (isSimpleAttribute(prop.value.getClass()))
-                        jsonAttributes.put(prop.key, field)
-                    else
-                        jsonEntityReferences.put (prop.key, field)*/
                     def id = (prop.value.hasProperty("id")) ? (prop.value as GroovyObject).getProperty("id").toString() : "unknown"
                     def name = (prop.value.hasProperty("name")) ? (prop.value as GroovyObject).getProperty("name") : "unknown"
                     if (id == "unknown" && name != "unknown")
@@ -216,7 +256,7 @@ class JsonUtils {
             if (id == "unknown" && name != "unknown")
                 id = name
             def type = pogo.getClass().name
-            jsonFields.put ("type", type)
+            jsonFields.put ("entityType", type)
             if (!isSimpleAttribute(pogo.getClass())) {
                 jsonFields.put("id", id)
                 if (name != "unknown" )
@@ -235,8 +275,6 @@ class JsonUtils {
 
             }
 
-            //json.put (pogo.getClass().simpleName, jsonFields)
-            //json.put (pogo.getClass().name, jsonFields)
             json.put ("data", jsonFields)
         }
         iterLevel--
@@ -452,7 +490,7 @@ class JsonUtils {
 
     }
 
-  @CompileStatic
+    @CompileStatic
     private def encodeFieldType (Map.Entry prop, boolean jsonApiEncoded = false, JsonArray includedArray = null) {
         def json = new JsonObject()
         Closure converter
@@ -508,7 +546,18 @@ class JsonUtils {
 
                 if (!options.summaryEnabled) {
                     if (!jsonApiEncoded) {
-                        jsonEncClass = this?.toJson(prop.value)
+                        //recursive call to expand on this object
+                        if (iterLevel <= options.defaultExpandLevels)
+                            jsonEncClass = this?.toJson(prop.value)
+                        else {
+                            //println "iter level $iterLevel exeeded default $options.defaultExpandLevels, just provide summary encoding for object   "
+                            JsonObject wrapper = new JsonObject()
+                            wrapper.put ("isSummarised", true)
+                            def keyStr = "$prop.key".toString()
+                            def sumValueStr = prop.value.toString()
+                            wrapper.put (keyStr, sumValueStr)
+                            return wrapper
+                        }
                     } else {
                         jsonEncClass = this?.toJsonApi(prop.value, includedArray)
                     }
@@ -518,7 +567,7 @@ class JsonUtils {
                     //if summary enabled just put the field and toString form
                     if (options.excludeClass == false) {
                         def wrapper = new JsonObject ()
-                        wrapper.put("classType", prop.value.getClass().canonicalName)
+                        wrapper.put("type", prop.value.getClass().canonicalName)
                         wrapper.put ((String)prop.key, prop.value.toString())
                         return wrapper
                     } else

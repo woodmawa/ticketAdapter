@@ -6,7 +6,11 @@ import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
 import com.softwood.cmdb.views.Device
+import com.softwood.request.BillOfMaterials
+import com.softwood.request.ProductOffering
+import com.softwood.utils.DefaultJsonGenerator
 import com.softwood.utils.JsonUtils
+import groovy.json.JsonGenerator
 import groovy.json.JsonOutput
 import io.vertx.core.json.JsonObject
 
@@ -14,6 +18,21 @@ import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
+/*JsonGenerator defgen = new JsonGenerator.Options()
+.excludeNulls()
+.excludeFieldsByType(Class)
+.build()
+
+Site newsite = new Site()
+newsite.name = "mysite"
+
+BillOfMaterials bom = new BillOfMaterials()
+bom.addSite(newsite)
+bom.addToBasket(newsite, new ProductOffering(name:"my offer "))
+
+println "bom looks like "
+println defgen.toJson(bom)
+System.exit(0)*/
 
 JsonUtils.Options options = new JsonUtils.Options()
 options.registerConverter(LocalDateTime) {it.toString()}

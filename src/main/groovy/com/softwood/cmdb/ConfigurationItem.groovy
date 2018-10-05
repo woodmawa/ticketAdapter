@@ -15,6 +15,7 @@
  */
 package com.softwood.cmdb
 
+import com.softwood.request.ProductOffering
 import com.softwood.utils.JsonUtils
 import com.softwood.utils.UuidUtil
 import io.vertx.core.json.JsonObject
@@ -30,6 +31,7 @@ class ConfigurationItem {
     Customer customer
     String type
     String category
+    ProductOffering offering
     Map ciHierarchy = [:]  //level1, to level5 - level names as key, value to hold visible display value
 
     //related CI where each entry is [ci, relationship] entries

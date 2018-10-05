@@ -5,6 +5,7 @@ import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
 import com.softwood.request.BillOfMaterials
+import com.softwood.request.LineItem
 import com.softwood.request.Request
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -19,9 +20,17 @@ Binding binding = getBinding()
 
 binding.requests = new ConcurrentLinkedQueue ()
 
+products = binding.products
+
 Customer hsbc = customers[0]
 
-Request req = new Request(id: 1, bom:new BillOfMaterials(), status: "open", requestIdentifier: "first request", title: "brand new ticket")
+BillOfMaterials bom = new BillOfMaterials()
+bom.addSite(hsbc.sites[0])
+
+//add first product offering in list as item to order
+bom.addToBasket( hsbc.sites[0], products[0])
+
+Request req = new Request(id: 1, bom: bom, status: "open", requestIdentifier: "first request", title: "brand new ticket")
 //req.customer = hsbc done in addRequest
 hsbc.addRequest (req)
 
