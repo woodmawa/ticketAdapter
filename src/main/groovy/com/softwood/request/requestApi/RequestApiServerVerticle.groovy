@@ -18,8 +18,12 @@ package com.softwood.request.requestApi
 
 
 import com.softwood.application.Application
+import com.softwood.cmdb.Customer
+import com.softwood.cmdb.RoleType
+import com.softwood.request.Request
 import com.softwood.utils.JsonUtils
 import groovy.json.JsonGenerator
+import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Verticle
@@ -42,8 +46,12 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     JsonUtils summaryJsonGenerator
     JsonUtils jsonGenerator
 
+    def customersDb = Application.application.binding.config.customers
+    def requestsDb = Application.application.binding.config.requests
+
     RequestApiServerVerticle() {
         requestServices = new RequestDbServices()
+        customersDb =
 
         JsonUtils.Options sumOptions = new JsonUtils.Options()
         sumOptions.registerConverter(LocalDateTime) {it.toString()}
@@ -120,15 +128,15 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
                     //get post body as Json text
                     JsonObject postBody = routingContext.getBodyAsJson()
 
-                    def ci = processInventoryRequest (trailingParam, postBody)
-                    JsonObject jsonAlarm = generateResponse(trailingParam, ci)
-                    def resultBody = jsonAlarm?.encodePrettily() ?: ""
+                    def req = processRequestTicket (trailingParam, postBody)
+                    JsonObject jsonReq = generateResponse(trailingParam, req)
+                    def resultBody = jsonReq?.encodePrettily() ?: ""
 
                     response.putHeader("content-type", "application/json")
                     def length = resultBody.getBytes().size() ?: 0
                     response.putHeader("content-length", "$length")
 
-                    println "returning  Ci Post result with length $length to client"
+                    println "returning  Request Post result with length $length to client"
                     response.end(resultBody)
 
                     break
@@ -162,8 +170,37 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
     private def processRequestTicket (String param, JsonObject postRequestBody) {
 
-        //todo rewrite all this
+        Map graph = new JsonSlurper().parse (postRequestBody)
 
+        def postCust = graph.request.data.customer
+        Customer customer
+
+        //see if we have existing customer defined
+        if (postCust) {
+            customer = customersDb.find {it.id == postCust?.id || it.name == postCust?.name}
+            if (!customer) {
+                //create new customer record
+                customer = new Customer ()
+                customer.name = postCust?.name
+                customer.role = RoleType.CUSTOMER
+                customersDb << customer
+            }
+        }
+
+        Request request = new Request()
+        request.status = postCust?.status
+        request.priority = postCust?.priority
+        request.requestIdentifier = postCust?.requestIdentifier
+        request.authorisedDate = LocalDateTime.parse(postCust?.authorisedDate)
+        request.requiredDate = LocalDateTime.parse(postCust?.requiredDate)
+        request.contactDetails = postCust?.contactDetails
+        request.title = postCust?.title
+        if (customer)
+            customer.addRequest(request)
+
+        requestsDb << request
+        request
+        
     }
 
     //Todo - process query params on the end
