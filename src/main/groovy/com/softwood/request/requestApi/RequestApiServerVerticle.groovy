@@ -34,6 +34,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 
 import java.time.LocalDateTime
+import java.util.concurrent.atomic.AtomicLong
 
 class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
@@ -45,6 +46,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     RequestDbServices requestServices
     JsonUtils summaryJsonGenerator
     JsonUtils jsonGenerator
+    AtomicLong sequenceGenerator = Application.application.binding.config.requestServer.sequenceGenerator
 
     def customersDb = Application.application.binding.config.customers
     def requestsDb = Application.application.binding.config.requests
@@ -187,7 +189,9 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
             }
         }
 
+
         Request request = new Request()
+        request.id = sequenceGenerator.next()
         request.status = postCust?.status
         request.priority = postCust?.priority
         request.requestIdentifier = postCust?.requestIdentifier
@@ -200,7 +204,8 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
         requestsDb << request
         request
-        
+
+
     }
 
     //Todo - process query params on the end

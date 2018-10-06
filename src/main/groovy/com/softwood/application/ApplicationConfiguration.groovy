@@ -7,6 +7,8 @@ import com.softwood.incident.adapters.simulators.ITSM.ItsmClientAdapterVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowApiServerSimulatorVerticle
 import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
 
+import java.util.concurrent.atomic.AtomicLong
+
 
 ticketAdapter {
     simulatorEnabled = true
@@ -43,6 +45,7 @@ alarmServer {
 requestServer {
     host = "localhost"
     port = 8082
+    sequenceGenerator = new AtomicLong(10)
 
 }
 
