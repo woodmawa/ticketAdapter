@@ -1,28 +1,26 @@
-request {
+{
     "data": {
         "attributes": {
            "requestIdentifier": {
                 "type": "String",
-                "value": "$requestIdentifier #<% if (counter) out << "${++counter}" %>"
-            },
-            "title": {
+                "value": "$requestIdentifier"
+           },
+           "title": {
                 "type": "String",
                 "value": "$title"
-            },
-			"customer": {
+           },
+           "customer": {
                 "id": "$customer.id",
                 "name": "$customer.name"
-			},
-			"status": {
+           },
+           "status": {
                 "type": "String",
                 "value": "$status"
-            },
-            "priority": {
+           },
+           "priority": {
                 "type": "String",
                 "value": "normal"
-            },
-			{_comment}: "if you want a BoM, then use a BoM template and set content in binding "
-			<% if (bom) out << bom %>
+           }
         }
 	}
 }

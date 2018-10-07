@@ -561,7 +561,7 @@ class JsonUtils {
                             //println "iter level $iterLevel exeeded default $options.defaultExpandLevels, just provide summary encoding for object   "
                             JsonObject wrapper = new JsonObject()
                             wrapper.put ("isSummarised", true)
-                            def keyStr = "$prop.key".toString()
+                            def keyStr = "shortForm"
                             def sumValueStr = prop.value.toString()
                             wrapper.put (keyStr, sumValueStr)
                             return wrapper
@@ -577,7 +577,7 @@ class JsonUtils {
                         def wrapper = new JsonObject ()
                         wrapper.put("entityType", prop.value.getClass().canonicalName)
                         wrapper.put ("isSummary" , true )
-                        wrapper.put ((String)prop.key, prop.value.toString())
+                        wrapper.put ("shortForm", prop.value.toString())
                         return wrapper
                     } else
                         return prop.value.toString()

@@ -46,14 +46,16 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     RequestDbServices requestServices
     JsonUtils summaryJsonGenerator
     JsonUtils jsonGenerator
-    AtomicLong sequenceGenerator = Application.application.binding.config.requestServer.sequenceGenerator
+    AtomicLong sequenceGenerator
 
-    def customersDb = Application.application.binding.config.customers
-    def requestsDb = Application.application.binding.config.requests
+    def customersDb
+    def requestsDb
 
     RequestApiServerVerticle() {
         requestServices = new RequestDbServices()
-        customersDb =
+        customersDb = Application.application.binding.customers
+        requestsDb = Application.application.binding.requests
+        sequenceGenerator = Application.application.binding.config.requestServer.sequenceGenerator
 
         JsonUtils.Options sumOptions = new JsonUtils.Options()
         sumOptions.registerConverter(LocalDateTime) {it.toString()}
@@ -172,33 +174,49 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
     private def processRequestTicket (String param, JsonObject postRequestBody) {
 
-        Map graph = new JsonSlurper().parse (postRequestBody)
+        Map graph = new JsonSlurper().parseText (postRequestBody.encode())
 
-        def postCust = graph.request.data.customer
+        def postCust = graph.data?.attributes?.customer
         Customer customer
+
+        def postRequest = graph.data
 
         //see if we have existing customer defined
         if (postCust) {
-            customer = customersDb.find {it.id == postCust?.id || it.name == postCust?.name}
-            if (!customer) {
+            if (postCust?.value?.data) {
+                //todo check this assumption !
+                //looks like a new customer entity has been presented
                 //create new customer record
                 customer = new Customer ()
-                customer.name = postCust?.name
+                customer.name = postCust?.attributes?.name?.value
                 customer.role = RoleType.CUSTOMER
-                customersDb << customer
+                println "looks like a new customer record with data has been presented in post,  so create it : $customer"
+            } else {
+                //looks as though it references exiting customer so try a lookup
+                customer = customersDb.find { it.id == postCust?.id || it.name == postCust?.name }
+                if (!customer) {
+                    //create new customer record
+                    customer = new Customer()
+                    customer.name = postCust?.name
+                    customer.role = RoleType.CUSTOMER
+                    println "couldnt find $postCust in customersDB, create new one as : $customer"
+                    customersDb << customer
+                }
             }
         }
 
 
         Request request = new Request()
         request.id = sequenceGenerator.next()
-        request.status = postCust?.status
-        request.priority = postCust?.priority
-        request.requestIdentifier = postCust?.requestIdentifier
-        request.authorisedDate = LocalDateTime.parse(postCust?.authorisedDate)
-        request.requiredDate = LocalDateTime.parse(postCust?.requiredDate)
-        request.contactDetails = postCust?.contactDetails
-        request.title = postCust?.title
+        request.status = postRequest.attributes?.status?.value
+        request.priority = postRequest?.attributes?.priority?.value
+        request.requestIdentifier = postRequest?.attributes?.requestIdentifier?.value
+        if (postRequest?.attributes?.authorisedDate)
+            request.authorisedDate = LocalDateTime.parse(postRequest?.attributes?.authorisedDate?.value)
+        if (postRequest?.attributes?.requiredDate)
+            request.requiredDate = LocalDateTime.parse(postRequest?.attributes?.requiredDate?.value)
+        request.contactDetails = postRequest?.attributes?.contactDetails?.value
+        request.title = postRequest?.attributes?.title?.value
         if (customer)
             customer.addRequest(request)
 

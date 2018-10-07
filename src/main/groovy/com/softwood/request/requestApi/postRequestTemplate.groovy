@@ -8,8 +8,8 @@ def refData = [
         priority  : "High",
         requestIdentifier     : 'next new request',
         customer: [name: "HSBC", id : "95939b2d-c977-11e8-b3e1-052d9ee4fef0"],
-        bom : '''{"myBom" :"stuff "}''',
-        counter : 10
+        //bom : '''{"myBom" :"stuff "}''',
+        //counter : 10
 ]
 
 
@@ -17,3 +17,4 @@ def refData = [
 def engine = new groovy.text.GStringTemplateEngine()
 def postTemplate = engine.createTemplate(f).make(refData)
 println postTemplate.toString()
+println "size : " + postTemplate.toString().size()

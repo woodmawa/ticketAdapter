@@ -45,7 +45,7 @@ alarmServer {
 requestServer {
     host = "localhost"
     port = 8082
-    sequenceGenerator = new AtomicLong(10)
+    sequenceGenerator = new AtomicLong(9)
 
 }
 
