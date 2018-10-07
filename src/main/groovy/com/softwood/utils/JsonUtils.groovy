@@ -562,6 +562,7 @@ class JsonUtils {
                             JsonObject wrapper = new JsonObject()
                             wrapper.put ("isSummarised", true)
                             def keyStr = "shortForm"
+
                             def sumValueStr = prop.value.toString()
                             wrapper.put (keyStr, sumValueStr)
                             return wrapper
@@ -576,7 +577,7 @@ class JsonUtils {
                     if (options.excludeClass == false) {
                         def wrapper = new JsonObject ()
                         wrapper.put("entityType", prop.value.getClass().canonicalName)
-                        wrapper.put ("isSummary" , true )
+                        wrapper.put ("isSummarised" , true )
                         wrapper.put ("shortForm", prop.value.toString())
                         return wrapper
                     } else
