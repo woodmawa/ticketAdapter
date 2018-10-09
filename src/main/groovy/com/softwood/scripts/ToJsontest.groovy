@@ -6,7 +6,7 @@ import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
 import com.softwood.cmdb.views.Device
-import com.softwood.utils.XXJsonUtils
+import com.softwood.utils.JsonUtils
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
@@ -29,7 +29,7 @@ println "bom looks like "
 println defgen.toJson(bom)
 System.exit(0)*/
 
-XXJsonUtils.Options options = new XXJsonUtils.Options()
+JsonUtils.Options options = new JsonUtils.Options()
 options.registerConverter(LocalDateTime) {it.toString()}
 //options.excludeFieldByNames("class")
 //options.excludeClass (false)

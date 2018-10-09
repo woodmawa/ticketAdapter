@@ -15,14 +15,14 @@
  */
 package com.softwood.cmdb
 
-import com.softwood.utils.XXUuidUtil
+import com.softwood.utils.UuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
 class Contract {
-    UUID id = XXUuidUtil.getTimeBasedUuid ()
+    UUID id = UuidUtil.getTimeBasedUuid ()
     String reference
     Customer customer
     LocalDateTime createdDateTime = LocalDateTime.now()

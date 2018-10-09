@@ -16,7 +16,7 @@
 package com.softwood.cmdb
 
 import com.softwood.request.Request
-import com.softwood.utils.XXUuidUtil
+import com.softwood.utils.UuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 //@MapConstructor (post = {it.role = RoleType.CUSTOMER})
 
 class Customer extends OrgRoleInstance {
-    UUID id = XXUuidUtil.timeBasedUuid
+    UUID id = UuidUtil.timeBasedUuid
     String name
     RoleType role
     LocalDateTime createdDateTime = LocalDateTime.now()

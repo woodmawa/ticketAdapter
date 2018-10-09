@@ -16,13 +16,13 @@
 package com.softwood.cmdb
 
 import com.softwood.request.ProductOffering
-import com.softwood.utils.XXUuidUtil
+import com.softwood.utils.UuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 class ConfigurationItem {
-    UUID id = XXUuidUtil.getTimeBasedUuid ()  //generate a time based uuid
+    UUID id = UuidUtil.getTimeBasedUuid ()  //generate a time based uuid
     String name
     String alias
     String status

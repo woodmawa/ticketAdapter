@@ -15,7 +15,7 @@
  */
 package com.softwood.incident
 
-import com.softwood.utils.XXUuidUtil
+import com.softwood.utils.UuidUtil
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -31,7 +31,7 @@ abstract class User {
         userList << this
     }
 
-    UUID id = XXUuidUtil.timeBasedUuid
+    UUID id = UuidUtil.timeBasedUuid
 
     String firstName
     String lastName

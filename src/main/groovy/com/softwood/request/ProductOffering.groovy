@@ -1,9 +1,9 @@
 package com.softwood.request
 
-import com.softwood.utils.XXUuidUtil
+import com.softwood.utils.UuidUtil
 
 class ProductOffering {
-    UUID id = XXUuidUtil.timeBasedUuid
+    UUID id = UuidUtil.timeBasedUuid
     String name
     String type
     String hierarchy

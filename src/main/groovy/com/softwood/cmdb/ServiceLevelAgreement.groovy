@@ -15,12 +15,12 @@
  */
 package com.softwood.cmdb
 
-import com.softwood.utils.XXUuidUtil
+import com.softwood.utils.UuidUtil
 
 import java.time.LocalDateTime
 
 class ServiceLevelAgreement {
-    UUID id = XXUuidUtil.getTimeBasedUuid ()
+    UUID id = UuidUtil.getTimeBasedUuid ()
     String name
     Optional<Customer> customer
     LocalDateTime createdDateTime = LocalDateTime.now()

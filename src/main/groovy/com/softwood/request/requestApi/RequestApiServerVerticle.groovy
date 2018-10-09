@@ -21,6 +21,7 @@ import com.softwood.application.Application
 import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.request.Request
+import com.softwood.utils.JsonUtils
 import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
@@ -30,7 +31,7 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
-import com.softwood.utils.XXJsonUtils
+
 
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicLong
@@ -43,8 +44,8 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     int port
 
     RequestDbServices requestServices
-    XXJsonUtils summaryJsonGenerator
-    XXJsonUtils jsonGenerator
+    JsonUtils summaryJsonGenerator
+    JsonUtils jsonGenerator
     AtomicLong sequenceGenerator
 
     def customersDb
@@ -56,7 +57,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         requestsDb = Application.application.binding.requests
         sequenceGenerator = Application.application.binding.config.requestServer.sequenceGenerator
 
-        XXJsonUtils.Options sumOptions = new XXJsonUtils.Options()
+        JsonUtils.Options sumOptions = new JsonUtils.Options()
         sumOptions.registerConverter(LocalDateTime) {it.toString()}
         sumOptions.excludeFieldByNames("ci")
         sumOptions.excludeNulls(true)
@@ -64,7 +65,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
         summaryJsonGenerator = sumOptions.build()
 
-        XXJsonUtils.Options options = new XXJsonUtils.Options()
+        JsonUtils.Options options = new JsonUtils.Options()
         options.registerConverter(LocalDateTime) {it.toString()}
         options.excludeFieldByNames("ci")
         options.excludeNulls(true)
