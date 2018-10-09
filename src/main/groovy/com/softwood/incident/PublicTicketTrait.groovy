@@ -15,13 +15,8 @@
  */
 package com.softwood.incident
 
-import com.softwood.cmdb.ConfigurationItem
-import com.softwood.cmdb.Customer
-import com.softwood.cmdb.Site
-import com.softwood.utils.UuidUtil
 
 import java.time.LocalDateTime
-import java.util.concurrent.ConcurrentLinkedQueue
 
 trait PublicTicketTrait {
     String title

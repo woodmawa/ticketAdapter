@@ -71,6 +71,7 @@ class BillOfMaterials {
             allLines << value.toList()
             allLines.sort  {a,b -> a[0] <=> b[0]}
         }
+        allLines.collect {it[1]}
     }
 
     String toString () {

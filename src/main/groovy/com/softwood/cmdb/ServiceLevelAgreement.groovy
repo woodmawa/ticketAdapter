@@ -15,13 +15,12 @@
  */
 package com.softwood.cmdb
 
-import com.softwood.utils.UuidUtil
+import com.softwood.utils.XXUuidUtil
 
 import java.time.LocalDateTime
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class ServiceLevelAgreement {
-    UUID id = UuidUtil.getTimeBasedUuid ()
+    UUID id = XXUuidUtil.getTimeBasedUuid ()
     String name
     Optional<Customer> customer
     LocalDateTime createdDateTime = LocalDateTime.now()

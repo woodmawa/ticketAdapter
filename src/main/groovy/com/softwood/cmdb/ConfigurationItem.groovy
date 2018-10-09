@@ -16,15 +16,13 @@
 package com.softwood.cmdb
 
 import com.softwood.request.ProductOffering
-import com.softwood.utils.JsonUtils
-import com.softwood.utils.UuidUtil
-import io.vertx.core.json.JsonObject
+import com.softwood.utils.XXUuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 class ConfigurationItem {
-    UUID id = UuidUtil.getTimeBasedUuid ()  //generate a time based uuid
+    UUID id = XXUuidUtil.getTimeBasedUuid ()  //generate a time based uuid
     String name
     String alias
     String status

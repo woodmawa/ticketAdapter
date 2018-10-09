@@ -15,17 +15,15 @@
  */
 package com.softwood.incident
 
-import com.softwood.utils.UuidUtil
+import com.softwood.utils.XXUuidUtil
 import groovy.json.JsonGenerator
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class IncidentTicket implements PublicTicketTrait {
-    final UUID id = UuidUtil.timeBasedUuid
+    final UUID id = XXUuidUtil.timeBasedUuid
 
     String closureCode
     boolean majorIncident

@@ -21,7 +21,7 @@ import com.fasterxml.uuid.NoArgGenerator
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-class UuidUtil {
+class XXUuidUtil {
 
     private static final NoArgGenerator timeBasedGenerator = Generators.timeBasedGenerator()
     //private static final long clockSeqAndNode = makeClockSeqAndNode()

@@ -3,17 +3,14 @@ package com.softwood.utils
 import groovy.transform.CompileStatic
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
-import org.apache.tools.ant.taskdefs.PathConvert
 
 import javax.inject.Inject
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.time.Instant
 import java.time.temporal.Temporal
-import java.util.concurrent.ConcurrentLinkedQueue
 
-
-class JsonUtils {
+class XXJsonUtils {
 
     List supportedStandardTypes = [Integer, Double, Float, byte[], Object, String, Boolean, Instant, JsonArray, JsonObject, CharSequence, Enum]
     List simpleAttributeTypes = [Number, byte[], Temporal, UUID, URI, String, Boolean, Instant, CharSequence, Enum]
@@ -22,7 +19,7 @@ class JsonUtils {
     List defaultGroovyClassFields = ['$staticClassInfo', '__$stMC', 'metaClass', '$callSiteArray']
 
     public Options options
-    private JsonUtils (Options options) {
+    private XXJsonUtils(Options options) {
         this.options = options
     }
 
@@ -128,14 +125,14 @@ class JsonUtils {
             this
         }
 
-        JsonUtils build () {
-            def generator = JsonUtils.newInstance(this)
+        XXJsonUtils build () {
+            def generator = XXJsonUtils.newInstance(this)
             generator
         }
     }
 
-    //only want the real fields not getXXX property access methods
-    private Map getDeclaredProperties (pogo) {
+    //only want the real fields, and not getXXX property access methods
+    private Map getDeclaredFields (pogo) {
         Class clazz = pogo.getClass()
         List thisFields = []
 
@@ -169,6 +166,10 @@ class JsonUtils {
 
         def json = new JsonObject()
 
+        if (iterLevel == 0) {
+            json.put ("softwoodEncoded", "v1.0")
+        }
+
         iterLevel++
 
         if (Iterable.isAssignableFrom(pogo.getClass()) )
@@ -176,32 +177,34 @@ class JsonUtils {
         else if (Map.isAssignableFrom(pogo.getClass()))
             json =  encodeMapType(pogo )
         else if (isSimpleAttribute(pogo.getClass())){
-            /*JsonObject wrapper = new JsonObject()
-            wrapper.put ("type", pogo.getClass().simpleName )
-            wrapper.put ("value", pogo.toString())
-            json = wrapper*/
+
             iterLevel--
             return pogo
         }
         else {
             //json = new JsonObject()
             if (classInstanceHasBeenEncodedOnce[(pogo)]) {
-                println "already encoded pogo $pogo so just put toString summary and stop recursing"
+                //println "already encoded pogo $pogo so just put toString summary and stop recursing"
 
                 //def item = (pogo.hasProperty ("name")) ? pogo.name : pogo.getClass().simpleName
                 //json.put(item, pogo.toString())
                 iterLevel--
-                return pogo.toString()//json
+                JsonObject wrapper = new JsonObject()
+                wrapper.put ("isPreviouslyEncoded", true)
+                if (pogo.hasProperty ("id"))
+                    wrapper.put ("id", pogo.getProperty ("id"))
+                wrapper.put ("shortForm", pogo.toString())
+                return wrapper // pogo.toString()
             }
 
             if (!classInstanceHasBeenEncodedOnce.containsKey((pogo))) {
                 classInstanceHasBeenEncodedOnce.putAll([(pogo): new Boolean(true)])
-                println "iterLev $iterLevel: adding pogo $pogo encoded once list"
+                //println "iterLev $iterLevel: adding pogo $pogo encoded once list"
             }
 
 
             //Map props = pogo.properties
-            Map props = getDeclaredProperties (pogo)
+            Map props = getDeclaredFields (pogo)
             def iterableFields = props.findAll { def clazz = it?.value?.getClass()
                 if (clazz)
                     Iterable.isAssignableFrom(clazz)
@@ -561,8 +564,10 @@ class JsonUtils {
                             //println "iter level $iterLevel exeeded default $options.defaultExpandLevels, just provide summary encoding for object   "
                             JsonObject wrapper = new JsonObject()
                             wrapper.put ("isSummarised", true)
-                            def keyStr = "shortForm"
+                            if (prop?.value.hasProperty ("id"))
+                                wrapper.put ("id", (prop?.value as GroovyObject).getProperty ("id").toString())
 
+                            def keyStr = "shortForm"
                             def sumValueStr = prop.value.toString()
                             wrapper.put (keyStr, sumValueStr)
                             return wrapper
@@ -578,6 +583,9 @@ class JsonUtils {
                         def wrapper = new JsonObject ()
                         wrapper.put("entityType", prop.value.getClass().canonicalName)
                         wrapper.put ("isSummarised" , true )
+                        if (prop?.value.hasProperty ("id"))
+                            wrapper.put ("id", (prop?.value as GroovyObject).getProperty ("id").toString())
+
                         wrapper.put ("shortForm", prop.value.toString())
                         return wrapper
                     } else

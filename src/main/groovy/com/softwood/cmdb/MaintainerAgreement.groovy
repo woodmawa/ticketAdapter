@@ -15,12 +15,12 @@
  */
 package com.softwood.cmdb
 
-import com.softwood.utils.UuidUtil
+import com.softwood.utils.XXUuidUtil
 
 import java.time.LocalDateTime
 
 class MaintainerAgreement {
-    UUID id = UuidUtil.getTimeBasedUuid ()
+    UUID id = XXUuidUtil.getTimeBasedUuid ()
     String name
     Optional<Maintainer> maintainer
     LocalDateTime createdDateTime = LocalDateTime.now()

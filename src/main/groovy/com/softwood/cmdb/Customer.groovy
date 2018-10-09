@@ -16,10 +16,7 @@
 package com.softwood.cmdb
 
 import com.softwood.request.Request
-import com.softwood.utils.UuidUtil
-import groovy.transform.Canonical
-import groovy.transform.MapConstructor
-import io.vertx.core.json.JsonObject
+import com.softwood.utils.XXUuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -28,7 +25,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 //@MapConstructor (post = {it.role = RoleType.CUSTOMER})
 
 class Customer extends OrgRoleInstance {
-    UUID id = UuidUtil.timeBasedUuid
+    UUID id = XXUuidUtil.timeBasedUuid
     String name
     RoleType role
     LocalDateTime createdDateTime = LocalDateTime.now()

@@ -46,6 +46,8 @@ dependencies {
     // DSL used to access SNOW/BMC web services - https://mvnrepository.com/artifact/io.github.http-builder-ng/http-builder-ng-core
     //compile group: 'io.github.http-builder-ng', name: 'http-builder-ng-core', version: '1.0.3'
 
+    compile "com.softwood:utils:1.0-SNAPSHOT"
+
     // simple mail client library
     compile group: 'org.apache.commons', name: 'commons-email', version: '1.3.1'
 

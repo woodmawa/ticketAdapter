@@ -6,12 +6,7 @@ import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.cmdb.Site
 import com.softwood.cmdb.views.Device
-import com.softwood.request.BillOfMaterials
-import com.softwood.request.ProductOffering
-import com.softwood.utils.DefaultJsonGenerator
-import com.softwood.utils.JsonUtils
-import groovy.json.JsonGenerator
-import groovy.json.JsonOutput
+import com.softwood.utils.XXJsonUtils
 import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
@@ -34,7 +29,7 @@ println "bom looks like "
 println defgen.toJson(bom)
 System.exit(0)*/
 
-JsonUtils.Options options = new JsonUtils.Options()
+XXJsonUtils.Options options = new XXJsonUtils.Options()
 options.registerConverter(LocalDateTime) {it.toString()}
 //options.excludeFieldByNames("class")
 //options.excludeClass (false)
@@ -46,7 +41,13 @@ options.excludeNulls(true)
 
 def generator = options.build()
 
-/*
+
+
+
+println "basic array : " + generator.toJson ([1,2,3]).encode()
+println "basic map : " + generator.toJson (["a":1,"b":2,"c":3]).encode()
+println "------"
+
 class A {
     String name = "a"
     int id
@@ -55,7 +56,7 @@ class A {
     List mixedList = [1, new D(id:1000)]
     ConcurrentLinkedQueue listOfC = new ConcurrentLinkedQueue()
     String toString () {
-        "A(name: $name)"
+        "A(name: $name, id:$id)"
     }
 
     ConcurrentHashMap<String, Object> objectMap = new ConcurrentHashMap()
@@ -68,7 +69,7 @@ class B {
     int id
 
     String toString () {
-        "B(name: $name)"
+        "B(name: $name, id:$id)"
     }
 }
 
@@ -77,7 +78,7 @@ class C {
     int id
 
     String toString () {
-        "C(name: $name)"
+        "C(name: $name, id:$id)"
     }
 }
 
@@ -86,7 +87,7 @@ class D {
     int id
 
     String toString () {
-        "D(name: $name)"
+        "D(name: $name, id:$id )"
     }
 }
 
@@ -96,18 +97,18 @@ a.listOfC << new C(id:2)
 
 a.objectMap.put ("firstD", new D(id:300))
 
-println "A with B and array of C, and map of D's : " + generator.toJsonApi(a).encodePrettily()
+println "enc as jsonApi: A with B and array of C, and map of D's : " + generator.toJsonApi(a).encodePrettily()
 
 println "-----"
+
+println "enc with wills json : A with B and array of C, and map of D's : " + generator.toJson(a).encodePrettily()
 
 /*def js = JsonOutput.toJson (a)
         println JsonOutput.prettyPrint(js)*/
 
 
-//System.exit(0)
 
-//println "basic array : " + generator.toJson ([1,2,3])
-
+System.exit(0)
 
 Customer cust = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
 //println "basic cust, no reference fields  : " + generator.toJsonApi(cust).encodePrettily()

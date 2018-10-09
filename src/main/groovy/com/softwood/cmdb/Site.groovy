@@ -15,16 +15,14 @@
  */
 package com.softwood.cmdb
 
-import com.softwood.utils.UuidUtil
-import groovy.transform.Canonical
-import io.vertx.core.json.JsonObject
+import com.softwood.utils.XXUuidUtil
 
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
 class Site {
-    UUID id = UuidUtil.getTimeBasedUuid ()
+    UUID id = XXUuidUtil.getTimeBasedUuid ()
     String name
     String siteContact
     String address  //simple for now

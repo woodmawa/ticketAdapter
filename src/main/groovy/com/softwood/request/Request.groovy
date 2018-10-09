@@ -1,9 +1,6 @@
 package com.softwood.request
 
 import com.softwood.cmdb.Customer
-import com.softwood.utils.JsonUtils
-import com.softwood.utils.UuidUtil
-import io.vertx.core.json.JsonObject
 
 import java.time.LocalDateTime
 

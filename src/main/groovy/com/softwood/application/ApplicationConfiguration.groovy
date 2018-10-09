@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong
 ticketAdapter {
     simulatorEnabled = true
     simulatorPort = 8091
+    simulatorHost = "localhost"
     system = "Snow"
     type = AdapterProtocolType.Json
     host = "localhost"
