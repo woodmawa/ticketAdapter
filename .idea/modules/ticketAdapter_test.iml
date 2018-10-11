@@ -10,7 +10,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ticketAdapter_main" />
     <orderEntry type="library" name="Gradle: com.softwood:utils:1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Gradle: org.spockframework:spock-core:1.1-groovy-2.4" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
@@ -24,6 +23,7 @@
     <orderEntry type="library" name="Gradle: io.vertx:vertx-web-common:3.5.3" level="project" />
     <orderEntry type="library" name="Gradle: io.vertx:vertx-core:3.5.3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.dagger:dagger:2.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.spockframework:spock-core:1.2-groovy-2.5" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-test:2.5.2" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-ant:2.5.2" level="project" />

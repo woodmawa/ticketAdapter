@@ -3,6 +3,7 @@ package com.softwood.request.requestApi
 import com.softwood.application.Application
 import com.softwood.cmdb.Customer
 
+import java.security.InvalidParameterException
 import java.util.concurrent.ConcurrentHashMap
 
 class RequestDbServices {
@@ -58,7 +59,17 @@ class RequestDbServices {
         if (!id) {
             result = requests.collect().toList()
         } else {
-            result = requests.find {it.id.toString() == "$id".toString()}
+            if (id instanceof Long)
+                result = requests.find {it.id == id}
+            else if (id instanceof String) {
+                Long num = Long.parseLong(id)
+                if (num)
+                    result = requests.find { it.id.toString() == "$id".toString() }
+                else
+                    throw new InvalidParameterException(message: "id should a number, found $id instead")
+            }
+            else
+                throw new InvalidParameterException(message: "id should be Long or a String")
         }
         result
     }

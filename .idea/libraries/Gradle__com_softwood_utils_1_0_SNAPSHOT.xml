@@ -5,6 +5,8 @@
       <root url="jar://$MAVEN_REPOSITORY$/com/softwood/utils/1.0-SNAPSHOT/utils-1.0-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/softwood/utils/1.0-SNAPSHOT/utils-1.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

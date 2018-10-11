@@ -132,7 +132,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
                     //get post body as Json text
                     JsonObject postBody = routingContext.getBodyAsJson()
 
-                    def req = processRequestTicket (trailingParam, postBody)
+                    def req = processRequestTicketPost (trailingParam, postBody)
                     JsonObject jsonReq = generateResponse(trailingParam, req)
                     def resultBody = jsonReq?.encodePrettily() ?: ""
 
@@ -172,14 +172,14 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
 
-    private def processRequestTicket (String param, JsonObject postRequestBody) {
+    private def processRequestTicketPost(String param, JsonObject postRequestBody) {
 
         Map graph = new JsonSlurper().parseText (postRequestBody.encode())
 
-        def postCust = graph.data?.attributes?.customer
+        def postCust = graph?.entityData?.attributes?.customer
         Customer customer
 
-        def postRequest = graph.data
+        def postRequest = graph?.entityData
 
         //see if we have existing customer defined
         if (postCust) {
@@ -231,8 +231,9 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
         if (param == 'count')  //not really REST more of an action but ...
             requestServices.requestListSize ()
-        else if (param)
+        else if (param) {
             requestServices.getRequestById(param)
+        }
         else
             requestServices.requestList ()
     }
