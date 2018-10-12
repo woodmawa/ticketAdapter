@@ -46,7 +46,7 @@ ticketAdapter {
 
 requestServer {
     host = "localhost"
-    port = 8092
+    port = 8082
     sequenceGenerator = new AtomicLong(9)
 
 }
