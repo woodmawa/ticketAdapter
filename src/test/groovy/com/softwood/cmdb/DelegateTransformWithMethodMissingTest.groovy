@@ -28,7 +28,7 @@ class DelegateTransformWithMethodMissingTest extends Specification {
         when : "read delegated and actual atributes back "
         def ip = dev.ipAddress
         def name = dev.name
-        def ciAtts = dev.ci.attributes  //get map of attVals, where propName is key
+        def ciAtts = dev.ci.ciAttributes  //get map of attVals, where propName is key
         def specChar  = ciAtts.hostname
 
         then : "confirm expected results "

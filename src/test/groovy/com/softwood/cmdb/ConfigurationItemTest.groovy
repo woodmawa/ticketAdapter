@@ -33,7 +33,7 @@ class ConfigurationItemTest extends Specification {
         expect:"uuid should exist "
         ci.id
         ci.name == "myCPE"
-        ci.attributes.size() == 0
+        ci.ciAttributes.size() == 0
     }
 
     def "test add and rerieve attributes for a ci "() {

@@ -245,11 +245,11 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
             def formattedResp = summaryJsonGenerator.toJson (request)
 
             jsonObject = new JsonObject ()
-            jsonObject.put ("requestList", formattedResp)
+            jsonObject = jsonGenerator.toJson (request, "requestList")
+            //jsonObject.put ("requestList", formattedResp)
         } else if (param == "count") {
-            jsonObject = new JsonObject ()
-            jsonObject.put ("requestListSize", request as Long)
-        }
+            jsonObject = jsonGenerator.toJson (request as Long, "requestListSize")
+         }
         else {
             jsonObject = jsonGenerator.toJson (request)
 
