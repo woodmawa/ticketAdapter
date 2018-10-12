@@ -16,6 +16,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
+import io.vertx.ext.web.client.WebClientOptions
 
 class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, IncidentTicketAdapter {
 
@@ -41,14 +42,20 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
     }
 
     void configureHttpClient() {
-        Map options = [:] //[userAgent:"", ]
         if (!vertx)
             vertx = Application.application.vertx
 
         host = Application.application.binding.config.ticketAdapter.host
         port = Application.application.binding.config.ticketAdapter.port
 
-        client = WebClient.create(vertx)
+        WebClientOptions options = new WebClientOptions()
+        options.setDefaultHost(host)
+        options.setDefaultPort(port)
+
+        client = WebClient.create(vertx, options)
+
+        println "created SNOW client adapter talking on $host:$port "
+
         client
 
 

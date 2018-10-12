@@ -113,7 +113,7 @@ class SnowApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
 
         server.requestHandler(allApiRouter.&accept)
         server.listen(simPort, simHost)
-        println "started SNOW httpServer listening on port $simHost:$simPort/api/now/table/incident/*"
+        println "started SNOW api sumulator httpServer listening on port $simHost:$simPort/api/now/table/incident/*"
         server
 
     }

@@ -124,7 +124,7 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
 
         server.requestHandler(managementApiRouter.&accept)
         server.listen(port, host)
-        println "started Management httpServer listening on port $host:$port"
+        println "started App Management httpServer listening on port $host:$port"
         server
 
     }
@@ -141,7 +141,10 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
             println "performing management action $param"
             responseBody = action (rc, postRequestBody)
         } else {
-            responseBody = new JsonObject ("""{ "NoAction" {"unknown management action" : "action : $param} }""")
+            responseBody = new JsonObject ()
+            JsonObject err = new JsonObject()
+            err.put ("unknown management action", "$param")
+            responseBody.put ("NoAction", err)
         }
         responseBody
     }

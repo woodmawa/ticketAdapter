@@ -46,8 +46,6 @@ class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
 
     void start(Future<Void> future) {
         println "starting Alarm server .. "
-        //server = configureHttpServer()
-        //server.listen(8081, "localhost")
 
         //SnowSimulatorIMDB snowImdb = SnowSimulatorIMDB.getInstance()
         future.complete()

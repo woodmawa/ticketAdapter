@@ -1,5 +1,6 @@
 package com.softwood.alarmsAndEvents
 
+import com.softwood.application.Application
 import com.softwood.incident.adapters.simulators.SNOW.SnowSimulatorIMDB
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
@@ -106,10 +107,12 @@ JsonObject generatePostResponse (String param, JsonObject postRequestBody) {
 //
 server.requestHandler(alarmApiRouter.&accept)
 
+def host = Application.application.binding.config.apiServer.host
+def port = Application.application.binding.config.apiServer.port
 
-server.listen(8081, "localhost")
+server.listen(port, host)
 
-println "started SNOW httpServer listening on port localhost:8081"
+println "started Api httpServer listening on $port $host:"
 
 //older stuff to check back on
 

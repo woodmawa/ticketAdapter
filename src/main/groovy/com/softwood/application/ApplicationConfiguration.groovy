@@ -10,9 +10,16 @@ import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
 import java.util.concurrent.atomic.AtomicLong
 
 
+
+alarmServer {
+    host = "localhost"
+    port = 8090
+
+}
+
 ticketAdapter {
     simulatorEnabled = true
-    simulatorPort = 8091
+    simulatorPort = 8191
     simulatorHost = "localhost"
     system = "Snow"
     type = AdapterProtocolType.Json
@@ -37,29 +44,23 @@ ticketAdapter {
 
 }
 
-alarmServer {
-    host = "localhost"
-    port = 8090
-
-}
-
 requestServer {
     host = "localhost"
-    port = 8082
+    port = 8092
     sequenceGenerator = new AtomicLong(9)
 
 }
 
 cmdbServer {
     host = "localhost"
-    port = 8081
+    port = 8093
 
 }
+
 
 management{
     //you can add aditional actions via config by adding the acction name and method closure to the map
     configurableActions = [:]
     host = "localhost"
-    port = 8080
+    port = 8099
 }
-

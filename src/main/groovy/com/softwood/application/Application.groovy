@@ -48,39 +48,28 @@ class Application {
         mail.sendMail("new incident", "$body", "will.woodman@outlook.com")
     */
 
-        def manHost = Application.application.binding.config.management.host
-        def manPort = Application.application.binding.config.management.port
-        def managementServer = new ManagementApiServerVerticle()
-        managementServer.configureHttpServer()
-        println "started management actions listener service on : $manHost:$manPort "
-
         //register the Alarm codec with the event bus - one time registration
         vertx?.eventBus()?.registerDefaultCodec(Alarm.class, new AlarmMessageCodec())
 
 
-        def alarmHost = Application.application.binding.config.alarmServer.host
-        def alarmPort = Application.application.binding.config.alarmServer.port
+        def managementServer = new ManagementApiServerVerticle()
+        managementServer.configureHttpServer()
+
+
         def alarmServer = new AlarmApiServerVerticle ()
         alarmServer.configureHttpServer()
-        println "started Alarm Api Server listener service on : $manHost:$manPort "
 
-        def requestManagementHost = Application.application.binding.config.requestServer.host
-        def requestManagementPort = Application.application.binding.config.requestServer.port
         def requestManagementServer = new RequestApiServerVerticle()
         requestManagementServer.configureHttpServer()
-        println "started Request Management Api Server listener service on : $requestManagementHost:$requestManagementPort "
 
-        def cmdbHost = Application.application.binding.config.cmdbServer.host
-        def cmdbPort = Application.application.binding.config.cmdbServer.port
         def cmdbServer = new CmdbApiServerVerticle()
         cmdbServer.configureHttpServer()
-        println "started Cmdb Api Server listener service on : $cmdbHost:$cmdbPort "
 
         def simulatedTicketServerEnabled = application.binding.config.ticketAdapter.simulatorEnabled
 
         if (simulatedTicketServerEnabled) {
             String flavour = application.binding.config.ticketAdapter.system
-            println "Application startup: app has been configured to start with a simulated server"
+            println "Application startup: app has been configured to start with a $flavour simulated server"
             def server = AdapterFactory.newAdapter(flavour, AdapterFactoryType.server)
         }
 
