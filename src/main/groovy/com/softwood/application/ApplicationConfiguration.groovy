@@ -19,7 +19,7 @@ alarmServer {
 
 ticketAdapter {
     simulatorEnabled = true
-    simulatorPort = 8191
+    simulatorPort = 8091
     simulatorHost = "localhost"
     system = "Snow"
     type = AdapterProtocolType.Json

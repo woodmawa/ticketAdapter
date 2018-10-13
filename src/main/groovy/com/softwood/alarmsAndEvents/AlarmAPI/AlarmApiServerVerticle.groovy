@@ -115,7 +115,7 @@ class AlarmApiServerVerticle extends AbstractVerticle implements Verticle {
 
         server.requestHandler(alarmApiRouter.&accept)
         server.listen(port, host)
-        println "started Alarm httpServer listening on port $host:$port"
+        println "started Alarm httpServer listening for new alarm events on port $host:$port"
         server
 
     }

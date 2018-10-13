@@ -66,6 +66,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         summaryJsonGenerator = sumOptions.build()
 
         JsonUtils.Options options = new JsonUtils.Options()
+        options.setExpandLevels (1)
         options.registerConverter(LocalDateTime) {it.toString()}
         options.excludeFieldByNames("ci")
         options.excludeNulls(true)
