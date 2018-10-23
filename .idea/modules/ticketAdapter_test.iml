@@ -13,6 +13,7 @@
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.5" level="project" />
     <orderEntry type="library" name="Gradle: org.grails:grails-bom:pom:3.3.2" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.uuid:java-uuid-generator:3.1.5" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-email:1.3.1" level="project" />

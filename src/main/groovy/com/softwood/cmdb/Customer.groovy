@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 class Customer extends OrgRoleInstance {
     UUID id = UuidUtil.timeBasedUuid
-    String name
-    RoleType role
+    //String name  //duplicates inherited abstract attribute
+    //RoleType role
     LocalDateTime createdDateTime = LocalDateTime.now()
     ConcurrentLinkedQueue<Site> sites = new ConcurrentLinkedQueue()
     ConcurrentLinkedQueue<Contract> contracts = new ConcurrentLinkedQueue()

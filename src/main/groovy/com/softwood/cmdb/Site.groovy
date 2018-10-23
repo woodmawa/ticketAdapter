@@ -20,14 +20,22 @@ import com.softwood.utils.UuidUtil
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
-
+/**
+ * base alignment with tmf GeographicSite
+ */
 class Site {
     UUID id = UuidUtil.getTimeBasedUuid ()
     String name
+    String description
+    String code
+    String status
     String siteContact
     String address  //simple for now
     String postalCode
     Customer customer
+    // GeographicLocation geographicLocation
+    //Party relatedParties = new ConcurrentLinkedQueue()
+    //Relationship siteRelationships = new ConcurrentLinkedQueue()
     LocalDateTime createdDateTime = LocalDateTime.now()
     ConcurrentLinkedQueue<ConfigurationItem> inventory = new ConcurrentLinkedQueue()
 
