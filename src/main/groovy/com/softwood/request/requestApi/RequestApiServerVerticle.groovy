@@ -21,6 +21,7 @@ import com.softwood.application.Application
 import com.softwood.cmdb.Customer
 import com.softwood.cmdb.RoleType
 import com.softwood.request.Request
+import com.softwood.utils.JsonEncodingStyle
 import com.softwood.utils.JsonUtils
 import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
@@ -62,6 +63,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         sumOptions.excludeFieldByNames("ci")
         sumOptions.excludeNulls(true)
         sumOptions.summaryClassFormEnabled(true)
+        sumOptions.setJsonEncodingStyle(JsonEncodingStyle.softwood)
 
         summaryJsonGenerator = sumOptions.build()
 
@@ -71,6 +73,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         options.excludeFieldByNames("ci")
         options.excludeNulls(true)
         options.summaryClassFormEnabled(false)
+        sumOptions.setJsonEncodingStyle(JsonEncodingStyle.softwood)
 
         jsonGenerator = options.build()
 
