@@ -2,7 +2,6 @@
   <library name="Gradle: org.grails:grails-bom:pom:3.3.2">
     <CLASSES>
       <root url="file://$MAVEN_REPOSITORY$/org/grails/grails-bom/3.3.2/grails-bom-3.3.2.pom" />
-      <root url="file://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.grails/grails-bom/3.3.2/ea46ae3193034726083204aac6c437d456fad752/grails-bom-3.3.2.pom" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
