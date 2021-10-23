@@ -32,14 +32,14 @@ class ProjectApp implements ConfigurableProjectApplication {
 
     def appClassInstance
 
-    static def run ( Class<?> appClass, args) {
+    static def run(Class<?> appClass, args) {
 
         //creates new projectApp and runs bootstrap etc
-        ProjectApp projectApp = new ProjectApp (appClass, args)
+        ProjectApp projectApp = new ProjectApp(appClass, args)
 
         ConfigSlurper slurper = new ConfigSlurper()
         slurper.setBinding()
-        ConfigObject conf = slurper.parse (ApplicationConfiguration)
+        ConfigObject conf = slurper.parse(ApplicationConfiguration)
 
         Map confMap = conf.toSorted()
         println "confMap $confMap"
@@ -48,7 +48,7 @@ class ProjectApp implements ConfigurableProjectApplication {
         appBinding.configMap = confMap // belt and braces
 
         //todo: appBinding. conf.toProperties()
-        projectApp.withBinding (args) {
+        projectApp.withBinding(args) {
 
             def binding = delegate
             BootStrap bootStrap = new BootStrap(binding)
@@ -61,10 +61,10 @@ class ProjectApp implements ConfigurableProjectApplication {
         projectApp
     }
 
-    def runScript (String scriptName){
+    def runScript(String scriptName) {
         assert scriptName
         File script = new File(scriptName)
-        runScript (script)
+        runScript(script)
     }
 
     /**
@@ -72,17 +72,17 @@ class ProjectApp implements ConfigurableProjectApplication {
      * @param script
      * @return
      */
-    def runScript (File script) {
+    def runScript(File script) {
         assert script.exists()
 
         GroovyShell shell = new GroovyShell(appBinding)
-        shell.evaluate (script)
+        shell.evaluate(script)
     }
 
     //constructor - called with Application class
-    ProjectApp (Class<?> appClass, args) {
+    ProjectApp(Class<?> appClass, args) {
 
-        appClassInstance = appClass.newInstance(args )
+        appClassInstance = appClass.newInstance(args)
 
         vertx = Vertx.vertx()   //have to force in constructor at mo
 
@@ -93,42 +93,43 @@ class ProjectApp implements ConfigurableProjectApplication {
 
     }
 
-    def withBinding(args, closure ) {
+    def withBinding(args, closure) {
 
         //set the closur binding to be appBinding
         closure.delegate = appBinding
         //run the closure
-        closure (args)
+        closure(args)
     }
 
-    void setVertx (Vertx vertx) {
+    void setVertx(Vertx vertx) {
         if (!this.vertx) {
             this.vertx = vertx
             appBinding.vertx = vertx
-        }
-        else
+        } else
             println "setVertix: tried to overwrite vertx - failed "
     }
 
-    Vertx getVertx () {
+    Vertx getVertx() {
         appBinding.vertx
     }
 
-    def getApplication () {
+    def getApplication() {
         appBinding.projectApplication
     }
 
-    Binding getBinding () {
+    Binding getBinding() {
         appBinding
     }
 }
 
 //ensure dagger will generate an implementation of this type
-@Component (modules=ProjectAppModule)
+@Component(modules = ProjectAppModule)
 interface ConfigurableProjectApplication {
     Vertx getVertx()
+
     Binding getBinding()
-    def getApplication ()
+
+    def getApplication()
 }
 
 /**
@@ -137,11 +138,15 @@ interface ConfigurableProjectApplication {
  */
 @Module
 class ProjectAppModule {
-    @Provides @Singleton static Vertx providesVertx () {
+    @Provides
+    @Singleton
+    static Vertx providesVertx() {
         Vertx.vertx()
     }
 
-    @Provides @Singleton static ConfigurableProjectApplication provideProjectApp (Class<?> applicationClass, args) {
-        new ProjectApp (applicationClass, args)
+    @Provides
+    @Singleton
+    static ConfigurableProjectApplication provideProjectApp(Class<?> applicationClass, args) {
+        new ProjectApp(applicationClass, args)
     }
 }

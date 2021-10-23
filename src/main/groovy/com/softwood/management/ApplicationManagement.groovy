@@ -22,13 +22,13 @@ import io.vertx.ext.web.RoutingContext
 
 class ApplicationManagement {
 
-    Map actions = [stop:this.&shutdown, shutdown:this.&shutdown, refresh:this.&refreshConfiguration]
+    Map actions = [stop: this.&shutdown, shutdown: this.&shutdown, refresh: this.&refreshConfiguration]
 
     ApplicationManagement() {
         //merge any other management actions that may have been defined in the app config
         def confActions = Application.application.binding.config.management.configurableActions
         if (confActions) {
-            confActions.each {actions.put (it.key, it.value)}
+            confActions.each { actions.put(it.key, it.value) }
         }
 
     }
@@ -38,11 +38,11 @@ class ApplicationManagement {
      * @param args
      * @return
      */
-    def shutdown (RoutingContext rc, args) {
+    def shutdown(RoutingContext rc, args) {
         println "invoked application shutdown, closing all verticles "
 
         //special case - will shutdown vertx - therefore post post response to client from here before exit()
-        JsonObject jsonResponse =  new JsonObject ("""{ "shutdown action": {"stopping application": "completed"}}""")
+        JsonObject jsonResponse = new JsonObject("""{ "shutdown action": {"stopping application": "completed"}}""")
         def response = rc.response()
 
         def resultBody = jsonResponse?.encodePrettily() ?: ""
@@ -60,12 +60,12 @@ class ApplicationManagement {
         System.exit(0)
     }
 
-    def refreshConfiguration (RoutingContext rc, args) {
+    def refreshConfiguration(RoutingContext rc, args) {
         println "invoked application context data refresh  "
 
         ConfigSlurper slurper = new ConfigSlurper()
         slurper.setBinding()
-        ConfigObject conf = slurper.parse (ApplicationConfiguration)
+        ConfigObject conf = slurper.parse(ApplicationConfiguration)
 
         Map confMap = conf.toSorted()
         println "confMap $confMap"
@@ -73,7 +73,7 @@ class ApplicationManagement {
         Application.application.binding.config = conf
 
 
-        new JsonObject ("""{ "refresh action": {"refresh application configuration": "completed"}}""")
+        new JsonObject("""{ "refresh action": {"refresh application configuration": "completed"}}""")
 
     }
 }

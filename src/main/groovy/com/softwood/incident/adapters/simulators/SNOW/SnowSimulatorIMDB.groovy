@@ -13,12 +13,12 @@ public class SnowSimulatorIMDB {
 
     ConcurrentHashMap snowImdb = new ConcurrentHashMap()
     JsonObject defaultTicket
-    Long startRecordFrom = Long.decode ("0x4d2")  //convert hex to long
+    Long startRecordFrom = Long.decode("0x4d2")  //convert hex to long
     int numberEnding = 1
     static SnowSimulatorIMDB db
 
     //factory method - IMDB is singleton instance
-    static SnowSimulatorIMDB getInstance  () {
+    static SnowSimulatorIMDB getInstance() {
         if (!db) {
             db = new SnowSimulatorIMDB()
         }
@@ -26,8 +26,8 @@ public class SnowSimulatorIMDB {
     }
 
     //note site and postal code are not in SNOW std - added for simulator demo
-    private SnowSimulatorIMDB () {
-        String  defaultBaseTicketString = """
+    private SnowSimulatorIMDB() {
+        String defaultBaseTicketString = """
 {
   "result": {
     "upon_approval": "proceed",
@@ -127,37 +127,37 @@ public class SnowSimulatorIMDB {
 }
 """
 
-        defaultTicket  = new JsonObject(defaultBaseTicketString)
+        defaultTicket = new JsonObject(defaultBaseTicketString)
 
         //put first ticket into IMDB
         snowImdb << ["4d2": defaultTicket]
     }
 
-    JsonObject getTicket (sysIdkey) {
+    JsonObject getTicket(sysIdkey) {
         println "getTicket: get row id [$sysIdkey] of [${count()}] "
-        snowImdb.get (sysIdkey)
+        snowImdb.get(sysIdkey)
     }
 
-    JsonObject getLatestTicket () {
+    JsonObject getLatestTicket() {
 
-        def ticketArray = snowImdb.collect{it.value}.asList()
+        def ticketArray = snowImdb.collect { it.value }.asList()
         def latestTicket = ticketArray[-1]
         println "getLatestTicket: get Latest ticket IMDB row id [${count()}] "
 
         ticketArray[-1]
     }
 
-    JsonObject findTicketByNumber (ticketNum) {
-        snowImdb.each {key, JsonObject record ->
+    JsonObject findTicketByNumber(ticketNum) {
+        snowImdb.each { key, JsonObject record ->
             Pattern regexp = ~/"number" : "${ticketNum}"/
-            if (record.encodePrettily().contains (regexp)) {
-                return snowImdb.get (key)
+            if (record.encodePrettily().contains(regexp)) {
+                return snowImdb.get(key)
             }
         }
     }
 
-    JsonObject createTicket (JsonObject bodyContent) {
-        Map params = bodyContent.mapTo (HashMap)
+    JsonObject createTicket(JsonObject bodyContent) {
+        Map params = bodyContent.mapTo(HashMap)
         println "createIicket post body as map $params"
 
         JsonObject baseCopy = defaultTicket.copy()  //get copy and then set new values
@@ -168,33 +168,33 @@ public class SnowSimulatorIMDB {
         //public records updates
         builder.content.result.short_description = params.short_description ?: ""
         builder.content.result.description = params.description ?: ""
-        builder.content.result.category =  params.category ?: ""
-        builder.content.result.comments =  params.comments ?: ""
-        builder.content.result.impact =  params.impact ?: ""
-        builder.content.result.priority =  params.priority ?: ""
-        builder.content.result.urgency =  params.urgency ?: ""
-        builder.content.result.severity =  params.severity ?: ""
-        builder.content.result.location =  params.location ?: ""
-        builder.content.result.company =  params.customerName ?: ""
-        builder.content.result.site =  params.siteName ?: ""
-        builder.content.result.postalCode =  params.sitePostalCode ?: ""
-        builder.content.result.caller_id =  params.caller_id ?: ""
-        builder.content.result.cmdb_ci =  params.cmdb_ci ?: ""
-        builder.content.result.comments =  params.comments ?: ""
+        builder.content.result.category = params.category ?: ""
+        builder.content.result.comments = params.comments ?: ""
+        builder.content.result.impact = params.impact ?: ""
+        builder.content.result.priority = params.priority ?: ""
+        builder.content.result.urgency = params.urgency ?: ""
+        builder.content.result.severity = params.severity ?: ""
+        builder.content.result.location = params.location ?: ""
+        builder.content.result.company = params.customerName ?: ""
+        builder.content.result.site = params.siteName ?: ""
+        builder.content.result.postalCode = params.sitePostalCode ?: ""
+        builder.content.result.caller_id = params.caller_id ?: ""
+        builder.content.result.cmdb_ci = params.cmdb_ci ?: ""
+        builder.content.result.comments = params.comments ?: ""
 
         //internal simulated 'system' records updated
         //set up incrementing number for each record
         def number = "INC001000${++numberEnding}"
         builder.content.result.number = number
 
-        builder.content.result.sys_updated_on =  LocalDateTime.now().toString()
+        builder.content.result.sys_updated_on = LocalDateTime.now().toString()
         builder.content.result.sys_created_on = LocalDateTime.now().toString()
-        builder.content.result.opened_at =  LocalDateTime.now().toString()
+        builder.content.result.opened_at = LocalDateTime.now().toString()
         def sys_id = Long.toHexString(++startRecordFrom)
-        builder.content.result.sys_id =  sys_id
+        builder.content.result.sys_id = sys_id
 
         JsonObject newRecord = new JsonObject(builder.toPrettyString())
-        snowImdb.put (sys_id,  newRecord)
+        snowImdb.put(sys_id, newRecord)
 
         println "adding new record to IMDB row id [$sys_id] of [${count()}] " // as ${builder.toPrettyString()}"
 
@@ -209,17 +209,18 @@ public class SnowSimulatorIMDB {
      *
      * probably need to chunk this in the vertx handler
      */
-    JsonObject listTickets (limit=0) {
-        JsonArray results = new JsonArray ()
+
+    JsonObject listTickets(limit = 0) {
+        JsonArray results = new JsonArray()
 
 
-        snowImdb.each {String key , JsonObject ticketResult ->
+        snowImdb.each { String key, JsonObject ticketResult ->
             JsonObject listEntry = new JsonObject()
             //drop one level down for details
             JsonObject ticket = ticketResult.getValue("result")
 
-            listEntry.put ("incident ticket", ticket.getValue("sys_id"))
-            JsonObject summaryDetails = new JsonObject ()
+            listEntry.put("incident ticket", ticket.getValue("sys_id"))
+            JsonObject summaryDetails = new JsonObject()
             summaryDetails.put("incident number", ticket.getValue("number"))
             summaryDetails.put("customer", ticket.getValue("company"))
             summaryDetails.put("title", ticket.getValue("short_description"))
@@ -230,12 +231,12 @@ public class SnowSimulatorIMDB {
         }
 
         JsonObject listResult = new JsonObject()
-        listResult.put ("incident list", results)
+        listResult.put("incident list", results)
         listResult
     }
 
     // current number of records in IMDB
-    long count () {
+    long count() {
         snowImdb.size()
     }
 }

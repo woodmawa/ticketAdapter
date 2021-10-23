@@ -30,9 +30,9 @@ class Application {
     //frig to get round dependency injection issue with dagger, just store on the Application directly
     static ConfigurableProjectApplication application
 
-    public static void main (args) {
+    public static void main(args) {
 
-        application = ProjectApp.run (Application, args)
+        application = ProjectApp.run(Application, args)
         def vertx = application.vertx
 
         ApplicationManagement manageApp = new ApplicationManagement()
@@ -56,7 +56,7 @@ class Application {
         managementServer.configureHttpServer()
 
 
-        def alarmServer = new AlarmApiServerVerticle ()
+        def alarmServer = new AlarmApiServerVerticle()
         alarmServer.configureHttpServer()
 
         def requestManagementServer = new RequestApiServerVerticle()

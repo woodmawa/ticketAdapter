@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 class ConfigurationItem {
-    UUID id = UuidUtil.getTimeBasedUuid ()  //generate a time based uuid
+    UUID id = UuidUtil.getTimeBasedUuid()  //generate a time based uuid
     String name
     String alias
     String status
@@ -42,68 +42,68 @@ class ConfigurationItem {
     Optional<Contract> contract = Optional.empty()
 
     ConcurrentHashMap<String, CiSpecificationCharacteristic> ciAttributes = new ConcurrentHashMap()
-    LocalDateTime createdDate =  LocalDateTime.now()
+    LocalDateTime createdDate = LocalDateTime.now()
 
-    void addRelationshipTo (toCi, String relationshipName) {
-        Relationship relationship = new Relationship (toCi: toCi, fromCi: this,  name:relationshipName)
+    void addRelationshipTo(toCi, String relationshipName) {
+        Relationship relationship = new Relationship(toCi: toCi, fromCi: this, name: relationshipName)
         def entry = [toCi: relationship]
-        if (!relatedToCi.contains (entry ))
+        if (!relatedToCi.contains(entry))
             relatedToCi << entry
 
     }
 
-    void removeRelationshipTo (toCi) {
-        if (relatedToCi.contains (toCi))
+    void removeRelationshipTo(toCi) {
+        if (relatedToCi.contains(toCi))
             relatedToCi.remove(toCi)
 
     }
 
-    Collection<Relationship> getRelationships (ci=null) {
+    Collection<Relationship> getRelationships(ci = null) {
         if (!ci)
-            relatedTo.collect {it.value}
+            relatedTo.collect { it.value }
         else if (relatedTo.contains(ci))
             [relatedTo.ci]
         else []
     }
 
-    void addCharacteristic (String name, value) {
+    void addCharacteristic(String name, value) {
         def attVal = new CiSpecificationCharacteristic(name, value)
-        ciAttributes.put (name, attVal)
+        ciAttributes.put(name, attVal)
     }
 
-    def getCharacteristic (String name) {
+    def getCharacteristic(String name) {
         def attVal = ciAttributes.get(name)
         !attVal?.isMultivalued() ? attVal?.value : attVal?.arrayValues
     }
 
-    def setCharacteristic (String name, value) {
+    def setCharacteristic(String name, value) {
         def attVal = ciAttributes.get(name)
         !attVal?.isMultivalued() ? attVal?.value = value : attVal?.arrayValues << value
     }
 
-    boolean hasCharacteristic (String name) {
+    boolean hasCharacteristic(String name) {
         ciAttributes.containsKey(name)
     }
 
 
-    void setContract (contract) {
-        Optional optContract = new Optional<Contract> (contract)
+    void setContract(contract) {
+        Optional optContract = new Optional<Contract>(contract)
         this.contract = optContract
     }
 
-    def getContract () {
+    def getContract() {
         if (contract.ifPresent())
             contract.get()
         else
             Optional.empty()
     }
 
-    void setSla (sla) {
-        Optional optSla = new Optional<ServiceLevelAgreement> (sla)
+    void setSla(sla) {
+        Optional optSla = new Optional<ServiceLevelAgreement>(sla)
         this.sla = optSla
     }
 
-    def getSla () {
+    def getSla() {
         if (sla.ifPresent())
             sla.get()
         else
@@ -115,26 +115,24 @@ class ConfigurationItem {
      * @param name
      * @param value
      */
-    void setProperty (String name, value) {
+    void setProperty(String name, value) {
         //if not a fixed class property
         //def props = this.metaClass.properties.collect {it.name}
         if (!metaClass.hasProperty(this, name)) {
             def attVal = new CiSpecificationCharacteristic(name, value)
-            ciAttributes.put (name, attVal)
+            ciAttributes.put(name, attVal)
 
-        }
-        else
+        } else
             metaClass.setProperty(this, name, value)
 
     }
 
-    def getProperty (String name) {
+    def getProperty(String name) {
         //def props = this.metaClass.properties.collect {it.name}
         if (!metaClass.hasProperty(this, name)) {
             def attVal = ciAttributes."$name"
             attVal?.getValue()
-        }
-        else
+        } else
             this.metaClass.getProperty(this, name)
     }
 
@@ -152,38 +150,38 @@ class CiSpecificationCharacteristic {
 
     CiSpecificationCharacteristic(name, value) {
         propertyName = name
-        if (!(value instanceof Collection) )
+        if (!(value instanceof Collection))
             this.value = value
         else
-            arrayValues =  value
+            arrayValues = value
     }
 
-    boolean isMultivalued () {arrayValues}
+    boolean isMultivalued() { arrayValues }
 
     String getName() {
         propertyName
     }
 
-    String setName (name) {
+    String setName(name) {
         propertyName = name
     }
 
-    def getValue () {
+    def getValue() {
         if (!isMultivalued())
             value
         else
             arrayValues
     }
 
-    void setValue (value) {
-        if (!(value instanceof Collection) )
+    void setValue(value) {
+        if (!(value instanceof Collection))
             this.value = value
         else
             arrayValues = value
     }
 
 
-    String toString () {
+    String toString() {
         "ciAttVal (name:$propertyName, value:${value ?: arrayValues} )"
     }
 }

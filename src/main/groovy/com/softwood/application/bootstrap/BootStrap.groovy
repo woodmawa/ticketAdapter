@@ -42,7 +42,7 @@ class BootStrap {
     GroovyShell shell
     Binding binding
 
-    BootStrap (binding) {
+    BootStrap(binding) {
         this.binding = binding
     }
 
@@ -54,12 +54,12 @@ class BootStrap {
 
         // get list of *.conf files in run sorted order and run each one
         def dir = new File(".")  //start from current directory
-        dir.eachFileRecurse (FileType.FILES) { file ->
+        dir.eachFileRecurse(FileType.FILES) { file ->
 
             def fn = file.name
-            def ext = fn.substring (fn.lastIndexOf (".") + 1)  //get file extension
+            def ext = fn.substring(fn.lastIndexOf(".") + 1)  //get file extension
             String line
-            if (ext =~ /^mconf$/ ) {
+            if (ext =~ /^mconf$/) {
                 def lines = file.readLines()
                 def result = lines.findResult {
                     /*Pattern pat = ~"""
@@ -75,22 +75,25 @@ class BootStrap {
                             """*/
                     def pattern = ~/^\s*+def\s*runConfigInOrder\s*=\s*(\d+)/
                     def m = (it =~ pattern)
-                    if (m.matches()) { it}
+                    if (m.matches()) {
+                        it
+                    }
                 }
 
                 line = result ?: ""
 
                 if (line) {
-                    runOrderText = line.substring (line.lastIndexOf("=") + 1)
+                    runOrderText = line.substring(line.lastIndexOf("=") + 1)
                     runScriptOrder = runOrderText.toInteger()
                     binding.$runScriptOrder << [runScriptOrder, file]
                 }
             }
         }
 
-        shell = new GroovyShell (binding)
-        def runInSequence = binding.$runScriptOrder.sort {a,b ->
-            a[0] <=> b[0]}
+        shell = new GroovyShell(binding)
+        def runInSequence = binding.$runScriptOrder.sort { a, b ->
+            a[0] <=> b[0]
+        }
 
 
         //run in sequence order synchronously at the mo

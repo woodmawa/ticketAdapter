@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Gradle: org.grails:grails-bom:pom:3.3.2">
-    <CLASSES>
-      <root url="file://$MAVEN_REPOSITORY$/org/grails/grails-bom/3.3.2/grails-bom-3.3.2.pom" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

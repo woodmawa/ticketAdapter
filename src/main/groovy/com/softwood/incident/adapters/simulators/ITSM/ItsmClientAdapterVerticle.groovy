@@ -53,23 +53,23 @@ class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
      * @param port
      * @return
      */
-    HttpRequest apiJsonPost (String uri, String bodyString,  host="localhost", port=8081) {
+    HttpRequest apiJsonPost(String uri, String bodyString, host = "localhost", port = 8081) {
 
         JsonObject jsonBody = new JsonObject(bodyString)
-        apiGet (client.post(uri), jsonBody, host, port)
+        apiGet(client.post(uri), jsonBody, host, port)
     }
 
-    HttpRequest apiJsonPost (String uri, def instance,  host="localhost", port=8081) {
+    HttpRequest apiJsonPost(String uri, def instance, host = "localhost", port = 8081) {
 
-        JsonObject jsonBody = new JsonObject (Json.encode(instance))
-        apiGet (client.post(uri), jsonBody, host, port)
+        JsonObject jsonBody = new JsonObject(Json.encode(instance))
+        apiGet(client.post(uri), jsonBody, host, port)
     }
 
-    HttpRequest apiJsonPost (HttpRequest<Buffer> request, JsonObject jsonBody, host="localhost", port=8081) {
+    HttpRequest apiJsonPost(HttpRequest<Buffer> request, JsonObject jsonBody, host = "localhost", port = 8081) {
         request.host(host).port(port)
         request.putHeader("accept", "application/text")
-        request.putHeader("content-length", "${jsonBody.size()}" )
-        request.method (HttpMethod.POST)
+        request.putHeader("content-length", "${jsonBody.size()}")
+        request.method(HttpMethod.POST)
         request
 
     }
@@ -81,7 +81,7 @@ class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
      * @return
      */
 
-    HttpRequest<Buffer> apiAddQueryparams (String uri, queryParams = [:] ) {
+    HttpRequest<Buffer> apiAddQueryparams(String uri, queryParams = [:]) {
         queryParams.each {
             client.get(uri).addQueryParam(it.key, it.value)
 
@@ -89,24 +89,24 @@ class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
         HttpRequest<Buffer> request = client.get()
     }
 
-    HttpRequest apiGet (String uri, host="localhost", port=8081) {
-        apiGet (client.get(uri), host, port)
+    HttpRequest apiGet(String uri, host = "localhost", port = 8081) {
+        apiGet(client.get(uri), host, port)
     }
 
-    HttpRequest apiGet (HttpRequest<Buffer> request, host="localhost", port=8081) {
+    HttpRequest apiGet(HttpRequest<Buffer> request, host = "localhost", port = 8081) {
         request.host(host).port(port)
         request.putHeader("accept", "application/text")
-        request.method (HttpMethod.GET)
+        request.method(HttpMethod.GET)
         request
 
     }
 
-    void apiSend (HttpRequest<Buffer> request, Closure handler) {
+    void apiSend(HttpRequest<Buffer> request, Closure handler) {
         println "sending request host: ${request.host}:${request.port}" + request.uri + " to server"
 
         switch (request.method) {
-            case  HttpMethod.GET :
-                request.send {ar ->
+            case HttpMethod.GET:
+                request.send { ar ->
                     HttpResponse<Buffer> getResult
                     if (ar.succeeded()) {
                         //obtain the response
@@ -114,11 +114,11 @@ class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
                     } else {
                         error = ar.cause().getMessage()
                     }
-                    handler (getResult)
+                    handler(getResult)
                 }
                 break
-            case HttpMethod.POST :
-                request.post {ar ->
+            case HttpMethod.POST:
+                request.post { ar ->
                     HttpResponse<Buffer> getResult
                     if (ar.succeeded()) {
                         //obtain the response
@@ -126,19 +126,18 @@ class ItsmClientAdapterVerticle extends AbstractVerticle implements Verticle {
                     } else {
                         error = ar.cause().getMessage()
                     }
-                    handler (getResult)
+                    handler(getResult)
                 }
         }
 
     }
 
 
-
-    boolean hasError () {
+    boolean hasError() {
         error ? true : false
     }
 
-    void clearError () {
+    void clearError() {
         error = ""
     }
 

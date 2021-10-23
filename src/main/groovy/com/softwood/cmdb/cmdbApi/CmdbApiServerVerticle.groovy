@@ -38,14 +38,14 @@ import java.time.LocalDateTime
 class CmdbApiServerVerticle extends AbstractVerticle implements Verticle {
 
     String name
-     HttpServer server
+    HttpServer server
     String host
     int port
 
     Map cmdb
     CmdbDbServices ciServices
 
-    CmdbApiServerVerticle () {
+    CmdbApiServerVerticle() {
         ciServices = new CmdbDbServices()
         cmdb = CmdbDbServices.db
     }
@@ -80,62 +80,62 @@ class CmdbApiServerVerticle extends AbstractVerticle implements Verticle {
         /**
          * cant get two routers with different methods to listen on same URI
          * so do it as one route - but switch on method in the handler
-        * get all paths and subpaths below /api/now/table/incident
+         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
         cmdbApiRouter.route("/api/ci/*")
                 .handler(io.vertx.ext.web.handler.BodyHandler.create())
                 .blockingHandler { routingContext ->
 
-            def request = routingContext.request()
-            HttpMethod method = request.method()
+                    def request = routingContext.request()
+                    HttpMethod method = request.method()
 
-            def uri = routingContext.request().absoluteURI()
+                    def uri = routingContext.request().absoluteURI()
 
-            //split uri into path segments and look at last segment matched
-            String[] segments = uri.split("/")
-            def trailingParam = (segments[-1] != "ci") ? segments[-1] : null //get last segment
+                    //split uri into path segments and look at last segment matched
+                    String[] segments = uri.split("/")
+                    def trailingParam = (segments[-1] != "ci") ? segments[-1] : null //get last segment
 
-            println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
+                    println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
 
-            def response = routingContext.response()
+                    def response = routingContext.response()
 
-            switch (method) {
-                case HttpMethod.POST:
-                    //get post body as Json text
-                    JsonObject postBody = routingContext.getBodyAsJson()
+                    switch (method) {
+                        case HttpMethod.POST:
+                            //get post body as Json text
+                            JsonObject postBody = routingContext.getBodyAsJson()
 
-                    def ci = processInventoryRequest (trailingParam, postBody)
-                    JsonObject jsonAlarm = generateResponse(trailingParam, ci)
-                    def resultBody = jsonAlarm?.encodePrettily() ?: ""
+                            def ci = processInventoryRequest(trailingParam, postBody)
+                            JsonObject jsonAlarm = generateResponse(trailingParam, ci)
+                            def resultBody = jsonAlarm?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    println "returning  Ci Post result with length $length to client"
-                    response.end(resultBody)
+                            println "returning  Ci Post result with length $length to client"
+                            response.end(resultBody)
 
-                    break
+                            break
 
-                case HttpMethod.GET:
+                        case HttpMethod.GET:
 
-                    def ci = getInventoryRequest (trailingParam)
-                    JsonObject jsonAlarm = generateResponse(trailingParam, ci)
-                    def resultBody = jsonAlarm?.encodePrettily() ?: ""
+                            def ci = getInventoryRequest(trailingParam)
+                            JsonObject jsonAlarm = generateResponse(trailingParam, ci)
+                            def resultBody = jsonAlarm?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    println "returning  Ci Post result with length $length to client"
-                    response.end(resultBody)
+                            println "returning  Ci Post result with length $length to client"
+                            response.end(resultBody)
 
-                    break
+                            break
 
-            }
+                    }
 
-        }
+                }
 
         server.requestHandler(cmdbApiRouter.&accept)
         server.listen(port, host)
@@ -145,21 +145,21 @@ class CmdbApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
 
-    private def processInventoryRequest (String param, JsonObject postRequestBody) {
+    private def processInventoryRequest(String param, JsonObject postRequestBody) {
 
         def ci
 
         switch (postRequestBody?.getString("type")) {
-            case "Device" :
+            case "Device":
                 ci = new Device()
                 break
-            case "Circuit" :
+            case "Circuit":
                 ci = new ConnectionService()
                 break
-            case "Bearer" :
-                ci =new Bearer()
+            case "Bearer":
+                ci = new Bearer()
                 break
-            case "PackageService" :
+            case "PackageService":
                 ci = new PackageService()
                 break
 
@@ -173,7 +173,7 @@ class CmdbApiServerVerticle extends AbstractVerticle implements Verticle {
          */
 
 
-          //post to event bus
+        //post to event bus
         cmdb.ci << ci
         println "created inventory $ci, and added to IMDB Cmdb"
         ci
@@ -181,12 +181,12 @@ class CmdbApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
     //Todo - process query params on the end
-    private def getInventoryRequest (String param) {
+    private def getInventoryRequest(String param) {
 
         /*def ciListByTpe = cmdb.inventory.findAll {
             println "testing $it"
             it?.type.toLowerCase() == param.toLowerCase()} */
-        ciServices.ciList (param)
+        ciServices.ciList(param)
     }
 
     private JsonObject generateResponse(String param, def ciView) {
@@ -194,11 +194,12 @@ class CmdbApiServerVerticle extends AbstractVerticle implements Verticle {
         JsonObject jsonObject
         if (ciView instanceof List) {
             JsonArray jsonArray = new JsonArray()
-            ciView.each {ci ->
+            ciView.each { ci ->
                 def json = ci.toJson()
-                jsonArray.add(json)}
-            jsonObject = new JsonObject ()
-            jsonObject.put ("inventoryList", jsonArray)
+                jsonArray.add(json)
+            }
+            jsonObject = new JsonObject()
+            jsonObject.put("inventoryList", jsonArray)
         } else {
             jsonObject = ciView.toJson()
         }

@@ -15,29 +15,29 @@ def runConfigInOrder = 1
 
 Binding binding = getBinding()
 
-binding.customers = new ConcurrentLinkedQueue ()
+binding.customers = new ConcurrentLinkedQueue()
 
-Customer cust = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
-Contract con = new Contract (reference: "digitalBank")
+Customer cust = new Customer(name: "HSBC", role: RoleType.CUSTOMER)
+Contract con = new Contract(reference: "digitalBank")
 
-Site site = new Site (name:"canary wharf HQ")
+Site site = new Site(name: "canary wharf HQ")
 site.postalCode = "E14 5AH"
 
-cust.addSite (site)
-cust.addContract (con)
+cust.addSite(site)
+cust.addContract(con)
 
-site = new Site (name:"HSBC Docklands Datacentre")
+site = new Site(name: "HSBC Docklands Datacentre")
 site.postalCode = "E14 3AB"
 cust.addSite(site)
 
 customers << cust
 
-cust = new Customer (name:"ACME", role : RoleType.CUSTOMER )
-con = new Contract (reference: "5 year wan")
-site = new Site (name:"ipswich branch")
+cust = new Customer(name: "ACME", role: RoleType.CUSTOMER)
+con = new Contract(reference: "5 year wan")
+site = new Site(name: "ipswich branch")
 
-cust.addSite (site)
-cust.addContract (con)
+cust.addSite(site)
+cust.addContract(con)
 
 customers << cust
 

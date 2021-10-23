@@ -59,11 +59,10 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
         client
 
 
-
     }
 
-    private JsonObject $convertTicketToSnowPostFormat (IncidentTicket genTicket) {
-        def postBody  = genTicket.toJson()
+    private JsonObject $convertTicketToSnowPostFormat(IncidentTicket genTicket) {
+        def postBody = genTicket.toJson()
         //need to convert a couple of generic keys to SNOW specific
 
         def title = postBody.getString("title")
@@ -75,7 +74,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
         postBody
     }
 
-    private IncidentTicket $convertSnowResponseFormat (JsonObject response) {
+    private IncidentTicket $convertSnowResponseFormat(JsonObject response) {
         //todo conversion
     }
 
@@ -87,38 +86,38 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
      * @return
      */
 
-    HttpRequest apiPost (String uri, IncidentTicket genTicket, Closure handler = {}) {
+    HttpRequest apiPost(String uri, IncidentTicket genTicket, Closure handler = {}) {
 
 
-        JsonObject postBody =  $convertTicketToSnowPostFormat (genTicket)
-        apiPost (client.post(uri), postBody, handler)
+        JsonObject postBody = $convertTicketToSnowPostFormat(genTicket)
+        apiPost(client.post(uri), postBody, handler)
     }
 
-    HttpRequest apiPost (String uri, JsonObject postBody, Closure handler = {}) {
-        apiPost (client.post(uri), postBody, handler)
+    HttpRequest apiPost(String uri, JsonObject postBody, Closure handler = {}) {
+        apiPost(client.post(uri), postBody, handler)
     }
 
-    HttpRequest apiPost (String uri, String bodyString, Closure handler = {}) {
+    HttpRequest apiPost(String uri, String bodyString, Closure handler = {}) {
 
         JsonObject jsonBody = new JsonObject(bodyString)
-        apiPost (client.post(uri), jsonBody,  handler)
+        apiPost(client.post(uri), jsonBody, handler)
     }
 
-    HttpRequest apiPost (String uri, def object, Closure handler = {}) {
+    HttpRequest apiPost(String uri, def object, Closure handler = {}) {
 
-        JsonObject jsonBody = new JsonObject (Json.encode(object))
-        apiPost (client.post(uri), jsonBody, handler)
+        JsonObject jsonBody = new JsonObject(Json.encode(object))
+        apiPost(client.post(uri), jsonBody, handler)
     }
 
-    HttpRequest apiPost (HttpRequest<Buffer> request, JsonObject jsonBody,  Closure handler = {}) {
+    HttpRequest apiPost(HttpRequest<Buffer> request, JsonObject jsonBody, Closure handler = {}) {
         request.host(host).port(port)
         request.putHeader("accept", "application/text")
-        request.putHeader("content-type", "application/json" )
-        request.putHeader("content-length", "${jsonBody.encode().size()}" )
-        request.method (HttpMethod.POST)
+        request.putHeader("content-type", "application/json")
+        request.putHeader("content-length", "${jsonBody.encode().size()}")
+        request.method(HttpMethod.POST)
         request
 
-        request.sendJsonObject(jsonBody) {ar ->
+        request.sendJsonObject(jsonBody) { ar ->
             HttpResponse<Buffer> postResult
             if (ar.succeeded()) {
                 //obtain the response
@@ -126,7 +125,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
             } else {
                 error = ar.cause().getMessage()
             }
-            handler (postResult)
+            handler(postResult)
         }
         request
 
@@ -139,7 +138,7 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
      * @return
      */
 
-    HttpRequest<Buffer> apiAddQueryparams (String uri, queryParams = [:] ) {
+    HttpRequest<Buffer> apiAddQueryparams(String uri, queryParams = [:]) {
         queryParams.each {
             client.get(uri).addQueryParam(it.key, it.value)
 
@@ -148,22 +147,21 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
     }
 
 
-
-    HttpRequest apiGet (String uri) {
-        apiGet (client.get(uri))
+    HttpRequest apiGet(String uri) {
+        apiGet(client.get(uri))
     }
 
-    HttpRequest apiGet (HttpRequest<Buffer> request) {
+    HttpRequest apiGet(HttpRequest<Buffer> request) {
         request.putHeader("accept", "application/text")
-        request.method (HttpMethod.GET)
+        request.method(HttpMethod.GET)
         request
 
     }
 
-    void apiGet (HttpRequest<Buffer> request,  Closure handler) {
+    void apiGet(HttpRequest<Buffer> request, Closure handler) {
         println "sending request [$request.method] to host: ${request.host}:${request.port}" + request.uri + " to server"
         request.host(host).port(port)
-        request.send {ar ->
+        request.send { ar ->
             HttpResponse<Buffer> getResult
             if (ar.succeeded()) {
                 //obtain the response
@@ -171,13 +169,13 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
             } else {
                 error = ar.cause().getMessage()
             }
-            handler (getResult)
+            handler(getResult)
         }
 
     }
 
-    void apiSendPost(HttpRequest<Buffer> request, JsonObject postBody,  Closure handler) {
-        request.sendJsonObject(postBody) {ar ->
+    void apiSendPost(HttpRequest<Buffer> request, JsonObject postBody, Closure handler) {
+        request.sendJsonObject(postBody) { ar ->
             HttpResponse<Buffer> postResult
             if (ar.succeeded()) {
                 //obtain the response
@@ -185,15 +183,15 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
             } else {
                 error = ar.cause().getMessage()
             }
-            handler (postResult)
+            handler(postResult)
         }
     }
 
-        void apiSend (HttpRequest<Buffer> request, JsonObject reqBody,  Closure handler) {
+    void apiSend(HttpRequest<Buffer> request, JsonObject reqBody, Closure handler) {
         println "sending request [$request.method] to host: ${request.host}:${request.port}" + request.uri + " to server"
         switch (request.method) {
-            case  HttpMethod.GET :
-                request.send {ar ->
+            case HttpMethod.GET:
+                request.send { ar ->
                     HttpResponse<Buffer> getResult
                     if (ar.succeeded()) {
                         //obtain the response
@@ -201,11 +199,11 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
                     } else {
                         error = ar.cause().getMessage()
                     }
-                    handler (getResult)
+                    handler(getResult)
                 }
                 break
-            case HttpMethod.POST :
-                request.sendJsonObject(reqBody) {ar ->
+            case HttpMethod.POST:
+                request.sendJsonObject(reqBody) { ar ->
                     HttpResponse<Buffer> postResult
                     if (ar.succeeded()) {
                         //obtain the response
@@ -213,19 +211,18 @@ class SnowClientAdapterVerticle extends AbstractVerticle implements Verticle, In
                     } else {
                         error = ar.cause().getMessage()
                     }
-                    handler (postResult)
+                    handler(postResult)
                 }
         }
 
     }
 
 
-
-    boolean hasError () {
+    boolean hasError() {
         error ? true : false
     }
 
-    void clearError () {
+    void clearError() {
         error = ""
     }
 

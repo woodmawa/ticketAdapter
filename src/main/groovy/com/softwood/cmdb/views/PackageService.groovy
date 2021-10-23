@@ -24,7 +24,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 class PackageService {
 
-    @Delegate ConfigurationItem pci
+    @Delegate
+    ConfigurationItem pci
 
     String piName
     ConcurrentLinkedQueue ConfigurationItems = new ConcurrentLinkedQueue()
@@ -37,51 +38,49 @@ class PackageService {
     PackageService(ConfigurationItem ci) {
         assert ci
 
-        if (!ConfigurationItems.contains(ci ))
+        if (!ConfigurationItems.contains(ci))
             ConfigurationItems << ci
     }
 
-    void addConfigurationItem (ci) {
+    void addConfigurationItem(ci) {
         assert ci
 
-        if (!ConfigurationItems.contains(ci ))
+        if (!ConfigurationItems.contains(ci))
             ConfigurationItems << ci
     }
 
-    void removeConfigurationItem (ci) {
+    void removeConfigurationItem(ci) {
         assert ci
 
-        if (!ConfigurationItems.contains(ci ))
+        if (!ConfigurationItems.contains(ci))
             ConfigurationItems.remove(ci)
     }
 
     /**
      *     catch property missing on map constructor call, and delegate to the embedded ci
      */
-    def propertyMissing (String name) {
+    def propertyMissing(String name) {
         getProperty(name)
     }
 
-    def propertyMissing (String name, value) {
+    def propertyMissing(String name, value) {
         setProperty(name, value)
     }
 
     /**
      * intercept regular property accesses and delegate to embedded ci
      */
-    void setProperty (String name, value) {
+    void setProperty(String name, value) {
         if (!metaClass.hasProperty(this, name)) {
             pci?."$name" = value
-        }
-        else
+        } else
             metaClass.setProperty(this, name, value)
     }
 
-    def getProperty (String name) {
+    def getProperty(String name) {
         if (!metaClass.hasProperty(this, name)) {
             pci?."$name"
-        }
-        else
+        } else
             this.metaClass.getProperty(this, name)
     }
 
@@ -92,23 +91,23 @@ class PackageService {
     JsonObject toJson() {
         def generator = new JsonGenerator.Options()
                 .excludeNulls()
-                .excludeFieldsByType (Class)
-                .excludeFieldsByType (Closure)
+                .excludeFieldsByType(Class)
+                .excludeFieldsByType(Closure)
                 .addConverter(ConcurrentLinkedQueue) { ConcurrentLinkedQueue queue, String key -> queue.toArray() }
                 .addConverter(LocalDateTime) { LocalDateTime t, String key -> t.toString() }
-                .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
-                .addConverter(Optional) {Optional opt, String key ->
+                .addConverter(UUID) { UUID uuid, String key -> uuid.toString() }
+                .addConverter(Optional) { Optional opt, String key ->
                     if (opt.isPresent())
                         opt.get().toString()
                 }
                 .build()
 
-        String  result = generator.toJson (this)
-        new JsonObject (result)
+        String result = generator.toJson(this)
+        new JsonObject(result)
 
     }
 
-    String toString () {
+    String toString() {
         "PackageService (serviceIdentifier:$piName, owningSite $site) [type:$pci.type, id:$pci.id]"
     }
 

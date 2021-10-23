@@ -10,7 +10,6 @@ import com.softwood.incident.adapters.simulators.SNOW.SnowClientAdapterVerticle
 import java.util.concurrent.atomic.AtomicLong
 
 
-
 alarmServer {
     host = "localhost"
     port = 8090
@@ -34,13 +33,13 @@ ticketAdapter {
         defaultSubject = "email from alarm event to ticket processor"
     }
 
-    adapterFactories = [SNOW :[apiSimulatorServer: SnowApiServerSimulatorVerticle,
-                               apiClient: SnowClientAdapterVerticle,
-                               mailClient: MailAdapterPlugin ],
+    adapterFactories = [SNOW: [apiSimulatorServer: SnowApiServerSimulatorVerticle,
+                               apiClient         : SnowClientAdapterVerticle,
+                               mailClient        : MailAdapterPlugin],
                         ITSM: [apiSimulatorServer: ItsmApiServerSimulatorVerticle,
-                               apiClient: ItsmClientAdapterVerticle,
-                               mailClient: MailAdapterPlugin]
-                        ]
+                               apiClient         : ItsmClientAdapterVerticle,
+                               mailClient        : MailAdapterPlugin]
+    ]
 
 }
 
@@ -58,7 +57,7 @@ cmdbServer {
 }
 
 
-management{
+management {
     //you can add aditional actions via config by adding the acction name and method closure to the map
     configurableActions = [:]
     host = "localhost"

@@ -23,7 +23,8 @@ import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class Device {
-    @Delegate ConfigurationItem ci
+    @Delegate
+    ConfigurationItem ci
 
     String ipAddress
 
@@ -40,36 +41,34 @@ class Device {
     /**
      *     catch property missing on map constructor call, and delegate to the embedded ci
      */
-    def propertyMissing (String name) {
+    def propertyMissing(String name) {
         getProperty(name)
     }
 
-    def propertyMissing (String name, value) {
+    def propertyMissing(String name, value) {
         setProperty(name, value)
     }
 
     /**
      * intercept regular property accesses and delegate to embedded ci
      */
-    void setProperty (String name, value) {
+    void setProperty(String name, value) {
         //println "invoked set property for $name with value $value "
         if (!metaClass.hasProperty(this, name)) {
             ci?."$name" = value
-        }
-        else
+        } else
             metaClass.setProperty(this, name, value)
     }
 
-    def getProperty (String name) {
+    def getProperty(String name) {
         if (!metaClass.hasProperty(this, name)) {
             ci?."$name"
-        }
-        else
+        } else
             this.metaClass.getProperty(this, name)
     }
 
 
-    String toString(){
+    String toString() {
         "Device (name:$name, host:$ci.hostname, managementIpAddress:$ci.managementIpAddress) [type:$ci.type, id:$ci.id]"
     }
 }

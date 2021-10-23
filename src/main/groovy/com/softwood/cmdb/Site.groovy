@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * base alignment with tmf GeographicSite
  */
 class Site {
-    UUID id = UuidUtil.getTimeBasedUuid ()
+    UUID id = UuidUtil.getTimeBasedUuid()
     String name
     String description
     String code
@@ -39,13 +39,13 @@ class Site {
     LocalDateTime createdDateTime = LocalDateTime.now()
     ConcurrentLinkedQueue<ConfigurationItem> inventory = new ConcurrentLinkedQueue()
 
-    void addInventory (ConfigurationItem ci) {
-        if (!inventory.contains(ci)){
+    void addInventory(ConfigurationItem ci) {
+        if (!inventory.contains(ci)) {
             inventory << ci
         }
     }
 
-    void removeInventory (ConfigurationItem ci) {
+    void removeInventory(ConfigurationItem ci) {
         inventory.remove(ci)
     }
 

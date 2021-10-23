@@ -13,7 +13,7 @@ class HackEventBus {
 
     static Map subscribers = new ConcurrentHashMap()
 
-    static def subscribe (topic, handler) {
+    static def subscribe(topic, handler) {
         ConcurrentLinkedQueue handlers = subscribers.get(topic)
         if (!handlers)
             handlers = new ConcurrentLinkedQueue()
@@ -22,11 +22,11 @@ class HackEventBus {
         subscribers.put(topic, handlers)
     }
 
-    static def publish (topic, event) {
+    static def publish(topic, event) {
         //handlers is array of closures
         ConcurrentLinkedQueue handlers = subscribers.get(topic)
         if (handlers) {
-            handlers.each {it.call (event, topic)}
+            handlers.each { it.call(event, topic) }
         }
     }
 }

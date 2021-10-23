@@ -30,8 +30,8 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
     def mailConf = Application.application.binding.config.ticketAdapter.mail
 
     //factory interface realisation
-    def send (message) {
-        sendMail ("new incident", message, "will.woodman@outlook.com")
+    def send(message) {
+        sendMail("new incident", message, "will.woodman@outlook.com")
     }
 
     Closure defaultConf = {
@@ -40,7 +40,7 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
 
         (userName, password) = resolveUserAndPasswordConfiguration()
         email.setHostName(mailConf.'server')
-        email.setSmtpPort( mailConf.'port')
+        email.setSmtpPort(mailConf.'port')
         //todo need to hide this - read from env variables of something
         email.setAuthenticator(new DefaultAuthenticator(userName, password))
         email.setSSLOnConnect(mailConf.'sslEnabled')
@@ -48,34 +48,34 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
         email.setSubject(mailConf.'defaultSubject')
     }
 
-    def resolveUserAndPasswordConfiguration () {
+    def resolveUserAndPasswordConfiguration() {
         def userName = System.getProperty("mailUserName").toString()
         if (!userName)
             userName = System.getenv("mailUserName")
-        def password = System.getProperty ("mailPassword").toString()
+        def password = System.getProperty("mailPassword").toString()
         if (!password)
             password = System.getenv("mailPassword")
 
-        if (userName == null || password == null ) {
+        if (userName == null || password == null) {
             throw ExceptionInInitializerError.newInstance("mail userName and mail password must be set in the environment ")
         }
 
         //multivalue return can also use [userName, password]
-        new Tuple2 (userName, password)
+        new Tuple2(userName, password)
     }
 
-    MailAdapterPlugin (Closure config = null) {
+    MailAdapterPlugin(Closure config = null) {
 
         email = new SimpleEmail()
 
         Closure configuration = (config ?: defaultConf).clone()
         configuration.delegate = this
 
-        configure (configuration)
+        configure(configuration)
     }
 
 
-    private def configure (config) {
+    private def configure(config) {
         //invoke methodClosure
         config()
     }
@@ -91,7 +91,7 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
      * @param recipients
      * @return
      */
-    def sendMail (String subject, String message, recipients) {
+    def sendMail(String subject, String message, recipients) {
         if (!subject)
             email.setSubject("groovy TestMail")
         else
@@ -115,7 +115,7 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
         email.toList = [] //clear recipients list for next message
     }
 
-    String generateFormattedMailBody (incidentData, formatTemplate=null) {
+    String generateFormattedMailBody(incidentData, formatTemplate = null) {
 
         // SimpleTemplateEngine.
         def simple = new SimpleTemplateEngine()
@@ -123,7 +123,7 @@ class MailAdapterPlugin /*implements IncidentSystemAdapter*/ {
         //have to use single quotes as we dont want string interpolation done here  -
         // its done through the template engine
         // todo would be better to pick up default tamplate through env variables config
-        def incidentTemplate  = (formatTemplate ?: '''
+        def incidentTemplate = (formatTemplate ?: '''
 Default template: Action: create ticket 
 [customer]:       $customer
 [site]:             $site

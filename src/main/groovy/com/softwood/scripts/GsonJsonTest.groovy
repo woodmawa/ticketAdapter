@@ -11,14 +11,14 @@ import com.softwood.request.Request
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-Customer hsbc = new Customer (name:"HSBC", role : RoleType.CUSTOMER )
+Customer hsbc = new Customer(name: "HSBC", role: RoleType.CUSTOMER)
 
-Site site = new Site (name:"canary wharf HQ")
+Site site = new Site(name: "canary wharf HQ")
 site.postalCode = "E14 5AH"
 
-hsbc.addSite (site)
+hsbc.addSite(site)
 
-site = new Site (name:"HSBC Docklands Datacentre")
+site = new Site(name: "HSBC Docklands Datacentre")
 site.postalCode = "E14 3AB"
 hsbc.addSite(site)
 
@@ -34,10 +34,10 @@ Gson gson = new GsonBuilder().setPrettyPrinting().create() //new Gson()
 //println gson.toJson(req)
 
 class AParent {
-   String name
+    String name
     Queue listOfB = new ConcurrentLinkedQueue<Bchild>()
 
-    String toString () {
+    String toString() {
         "A (name:$name, listOfB:$listOfB)"
     }
 }
@@ -52,14 +52,14 @@ class Bchild {
     }
 }
 
-def p = new AParent (name:"parent")
-new Bchild (name:"child")
-p.listOfB << [new Bchild (name:"child"), "myChild"]
+def p = new AParent(name: "parent")
+new Bchild(name: "child")
+p.listOfB << [new Bchild(name: "child"), "myChild"]
 
 //println gson.toJson(p)
 
-AParent newP =  gson.fromJson(gson.toJson(p), AParent)
+AParent newP = gson.fromJson(gson.toJson(p), AParent)
 //println newP
 
-println gson.toJson (2)
-println gson.toJson ([a:1])
+println gson.toJson(2)
+println gson.toJson([a: 1])

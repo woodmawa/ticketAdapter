@@ -21,36 +21,38 @@ def list = []
 
 // get list of *.conf files in run sorted order and run each one
 def dir = new File(".")  //start from current directory
-dir.eachFileRecurse (FileType.FILES) { file ->
+dir.eachFileRecurse(FileType.FILES) { file ->
 
     def fn = file.name
-    def ext = fn.substring (fn.lastIndexOf (".") + 1)  //get file extension
+    def ext = fn.substring(fn.lastIndexOf(".") + 1)  //get file extension
     def runOrderText
     def runScriptOrder
     String line
-    if (ext =~ /^mconf$/ ) {
+    if (ext =~ /^mconf$/) {
         def lines = file.readLines()
         def result = lines.findResult {
-             /*Pattern pat = ~"""
-                    (?ix)               # case insensitive, extended format
-                    \\s+                # some whitespace
-                    def                 # match on def key word
-                    \\s+                # some whitespace
-                    runConfigInOrder    #variable we want 
-                    \\s+                # some whitespace
-                    =                   # assignment 
-                    \\s+                # some whitespace
-                    (d+)                # some digits in group to make productAttributesAndAssignment number
-                     """*/
+            /*Pattern pat = ~"""
+                   (?ix)               # case insensitive, extended format
+                   \\s+                # some whitespace
+                   def                 # match on def key word
+                   \\s+                # some whitespace
+                   runConfigInOrder    #variable we want 
+                   \\s+                # some whitespace
+                   =                   # assignment 
+                   \\s+                # some whitespace
+                   (d+)                # some digits in group to make productAttributesAndAssignment number
+                    """*/
             def pattern = ~/^\s*+def\s*runConfigInOrder\s*=\s*(\d+)/
             def m = (it =~ pattern)
-            if (m.matches()) { it}
+            if (m.matches()) {
+                it
+            }
         }
 
         line = result ?: ""
 
         if (line) {
-            runOrderText = line.substring (line.lastIndexOf("=") + 1)
+            runOrderText = line.substring(line.lastIndexOf("=") + 1)
             runScriptOrder = runOrderText.toInteger()
             binding.$runScriptOrder << [runScriptOrder, file]
         }
@@ -58,8 +60,9 @@ dir.eachFileRecurse (FileType.FILES) { file ->
 }
 
 
-def runInSequence = $runScriptOrder.sort {a,b ->
-    a[0] <=> b[0]}
+def runInSequence = $runScriptOrder.sort { a, b ->
+    a[0] <=> b[0]
+}
 
 //run in sequence order synchronously at the mo
 //expact the conf files to add to vfPortfolio expando

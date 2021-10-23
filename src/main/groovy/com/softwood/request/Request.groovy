@@ -15,7 +15,7 @@ class Request {
     LocalDateTime authorisedDate
     String contactDetails
     String priority = "normal"
-    BillOfMaterials bom  = new BillOfMaterials()
+    BillOfMaterials bom = new BillOfMaterials()
 
     String toString() {
         "Request (requestIdentifier: $requestIdentifier, status: $status)"

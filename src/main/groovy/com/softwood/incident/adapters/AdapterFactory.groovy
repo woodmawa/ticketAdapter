@@ -51,28 +51,28 @@ class AdapterFactory {
 
     def static factory
 
-    static def newAdapter (String system, AdapterFactoryType type, Map properties=null) {
+    static def newAdapter(String system, AdapterFactoryType type, Map properties = null) {
 
         factory = adapterFactories."${system.toUpperCase()}"
 
         def instance
 
         switch (system.toUpperCase()) {
-            case "SNOW" :
+            case "SNOW":
                 Application.application.binding.uriApiStemPath = "/api/now/table"
                 break
-            case "ITSM" :
+            case "ITSM":
                 Application.application.binding.uriApiStemPath = "/api/arsys/v1"
                 break
         }
 
         switch (type) {
-            case AdapterFactoryType.server :
-                 instance = (factory.apiSimulatorServer).newInstance()
+            case AdapterFactoryType.server:
+                instance = (factory.apiSimulatorServer).newInstance()
                 instance.configureHttpServer()
                 instance.name = "$system Simulated Server"
                 break;
-            case AdapterFactoryType.client  :
+            case AdapterFactoryType.client:
                 instance = (factory.apiClient).newInstance()
                 instance.configureHttpClient()
                 instance.name = "$system Simulated Client"

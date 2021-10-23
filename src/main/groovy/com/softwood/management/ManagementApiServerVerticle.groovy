@@ -34,7 +34,7 @@ import java.time.LocalDateTime
 class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
 
     String name
-     HttpServer server
+    HttpServer server
     String host
     int port
     ApplicationManagement managementService = new ApplicationManagement()
@@ -70,57 +70,57 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
         /**
          * cant get two routers with different methods to listen on same URI
          * so do it as one route - but switch on method in the handler
-        * get all paths and subpaths below /api/now/table/incident
+         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
         managementApiRouter.route("/api/management/*")
                 .handler(io.vertx.ext.web.handler.BodyHandler.create())
                 .blockingHandler { routingContext ->
 
-            def request = routingContext.request()
-            HttpMethod method = request.method()
+                    def request = routingContext.request()
+                    HttpMethod method = request.method()
 
-            def uri = routingContext.request().absoluteURI()
+                    def uri = routingContext.request().absoluteURI()
 
-            //split uri into path segments and look at last segment matched
-            String[] segments = uri.split("/")
-            def trailingParam = (segments[-1] != "alarm") ? segments[-1] : null //get last segment
+                    //split uri into path segments and look at last segment matched
+                    String[] segments = uri.split("/")
+                    def trailingParam = (segments[-1] != "alarm") ? segments[-1] : null //get last segment
 
-            println "Management server, processing http [$method] request and found trailing param as '$trailingParam' on uri : $uri "
+                    println "Management server, processing http [$method] request and found trailing param as '$trailingParam' on uri : $uri "
 
-            def response = routingContext.response()
+                    def response = routingContext.response()
 
-            switch (method) {
-                case HttpMethod.POST:
-                    //get post body as Json
-                    JsonObject postBody = routingContext.getBodyAsJson()
+                    switch (method) {
+                        case HttpMethod.POST:
+                            //get post body as Json
+                            JsonObject postBody = routingContext.getBodyAsJson()
 
-                    JsonObject jsonResponse = processManagementRequest (routingContext, trailingParam, postBody)
-                    def resultBody = jsonResponse?.encodePrettily() ?: ""
+                            JsonObject jsonResponse = processManagementRequest(routingContext, trailingParam, postBody)
+                            def resultBody = jsonResponse?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    response.end(resultBody)
+                            response.end(resultBody)
 
-                    break
+                            break
 
-                case HttpMethod.GET:
+                        case HttpMethod.GET:
 
-                    JsonObject jsonResponse  = processManagementRequest (routingContext, trailingParam, new JsonObject ())
-                    def resultBody = jsonResponse?.encodePrettily() ?: ""
+                            JsonObject jsonResponse = processManagementRequest(routingContext, trailingParam, new JsonObject())
+                            def resultBody = jsonResponse?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    response.end(resultBody)
+                            response.end(resultBody)
 
-                    break
-            }
+                            break
+                    }
 
-        }
+                }
 
         server.requestHandler(managementApiRouter.&accept)
         server.listen(port, host)
@@ -130,7 +130,7 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
 
-    private JsonObject processManagementRequest (RoutingContext rc, String param, JsonObject postRequestBody) {
+    private JsonObject processManagementRequest(RoutingContext rc, String param, JsonObject postRequestBody) {
 
         //build new generic alarm from postRequestBody - ignore param
         JsonObject responseBody
@@ -139,12 +139,12 @@ class ManagementApiServerVerticle extends AbstractVerticle implements Verticle {
         action = managementService.actions."${param.toLowerCase()}"
         if (action) {
             println "performing management action $param"
-            responseBody = action (rc, postRequestBody)
+            responseBody = action(rc, postRequestBody)
         } else {
-            responseBody = new JsonObject ()
+            responseBody = new JsonObject()
             JsonObject err = new JsonObject()
-            err.put ("unknown management action", "$param")
-            responseBody.put ("NoAction", err)
+            err.put("unknown management action", "$param")
+            responseBody.put("NoAction", err)
         }
         responseBody
     }

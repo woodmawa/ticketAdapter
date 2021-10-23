@@ -59,7 +59,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         sequenceGenerator = Application.application.binding.config.requestServer.sequenceGenerator
 
         JsonUtils.Options sumOptions = new JsonUtils.Options()
-        sumOptions.registerConverter(LocalDateTime) {it.toString()}
+        sumOptions.registerConverter(LocalDateTime) { it.toString() }
         sumOptions.excludeFieldByNames("ci")
         sumOptions.excludeNulls(true)
         sumOptions.summaryClassFormEnabled(true)
@@ -68,8 +68,8 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         summaryJsonGenerator = sumOptions.build()
 
         JsonUtils.Options options = new JsonUtils.Options()
-        options.setExpandLevels (2)
-        options.registerConverter(LocalDateTime) {it.toString()}
+        options.setExpandLevels(2)
+        options.registerConverter(LocalDateTime) { it.toString() }
         options.excludeFieldByNames("ci")
         options.excludeNulls(true)
         options.summaryClassFormEnabled(false)
@@ -111,62 +111,62 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
         /**
          * cant get two routers with different methods to listen on same URI
          * so do it as one route - but switch on method in the handler
-        * get all paths and subpaths below /api/now/table/incident
+         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
         requestApiRouter.route("/api/request/*")
                 .handler(io.vertx.ext.web.handler.BodyHandler.create())
                 .blockingHandler { routingContext ->
 
-            def request = routingContext.request()
-            HttpMethod method = request.method()
+                    def request = routingContext.request()
+                    HttpMethod method = request.method()
 
-            def uri = routingContext.request().absoluteURI()
+                    def uri = routingContext.request().absoluteURI()
 
-            //split uri into path segments and look at last segment matched
-            String[] segments = uri.split("/")
-            def trailingParam = (segments[-1] != "request") ? segments[-1] : null //get last segment
+                    //split uri into path segments and look at last segment matched
+                    String[] segments = uri.split("/")
+                    def trailingParam = (segments[-1] != "request") ? segments[-1] : null //get last segment
 
-            println "processing http [$method] Request and found trailing param as $trailingParam on uri : $uri "
+                    println "processing http [$method] Request and found trailing param as $trailingParam on uri : $uri "
 
-            def response = routingContext.response()
+                    def response = routingContext.response()
 
-            switch (method) {
-                case HttpMethod.POST:
-                    //get post body as Json text
-                    JsonObject postBody = routingContext.getBodyAsJson()
+                    switch (method) {
+                        case HttpMethod.POST:
+                            //get post body as Json text
+                            JsonObject postBody = routingContext.getBodyAsJson()
 
-                    def req = processRequestTicketPost (trailingParam, postBody)
-                    JsonObject jsonReq = generateResponse(trailingParam, req)
-                    def resultBody = jsonReq?.encodePrettily() ?: ""
+                            def req = processRequestTicketPost(trailingParam, postBody)
+                            JsonObject jsonReq = generateResponse(trailingParam, req)
+                            def resultBody = jsonReq?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    println "returning  Request Post result with length $length to client"
-                    response.end(resultBody)
+                            println "returning  Request Post result with length $length to client"
+                            response.end(resultBody)
 
-                    break
+                            break
 
-                case HttpMethod.GET:
+                        case HttpMethod.GET:
 
-                    def requests = getRequestTickets (trailingParam)
-                    JsonObject getResult = generateResponse(trailingParam, requests)
-                    def resultBody = getResult?.encodePrettily() ?: ""
+                            def requests = getRequestTickets(trailingParam)
+                            JsonObject getResult = generateResponse(trailingParam, requests)
+                            def resultBody = getResult?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    println "returning  Requests get result with length $length to client"
-                    response.end(resultBody)
+                            println "returning  Requests get result with length $length to client"
+                            response.end(resultBody)
 
-                    break
+                            break
 
-            }
+                    }
 
-        }
+                }
 
         server.requestHandler(requestApiRouter.&accept)
         server.listen(port, host)
@@ -178,7 +178,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
 
     private def processRequestTicketPost(String param, JsonObject postRequestBody) {
 
-        Map graph = new JsonSlurper().parseText (postRequestBody.encode())
+        Map graph = new JsonSlurper().parseText(postRequestBody.encode())
 
         def postCust = graph?.entityData?.attributes?.customer
         Customer customer
@@ -191,7 +191,7 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
                 //todo check this assumption !
                 //looks like a new customer entity has been presented
                 //create new customer record
-                customer = new Customer ()
+                customer = new Customer()
                 customer.name = postCust?.attributes?.name?.value
                 customer.role = RoleType.CUSTOMER
                 println "looks like a new customer record with data has been presented in post,  so create it : $customer"
@@ -231,31 +231,29 @@ class RequestApiServerVerticle extends AbstractVerticle implements Verticle {
     }
 
     //Todo - process query params on the end
-    private def getRequestTickets (String param) {
+    private def getRequestTickets(String param) {
 
         if (param == 'count')  //not really REST more of an action but ...
-            requestServices.requestListSize ()
+            requestServices.requestListSize()
         else if (param) {
             requestServices.getRequestById(param)
-        }
-        else
-            requestServices.requestList ()
+        } else
+            requestServices.requestList()
     }
 
     private JsonObject generateResponse(String param, def request) {
 
         JsonObject jsonObject
         if (request instanceof List) {
-            def formattedResp = summaryJsonGenerator.toJson (request)
+            def formattedResp = summaryJsonGenerator.toJson(request)
 
-            jsonObject = new JsonObject ()
-            jsonObject = jsonGenerator.toJson (request, "requestList")
+            jsonObject = new JsonObject()
+            jsonObject = jsonGenerator.toJson(request, "requestList")
             //jsonObject.put ("requestList", formattedResp)
         } else if (param == "count") {
-            jsonObject = jsonGenerator.toJson (request as Long, "requestListSize")
-         }
-        else {
-            jsonObject = jsonGenerator.toJson (request)
+            jsonObject = jsonGenerator.toJson(request as Long, "requestListSize")
+        } else {
+            jsonObject = jsonGenerator.toJson(request)
 
         }
 

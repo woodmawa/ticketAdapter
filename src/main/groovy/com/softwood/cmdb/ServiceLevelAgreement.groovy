@@ -20,7 +20,7 @@ import com.softwood.utils.UuidUtil
 import java.time.LocalDateTime
 
 class ServiceLevelAgreement {
-    UUID id = UuidUtil.getTimeBasedUuid ()
+    UUID id = UuidUtil.getTimeBasedUuid()
     String name
     Optional<Customer> customer
     LocalDateTime createdDateTime = LocalDateTime.now()

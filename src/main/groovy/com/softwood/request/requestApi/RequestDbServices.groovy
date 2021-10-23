@@ -11,16 +11,16 @@ class RequestDbServices {
     private static def requests = Application.application.binding.requests
     private static def customers = Application.application.binding.customers
 
-    static def requestsDb = [customers:customers, requests:requests]
+    static def requestsDb = [customers: customers, requests: requests]
 
-    RequestDbServices () {
+    RequestDbServices() {
         if (requests == null) {
             Application.application.binding.requests = new ConcurrentHashMap<>()
 
         }
     }
 
-    static RequestDbServices getDb () {
+    static RequestDbServices getDb() {
         requestsDb.requests
     }
 
@@ -28,7 +28,7 @@ class RequestDbServices {
         requests.size()
     }
 
-    def requestList (Closure filter=null) {
+    def requestList(Closure filter = null) {
 
         def requestList
 
@@ -40,19 +40,19 @@ class RequestDbServices {
         requestList
     }
 
-    def requestByCustomerList (Customer cust, Closure filter=null) {
+    def requestByCustomerList(Customer cust, Closure filter = null) {
 
         def requestList
 
         if (!filter) {
-            requestList = requests.findAll{it.customer.name == cust.name}.toList()
+            requestList = requests.findAll { it.customer.name == cust.name }.toList()
         } else {
 
         }
         requestList
     }
 
-    def getRequestById (id) {
+    def getRequestById(id) {
 
         def result
 
@@ -60,15 +60,14 @@ class RequestDbServices {
             result = requests.collect().toList()
         } else {
             if (id instanceof Long)
-                result = requests.find {it.id == id}
+                result = requests.find { it.id == id }
             else if (id instanceof String) {
                 Long num = Long.parseLong(id)
                 if (num)
                     result = requests.find { it.id.toString() == "$id".toString() }
                 else
                     throw new InvalidParameterException(message: "id should a number, found $id instead")
-            }
-            else
+            } else
                 throw new InvalidParameterException(message: "id should be Long or a String")
         }
         result

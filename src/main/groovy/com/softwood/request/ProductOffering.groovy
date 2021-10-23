@@ -8,7 +8,7 @@ class ProductOffering {
     String type
     String hierarchy
 
-    String toString () {
+    String toString() {
         "ProductOffering (name:$name, type:$type, [id:$id]"
     }
 }

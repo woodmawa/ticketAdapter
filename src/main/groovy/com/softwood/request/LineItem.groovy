@@ -12,13 +12,13 @@ class LineItem {
     String status
     LocalDateTime shippingDate
 
-    void addProductOffering (ProductOffering offering, ConfigurationItem productInstance)  {
+    void addProductOffering(ProductOffering offering, ConfigurationItem productInstance) {
         assert offering.name == productInstance.offering.name
         this.offering = offering
         this.productInstance = productInstance
     }
 
-    void addNonAssetingProductOffering (ProductOffering offering) {
+    void addNonAssetingProductOffering(ProductOffering offering) {
         this.offering = offering
     }
 }

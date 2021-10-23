@@ -33,38 +33,38 @@ class Customer extends OrgRoleInstance {
     ConcurrentLinkedQueue<Contract> contracts = new ConcurrentLinkedQueue()
     ConcurrentLinkedQueue<Request> requests = new ConcurrentLinkedQueue()
 
-    void addContract (Contract contract) {
-        if (!contracts.contains(contract)){
+    void addContract(Contract contract) {
+        if (!contracts.contains(contract)) {
             contract.customer = this
             contracts << contract
         }
     }
 
-    void removeContract (Contract contract) {
+    void removeContract(Contract contract) {
         contract.customer = null
         contracts.remove(contract)
     }
 
-    void addSite (Site site) {
-        if (!sites.contains(site)){
+    void addSite(Site site) {
+        if (!sites.contains(site)) {
             sites << site
             site.customer = this
         }
     }
 
-    void removeSite (Site site) {
+    void removeSite(Site site) {
         site.customer = null
         sites.remove(site)
     }
 
-    void addRequest (Request request) {
-        if (!requests.contains(request)){
+    void addRequest(Request request) {
+        if (!requests.contains(request)) {
             requests << request
             request.customer = this
         }
     }
 
-    void removeRequest (Request request) {
+    void removeRequest(Request request) {
         request.customer = null
         requests.remove(request)
     }

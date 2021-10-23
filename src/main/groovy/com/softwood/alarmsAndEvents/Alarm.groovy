@@ -30,26 +30,28 @@ import java.util.concurrent.ConcurrentLinkedQueue
 //import grails.events.annotation.*
 
 
-class Alarm implements Serializable{
+class Alarm implements Serializable {
 
     //frig for dagger IoC not working
-    @Inject ConfigurableProjectApplication app = Application.application
+    @Inject
+    ConfigurableProjectApplication app = Application.application
 
     //we want Alarm to be a flavour of event so use delegation
-    @Delegate final Event event
+    @Delegate
+    final Event event
 
-    Alarm (event) {
+    Alarm(event) {
         // Register codec for alarm message
         this.event = event
     }
 
-    Alarm () {
+    Alarm() {
         event = new Event()
     }
 
     //could use @Publisher ('<name>') defaults same as method
     //@Publisher('cpeAlarm')
-    def generateAlarm () {
+    def generateAlarm() {
         println "alarm: publish alarm on 'cpeAlarm'"
 
         def vertx = app.vertx
@@ -57,38 +59,36 @@ class Alarm implements Serializable{
         assert vertx
         def eventBus = vertx.eventBus()
 
-         eventBus.publish("cpeAlarm", this)  //vertx platform wraps with a message
-         this
+        eventBus.publish("cpeAlarm", this)  //vertx platform wraps with a message
+        this
     }
 
     /**
      *     catch property missing on map constructor call, and delegate to the embedded ci
      */
-    def propertyMissing (String name) {
+    def propertyMissing(String name) {
         getProperty(name)
     }
 
-    def propertyMissing (String name, value) {
+    def propertyMissing(String name, value) {
         setProperty(name, value)
     }
 
     /**
      * intercept regular property accesses and delegate to embedded ci
      */
-    void setProperty (String name, value) {
+    void setProperty(String name, value) {
         //println "invoked set property for $name with value $value "
         if (!metaClass.hasProperty(this, name)) {
             event?."$name" = value
-        }
-        else
+        } else
             metaClass.setProperty(this, name, value)
     }
 
-    def getProperty (String name) {
+    def getProperty(String name) {
         if (!metaClass.hasProperty(this, name)) {
             event?."$name"
-        }
-        else
+        } else
             this.metaClass.getProperty(this, name)
     }
 
@@ -98,17 +98,17 @@ class Alarm implements Serializable{
      */
     JsonObject toJson() {
         def generator = new JsonGenerator.Options()
-        .excludeNulls()
-        .excludeFieldsByType (Class)
-        .excludeFieldsByName ("app")
-        .excludeFieldsByName("event")
-        .addConverter(LocalDateTime) {LocalDateTime t, String key ->
-            t.toString()
-        }
-        .build()
+                .excludeNulls()
+                .excludeFieldsByType(Class)
+                .excludeFieldsByName("app")
+                .excludeFieldsByName("event")
+                .addConverter(LocalDateTime) { LocalDateTime t, String key ->
+                    t.toString()
+                }
+                .build()
 
-        String  result = generator.toJson (this)
-        new JsonObject (result)
+        String result = generator.toJson(this)
+        new JsonObject(result)
 
     }
 
@@ -117,15 +117,14 @@ class Alarm implements Serializable{
         JsonObject json = new JsonObject()
 
         Map props = this.properties
-        props.each {key, value ->
+        props.each { key, value ->
             if (value instanceof ConcurrentLinkedQueue)
                 return
-            else if (value instanceof Class )
+            else if (value instanceof Class)
                 return
             else if (value instanceof LocalDateTime) {
                 json.put(key, value.toString())
-            }
-            else if (value == null )
+            } else if (value == null)
                 return
             else if (key == "app")
                 return
@@ -133,12 +132,12 @@ class Alarm implements Serializable{
                 return
             else if (key == "eventCharacteristics") {
                 JsonObject details = new JsonObject()
-                value.each {details.put (it.key, it.value)}
-                json.put (key, details)
+                value.each { details.put(it.key, it.value) }
+                json.put(key, details)
             } else {
                 println "adding $key and value : $value to json"
 
-                json.put (key, value)
+                json.put(key, value)
             }
         }
 
@@ -147,7 +146,7 @@ class Alarm implements Serializable{
 
     }
 
-    String toString () {
+    String toString() {
         "Alarm (id:$event.id, type:$event.type, name:$event.name, ciReference:$event.ciReference)"
     }
 
@@ -161,7 +160,8 @@ class AlarmMessageCodec implements MessageCodec<Alarm, Alarm> {
     String name() {
         // Each codec must have a unique name.
         // This is used to identify a codec when sending a message and for unregistering codecs.
-        return this.getClass().getSimpleName();    }
+        return this.getClass().getSimpleName();
+    }
 
     @Override
     void encodeToWire(Buffer buffer, Alarm alarm) {
@@ -195,19 +195,19 @@ class AlarmMessageCodec implements MessageCodec<Alarm, Alarm> {
 
         // Get JSON string by it`s length
         // Jump 4 because getInt() == 4 bytes
-        String jsonStr = buffer.getString(_pos+=4, _pos+=length)
+        String jsonStr = buffer.getString(_pos += 4, _pos += length)
         JsonObject contentJson = new JsonObject(jsonStr)
 
         // Get fields
         int id = contentJson.getInteger("id")
         String type = contentJson.getString("type")
         String name = contentJson.getString("name")
-        Map eventCharacteristics = contentJson.getMap ("eventCharacteristics")
-        String createdDateString = contentJson.getString ("createdDate")
+        Map eventCharacteristics = contentJson.getMap("eventCharacteristics")
+        String createdDateString = contentJson.getString("createdDate")
         LocalDateTime createdDate = LocalDateTime.parse(createdDateString)
 
         // We can finally create custom message object
-        return new Alarm (id:id, type:type, name:name, eventCharacteristics: eventCharacteristics, createdDate:createdDate)
+        return new Alarm(id: id, type: type, name: name, eventCharacteristics: eventCharacteristics, createdDate: createdDate)
     }
 
     @Override
@@ -215,7 +215,7 @@ class AlarmMessageCodec implements MessageCodec<Alarm, Alarm> {
         return alarm
     }
 
-    byte systemCodecID () {
+    byte systemCodecID() {
         // Always -1
         return -1
     }

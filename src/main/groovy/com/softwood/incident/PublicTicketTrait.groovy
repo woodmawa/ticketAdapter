@@ -43,15 +43,15 @@ trait PublicTicketTrait {
     LocalDateTime closedDateTime
     //todo add comments handling to public api
 
-    void SetResolvedDateTime (LocalDateTime time) {
+    void SetResolvedDateTime(LocalDateTime time) {
         throw new UnsupportedOperationException("resolvedDateTime is a readonly attribute")
     }
 
-    void SetClosedDateTime (LocalDateTime time) {
+    void SetClosedDateTime(LocalDateTime time) {
         throw new UnsupportedOperationException("closedDateTime is a readonly attribute")
     }
 
-    void SetTicketIdentifier (String  name) {
+    void SetTicketIdentifier(String name) {
         throw new UnsupportedOperationException("ticketIdentifer is a readonly attribute")
     }
 }

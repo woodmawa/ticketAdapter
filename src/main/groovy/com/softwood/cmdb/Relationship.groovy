@@ -25,7 +25,7 @@ class Relationship {
     def fromCi
     def toCi
 
-    String toString () {
+    String toString() {
         "Relationship (name:$name, fromCi: $fromCi, toCi: $toCi)"
     }
 }

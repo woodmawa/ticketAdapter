@@ -32,20 +32,20 @@ class IncidentTicket implements PublicTicketTrait {
     ConcurrentLinkedQueue<WorkNote> workNotes = new ConcurrentLinkedQueue()
     ConcurrentLinkedQueue<MaintainerTicket> maintainerTickets = new ConcurrentLinkedQueue()
 
-    void setResoledDateTime (LocalDateTime time) {
+    void setResoledDateTime(LocalDateTime time) {
         resolvedDateTime = time
     }
 
-    void setClosedDateTime (LocalDateTime time) {
+    void setClosedDateTime(LocalDateTime time) {
         closedDateTime = time
     }
 
     //cant remove work notes - just add to them
-    void addWorkNote (text) {
-        workNotes << new WorkNote (text:text)
+    void addWorkNote(text) {
+        workNotes << new WorkNote(text: text)
     }
 
-    void assign (HelpDeskAgent agent) {
+    void assign(HelpDeskAgent agent) {
         assignee = agent
     }
 
@@ -56,15 +56,15 @@ class IncidentTicket implements PublicTicketTrait {
     JsonObject toJson() {
         def generator = new JsonGenerator.Options()
                 .excludeNulls()
-                .excludeFieldsByType (Class)
-                .excludeFieldsByType (Closure)
-                .addConverter(ConcurrentLinkedQueue) {ConcurrentLinkedQueue queue, String key -> queue.toArray() }
-                .addConverter(LocalDateTime) {LocalDateTime t, String key -> t.toString() }
-                .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
-        .build()
+                .excludeFieldsByType(Class)
+                .excludeFieldsByType(Closure)
+                .addConverter(ConcurrentLinkedQueue) { ConcurrentLinkedQueue queue, String key -> queue.toArray() }
+                .addConverter(LocalDateTime) { LocalDateTime t, String key -> t.toString() }
+                .addConverter(UUID) { UUID uuid, String key -> uuid.toString() }
+                .build()
 
-        String  result = generator.toJson (this)
-        new JsonObject (result)
+        String result = generator.toJson(this)
+        new JsonObject(result)
 
     }
 

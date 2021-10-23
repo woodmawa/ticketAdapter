@@ -10,9 +10,7 @@ package com.softwood.incident.adapters.simulators.SNOW
  * --user 'admin':'admin'
  *
  *
- * {
- *   "result": {
- *     "upon_approval": "proceed",
+ *{*   "result": {*     "upon_approval": "proceed",
  *     "location": "",
  *     "expected_start": "",
  *     "reopen_count": "0",
@@ -22,10 +20,9 @@ package com.softwood.incident.adapters.simulators.SNOW
  *     "urgency": "2",
  *     "correlation_id": "",
  *     "sys_tags": "",
- *     "sys_domain": {
- *       "link": "https://instance.service-now.com/api/now/table/sys_user_group/global",
+ *     "sys_domain": {*       "link": "https://instance.service-now.com/api/now/table/sys_user_group/global",
  *       "value": "global"
- *     },
+ *},
  *     "description": "",
  *     "group_list": "",
  *     "priority": "3",
@@ -52,8 +49,7 @@ package com.softwood.incident.adapters.simulators.SNOW
  *     "company": "",
  *     "active": "true",
  *     "due_date": "",
- *     "assignment_gro": {
- *       "link": "https://instance.service-now.com/api/now/table/sys_user_group/287ebd7da9fe198100f92cc8d1d2154e",
+ *     "assignment_gro": {*       "link": "https://instance.service-now.com/api/now/table/sys_user_group/287ebd7da9fe198100f92cc8d1d2154e",
  *       "value": "287ebd7da9fe198100f92cc8d1d2154e"*     },
  *     "caller_id": "",
  *     "knowledge": "false",
@@ -90,10 +86,9 @@ package com.softwood.incident.adapters.simulators.SNOW
  *     "wf_activity": "",
  *     "sys_domain_path": "/",
  *     "cmdb_ci": "",
- *     "open_by": {
- *       "link": "https://instance.service-now.com/api/now/table/sys_user/6816f79cc0a8016401c5a33be04be441",
+ *     "open_by": {*       "link": "https://instance.service-now.com/api/now/table/sys_user/6816f79cc0a8016401c5a33be04be441",
  *       "value": "6816f79cc0a8016401c5a33be04"
- *     },
+ *},
  *     "subcategory": "",
  *     "rejection_goto": "",
  *     "sys_class_name": "incident",
@@ -101,9 +96,7 @@ package com.softwood.incident.adapters.simulators.SNOW
  *     "time_worked": "",
  *     "contact_type": "phone",
  *     "escalation": "0",
- *     "comment ""*   }
- * }
- *
+ *     "comment ""*   }*}*
  */
 
 //not using this right now - using IncidentTicket as wrapper and generate post body

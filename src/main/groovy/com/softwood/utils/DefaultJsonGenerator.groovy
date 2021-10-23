@@ -194,7 +194,8 @@ public class DefaultJsonGenerator implements JsonGenerator {
             objectClass = object.getClass();
         }
 
-        if (CharSequence.class.isAssignableFrom(objectClass)) { // Handle String, StringBuilder, GString and other CharSequence implementations
+        if (CharSequence.class.isAssignableFrom(objectClass)) {
+            // Handle String, StringBuilder, GString and other CharSequence implementations
             writeCharSequence((CharSequence) object, buffer);
         } else if (objectClass == Boolean.class) {
             buffer.addBoolean((Boolean) object);
@@ -233,9 +234,9 @@ public class DefaultJsonGenerator implements JsonGenerator {
             Map<?, ?> properties = getObjectProperties(object);
             //Clean up all recursive references to File objects
             Iterator<? extends Map.Entry<?, ?>> iterator = properties.entrySet().iterator();
-            while(iterator.hasNext()) {
-                Map.Entry<?,?> entry = iterator.next();
-                if(entry.getValue() instanceof File) {
+            while (iterator.hasNext()) {
+                Map.Entry<?, ?> entry = iterator.next();
+                if (entry.getValue() instanceof File) {
                     iterator.remove();
                 }
             }
@@ -531,7 +532,7 @@ public class DefaultJsonGenerator implements JsonGenerator {
             if (!(o instanceof ClosureConverter)) {
                 return false;
             }
-            return this.type == ((ClosureConverter)o).type;
+            return this.type == ((ClosureConverter) o).type;
         }
 
         @Override

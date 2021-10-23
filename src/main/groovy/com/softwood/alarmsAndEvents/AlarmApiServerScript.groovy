@@ -14,19 +14,19 @@ import java.time.LocalDateTime
 
 //this script just calculates packet size - rest disabled
 
-def alarm = new Alarm ()
+def alarm = new Alarm()
 alarm.ciReference = "192.168"
 alarm.id = 27
 alarm.name = "my alarm"
 alarm.type = "critical"
-alarm.eventCharacteristics.put  ('threshold', '100% ')
+alarm.eventCharacteristics.put('threshold', '100% ')
 
 JsonObject result = alarm.toJson2()
 println "json result " + result.encodePrettily()
 
-System.exit (0)
+System.exit(0)
 
- def resultLength = """{
+def resultLength = """{
   "name" : "my alarm",
   "ciReference" : "192.168.1.24",
   "id" : "101",
@@ -52,46 +52,46 @@ int baseAlarmId = 100
  * get all paths and subpaths below /api/now/table/incident
  * setup a body handler to process the post bodies
  */
-alarmApiRouter.route ( "/api/alarm/*")
+alarmApiRouter.route("/api/alarm/*")
         .handler(BodyHandler.create())
         .blockingHandler { routingContext ->
 
-    def request  = routingContext.request()
-    HttpMethod method = request.method()
+            def request = routingContext.request()
+            HttpMethod method = request.method()
 
-    def uri = routingContext.request().absoluteURI()
+            def uri = routingContext.request().absoluteURI()
 
-    //split uri into path segments and look at last segment matched
-    String[] segments = uri.split("/")
-    def trailingParam = (segments[-1] != "alarm") ? segments[-1]: null //get last segment
+            //split uri into path segments and look at last segment matched
+            String[] segments = uri.split("/")
+            def trailingParam = (segments[-1] != "alarm") ? segments[-1] : null //get last segment
 
-    println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
-
-
-    def response = routingContext.response()
-
-    switch (method) {
-        case HttpMethod.POST:
-            //get post body as Json text
-            JsonObject postBody = routingContext.getBodyAsJson()
-
-            JsonObject newAlarm = generatePostResponse (trailingParam, postBody)
-            def resultBody = newAlarm?.encodePrettily() ?: ""
-
-            response.putHeader ("content-type", "application/json")
-            def length = resultBody.getBytes().size() ?: 0
-            response.putHeader("content-length", "$length")
-
-            println "returning  Post result with length $length to client"
-            response.end (resultBody)
-
-            break
-    }
-
-}
+            println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
 
 
-JsonObject generatePostResponse (String param, JsonObject postRequestBody) {
+            def response = routingContext.response()
+
+            switch (method) {
+                case HttpMethod.POST:
+                    //get post body as Json text
+                    JsonObject postBody = routingContext.getBodyAsJson()
+
+                    JsonObject newAlarm = generatePostResponse(trailingParam, postBody)
+                    def resultBody = newAlarm?.encodePrettily() ?: ""
+
+                    response.putHeader("content-type", "application/json")
+                    def length = resultBody.getBytes().size() ?: 0
+                    response.putHeader("content-length", "$length")
+
+                    println "returning  Post result with length $length to client"
+                    response.end(resultBody)
+
+                    break
+            }
+
+        }
+
+
+JsonObject generatePostResponse(String param, JsonObject postRequestBody) {
 
     Alarm alarm = new Alarm(new Event())
 

@@ -23,11 +23,11 @@ abstract class User {
 
     static ConcurrentLinkedQueue userList = new ConcurrentLinkedQueue()
 
-    static User findByEmail (String email) {
-        userList.find {it.email == email}
+    static User findByEmail(String email) {
+        userList.find { it.email == email }
     }
 
-    User () {
+    User() {
         userList << this
     }
 
@@ -38,12 +38,12 @@ abstract class User {
     String systemName  //should really be unique - not assuring this here
     String email
 
-    String getName () {
-        firstName+lastName
+    String getName() {
+        firstName + lastName
     }
 
     //if presented a compound name
-    String setName (String nameString) {
+    String setName(String nameString) {
         def names = nameString.split(", ")
         firstName = names[0]
         lastName = names[1]

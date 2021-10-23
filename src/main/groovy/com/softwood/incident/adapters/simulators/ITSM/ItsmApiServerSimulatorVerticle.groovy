@@ -45,7 +45,7 @@ class ItsmApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
         /**
          * cant get two routers with different methods to listen on same URI
          * so do it as one route - but switch on method in the handler
-        * get all paths and subpaths below /api/now/table/incident
+         * get all paths and subpaths below /api/now/table/incident
          * setup a body handler to process the post bodies
          */
         allApiRouter.route("/api/now/table/incident/*")
@@ -57,52 +57,52 @@ class ItsmApiServerSimulatorVerticle extends AbstractVerticle implements Verticl
 //          failureRoutingContext,response().setStatusCode (400).end()
                 .blockingHandler { routingContext ->
 
-            def request = routingContext.request()
-            HttpMethod method = request.method()
+                    def request = routingContext.request()
+                    HttpMethod method = request.method()
 
-            def uri = routingContext.request().absoluteURI()
+                    def uri = routingContext.request().absoluteURI()
 
-            //split uri into path segments and look at last segment matched
-            String[] segments = uri.split("/")
-            def trailingParam = (segments[-1] != "incident") ? segments[-1] : null //get last segment
+                    //split uri into path segments and look at last segment matched
+                    String[] segments = uri.split("/")
+                    def trailingParam = (segments[-1] != "incident") ? segments[-1] : null //get last segment
 
-            println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
+                    println "processing http [$method] request and found trailing param as $trailingParam on uri : $uri "
 
 
-            def response = routingContext.response()
+                    def response = routingContext.response()
 
-            switch (method) {
-                case HttpMethod.GET:  //todo getList processing
-                    JsonObject jsonTicket = generateGetResponse(snowImdb, trailingParam)
-                    def resultBody = jsonTicket?.encodePrettily() ?: ""
+                    switch (method) {
+                        case HttpMethod.GET:  //todo getList processing
+                            JsonObject jsonTicket = generateGetResponse(snowImdb, trailingParam)
+                            def resultBody = jsonTicket?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    println "returning  get result with length $length to client"
-                    response.end(resultBody)
+                            println "returning  get result with length $length to client"
+                            response.end(resultBody)
 
-                    break
+                            break
 
-                case HttpMethod.POST:
-                    //get post body as Json text
-                    JsonObject postBody = routingContext.getBodyAsJson()
+                        case HttpMethod.POST:
+                            //get post body as Json text
+                            JsonObject postBody = routingContext.getBodyAsJson()
 
-                    JsonObject jsonTicket = generatePostResponse(snowImdb, trailingParam, postBody)
-                    def resultBody = jsonTicket?.encodePrettily() ?: ""
+                            JsonObject jsonTicket = generatePostResponse(snowImdb, trailingParam, postBody)
+                            def resultBody = jsonTicket?.encodePrettily() ?: ""
 
-                    response.putHeader("content-type", "application/json")
-                    def length = resultBody.getBytes().size() ?: 0
-                    response.putHeader("content-length", "$length")
+                            response.putHeader("content-type", "application/json")
+                            def length = resultBody.getBytes().size() ?: 0
+                            response.putHeader("content-length", "$length")
 
-                    println "returning  Post result with length $length to client"
-                    response.end(resultBody)
+                            println "returning  Post result with length $length to client"
+                            response.end(resultBody)
 
-                    break
-            }
+                            break
+                    }
 
-        }
+                }
 
         server.requestHandler(allApiRouter.&accept)
         server.listen(8081, "localhost")

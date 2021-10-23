@@ -22,8 +22,9 @@ import io.vertx.core.json.JsonObject
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class ConnectionService  {
-    @Delegate ConfigurationItem ci
+class ConnectionService {
+    @Delegate
+    ConfigurationItem ci
 
 
     ConnectionService() {
@@ -38,38 +39,36 @@ class ConnectionService  {
     }
 
     //alias method for CI name
-    String getServiceIdentifier () {
+    String getServiceIdentifier() {
         name
     }
 
     /**
      *     catch property missing on map constructor call, and delegate to the embedded ci
      */
-    def propertyMissing (String name) {
+    def propertyMissing(String name) {
         getProperty(name)
     }
 
-    def propertyMissing (String name, value) {
+    def propertyMissing(String name, value) {
         setProperty(name, value)
     }
 
     /**
      * intercept regular property accesses and delegate to embedded ci
      */
-    void setProperty (String name, value) {
+    void setProperty(String name, value) {
         //println "invoked set property for $name with value $value "
         if (!metaClass.hasProperty(this, name)) {
             ci?."$name" = value
-        }
-        else
+        } else
             metaClass.setProperty(this, name, value)
     }
 
-    def getProperty (String name) {
+    def getProperty(String name) {
         if (!metaClass.hasProperty(this, name)) {
             ci?."$name"
-        }
-        else
+        } else
             this.metaClass.getProperty(this, name)
     }
 
@@ -80,23 +79,23 @@ class ConnectionService  {
     JsonObject toJson() {
         def generator = new JsonGenerator.Options()
                 .excludeNulls()
-                .excludeFieldsByType (Class)
-                .excludeFieldsByType (Closure)
+                .excludeFieldsByType(Class)
+                .excludeFieldsByType(Closure)
                 .addConverter(ConcurrentLinkedQueue) { ConcurrentLinkedQueue queue, String key -> queue.toArray() }
                 .addConverter(LocalDateTime) { LocalDateTime t, String key -> t.toString() }
-                .addConverter(UUID) {UUID uuid, String key -> uuid.toString() }
-                .addConverter(Optional) {Optional opt, String key ->
+                .addConverter(UUID) { UUID uuid, String key -> uuid.toString() }
+                .addConverter(Optional) { Optional opt, String key ->
                     if (opt.isPresent())
                         opt.get().toString()
                 }
                 .build()
 
-        String  result = generator.toJson (this)
-        new JsonObject (result)
+        String result = generator.toJson(this)
+        new JsonObject(result)
 
     }
 
-    String toString () {
+    String toString() {
         "ConnectionService (serviceIdentifier:$name, owningSite $site) [type:$ci.type, id:$ci.id]"
     }
 }

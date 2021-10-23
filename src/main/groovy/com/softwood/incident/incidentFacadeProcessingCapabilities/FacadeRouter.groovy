@@ -31,10 +31,10 @@ import com.softwood.incident.adapters.IncidentTicketAdapter
 class FacadeRouter {
 
     //returns an Optional
-    def  route (Alarm alarm, args=null) {
+    def route(Alarm alarm, args = null) {
 
         CiContextResolver resolver = new CiContextResolver()
-        resolver.resolve (alarm, args) {argList ->
+        resolver.resolve(alarm, args) { argList ->
             //implement resolution strategy
 
             def cmdbInstance
@@ -62,7 +62,7 @@ class FacadeRouter {
 
     }
 
-    def route (ConfigurationItem ci) {
+    def route(ConfigurationItem ci) {
         IncidentTicketAdapter ticketAdapter
 
 

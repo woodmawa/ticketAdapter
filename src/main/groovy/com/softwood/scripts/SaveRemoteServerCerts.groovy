@@ -41,7 +41,7 @@ package com.softwood.scripts
  * newly  generated jssecacerts, by default this will be written to env:java.home/lib/security
  * if a jssecacerts exists java will use this instead of the cacerts as delivered file
  * Example:
- *% enableRemoteServerCerts  mail.btinternet.com:465 [default with pwd 'changeit']
+ * % enableRemoteServerCerts  mail.btinternet.com:465 [default with pwd 'changeit']
  */
 
 import javax.net.ssl.*;
@@ -58,9 +58,9 @@ import java.security.cert.X509Certificate;
 
 //use function to grab any remote server certificates e.g. from a mail server and
 //add these to the local jssecacerts file
-enableRemoteServerCerts ("mail.btinternet.com:465", "changeit")
+enableRemoteServerCerts("mail.btinternet.com:465", "changeit")
 
-def enableRemoteServerCerts (hostAndPort, certStorePwd="changeit") {
+def enableRemoteServerCerts(hostAndPort, certStorePwd = "changeit") {
     String host
     int port
     char[] passphrase;
@@ -73,14 +73,14 @@ def enableRemoteServerCerts (hostAndPort, certStorePwd="changeit") {
     KeyStore ks = ManageKeystore.loadKeystore()
     assert ks
 
-    X509Certificate[] chain = AssessCertificateChain.trySLSHandshake (ks, host, port)
+    X509Certificate[] chain = AssessCertificateChain.trySLSHandshake(ks, host, port)
 
     System.out.println("\nServer sent " + chain.length + " certificate(s):\n");
     MessageDigest sha1 = MessageDigest.getInstance("SHA1");
     MessageDigest md5 = MessageDigest.getInstance("MD5");
     for (int i = 0; i < chain.length; i++) {
         X509Certificate cert = chain[i];
-        System.out.println (" " + (i + 1) + " Subject " + cert.getSubjectDN())
+        System.out.println(" " + (i + 1) + " Subject " + cert.getSubjectDN())
         System.out.println("   Issuer  " + cert.getIssuerDN())
         sha1.update(cert.getEncoded())
         System.out.println("   sha1    " + HexUtil.toHexString(sha1.digest()))
@@ -97,7 +97,7 @@ def enableRemoteServerCerts (hostAndPort, certStorePwd="changeit") {
         return
     } else if (line.toLowerCase() == "a") {
         //write all certs to jssecacerts
-        ManageKeystore.addRemoteCertificatesToKeyStore (ks, host, chain)
+        ManageKeystore.addRemoteCertificatesToKeyStore(ks, host, chain)
     } else {
 
         int lineNum = Integer.parseInt(line)
@@ -107,7 +107,7 @@ def enableRemoteServerCerts (hostAndPort, certStorePwd="changeit") {
         }
 
         //write single selected cert to jssecacerts
-        ManageKeystore.addSingleCertificateToKeyStore(ks, "$host-${lineNum}", chain[lineNum-1])
+        ManageKeystore.addSingleCertificateToKeyStore(ks, "$host-${lineNum}", chain[lineNum - 1])
     }
 
     return
@@ -122,7 +122,7 @@ class AssessCertificateChain {
  * @param port
  * @return
  */
-    static X509Certificate[] trySLSHandshake (KeyStore ks, String host, int port) {
+    static X509Certificate[] trySLSHandshake(KeyStore ks, String host, int port) {
         SSLContext context = SSLContext.getInstance("TLS")
         TrustManagerFactory tmf =
                 TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
@@ -166,15 +166,15 @@ class ManageKeystore {
 
     static String passphrase = "changeit"
 
-    static KeyStore loadKeystore (String pwd=null) {
+    static KeyStore loadKeystore(String pwd = null) {
         File stdCertsFile, overrideCertsFile, file
         char SEP = File.separatorChar
 
         def passphrase = pwd ?: "changeit"
 
-        String secDir = System.getProperty("java.home") +SEP + "lib" + SEP + "security"
-        overrideCertsFile = new File (secDir, "jssecacerts")
-        stdCertsFile = new File (secDir, "cacerts")
+        String secDir = System.getProperty("java.home") + SEP + "lib" + SEP + "security"
+        overrideCertsFile = new File(secDir, "jssecacerts")
+        stdCertsFile = new File(secDir, "cacerts")
 
         file = overrideCertsFile.isFile() ?: stdCertsFile
         assert file.exists()
@@ -187,16 +187,16 @@ class ManageKeystore {
         ks
     }
 
-    static def addRemoteCertificatesToKeyStore (KeyStore ks, String remoteHost, X509Certificate[] chain) {
+    static def addRemoteCertificatesToKeyStore(KeyStore ks, String remoteHost, X509Certificate[] chain) {
         X509Certificate cert
         String alias
         int row = 0
         //iterate
-        for (c in chain ){
+        for (c in chain) {
             cert = c
             alias = remoteHost + "-" + (++row)
             println "> adding cert on row $row with alias $alias "
-            addSingleCertificateToKeyStore (ks, alias, cert)
+            addSingleCertificateToKeyStore(ks, alias, cert)
         }
 
     }
@@ -211,13 +211,13 @@ class ManageKeystore {
      * @param cert
      * @return
      */
-    static def addSingleCertificateToKeyStore (KeyStore ks, String hostAlias, X509Certificate cert) {
+    static def addSingleCertificateToKeyStore(KeyStore ks, String hostAlias, X509Certificate cert) {
         ks.setCertificateEntry(hostAlias, cert)
 
         char SEP = File.separatorChar
 
-        String secDir = System.getProperty("java.home") +SEP + "lib" + SEP + "security"
-        File file = new File (secDir,"jssecacerts" )
+        String secDir = System.getProperty("java.home") + SEP + "lib" + SEP + "security"
+        File file = new File(secDir, "jssecacerts")
 
         OutputStream out = new FileOutputStream(file) as OutputStream
         ks.store(out, passphrase.toCharArray())
@@ -225,7 +225,7 @@ class ManageKeystore {
 
         System.out.println(cert)
         System.out.println()
-        System.out.println ("Added certificate to keystore 'jssecacerts' using alias '$hostAlias'")
+        System.out.println("Added certificate to keystore 'jssecacerts' using alias '$hostAlias'")
 
 
     }

@@ -55,13 +55,14 @@ import javax.inject.Inject
 class ManageIncidentFacadeService {
 
     //constructor injection not working - frig
-    @Inject ConfigurableProjectApplication app = Application.application
+    @Inject
+    ConfigurableProjectApplication app = Application.application
 
     //todo make this more dynamic later
-    FacadeRouter router = new FacadeRouter ()
-    CiContextResolver resolver = new CiContextResolver ()
+    FacadeRouter router = new FacadeRouter()
+    CiContextResolver resolver = new CiContextResolver()
 
-    ManageIncidentFacadeService () {
+    ManageIncidentFacadeService() {
         def vertx = app.vertx
 
         def vEventBus = vertx.eventBus()
@@ -78,13 +79,13 @@ class ManageIncidentFacadeService {
 
 
     //handler for alarms published from messaging system, using vertx event messaging
-    void vertxOnCpeAlarm (message) {
+    void vertxOnCpeAlarm(message) {
         Alarm alarm = message.body()
         println "vertx MIFS tracing> on event closure: received alarm $alarm on topic $message.address"
-        def matchedCi = router.route (alarm)  //should match on instances of Device
+        def matchedCi = router.route(alarm)  //should match on instances of Device
         println "vertx MIFS tracing> matched alarm ciReference to ci : $matchedCi"
 
-        matchedCi.each { Device  dci ->
+        matchedCi.each { Device dci ->
 
             def ci = dci.ci
 
@@ -92,7 +93,7 @@ class ManageIncidentFacadeService {
             println "vertx MIFS tracing> resolved ticket adapter to use as : $ticketAdapter, for ci : $ci"
 
             //fixed flow model at present
-            def newTicket = new IncidentTicket (title: "my $ci.category, is broken" ) // as Json - ticketAdapter.createTicket ()
+            def newTicket = new IncidentTicket(title: "my $ci.category, is broken") // as Json - ticketAdapter.createTicket ()
             newTicket.customerName = ci.customer.name
             newTicket.siteName = ci.site?.name
             newTicket.sitePostalCode = ci.site?.postalCode
@@ -114,15 +115,15 @@ ${alarm.eventCharacteristics}
             def text = postBody.encodePrettily()
             println "postBody as $text"
 
-             def stem = Application.application.binding.uriApiStemPath
+            def stem = Application.application.binding.uriApiStemPath
             //HttpRequest request = ticketAdapter.apiPost ("$stem/incident", postBody)//.sendJsonObject (postBody)
-            HttpRequest request = ticketAdapter.apiPost ("$stem/incident", newTicket) {ar ->
-            //ticketAdapter.apiSend (request, postBody)
+            HttpRequest request = ticketAdapter.apiPost("$stem/incident", newTicket) { ar ->
+                //ticketAdapter.apiSend (request, postBody)
 
                 if (ar.statusCode() == 200)
                     println "vertx MIFS tracing> Snow api POST request received response " + ar.bodyAsJsonObject().encodePrettily()
                 else
-                    println "vertx MIFS tracing> error, status: "+ ar.statusMessage()
+                    println "vertx MIFS tracing> error, status: " + ar.statusMessage()
             }
 
         }
